@@ -1,0 +1,21 @@
+<package>
+  <description brief="GUI_modules">
+
+     GUI_modules
+
+  </description>
+  <author>Liam</author>
+  <license>BSD</license>
+  <review status="unreviewed" notes=""/>
+  <url>http://ros.org/wiki/GUI_modules</url>
+
+    <depend package="p2os_driver"/>
+    <depend package="cv_bridge"/>
+    <depend package="move_base_msgs"/>	
+    <depend package="actionlib"/>
+    <depend package="rviz"/>
+    <depend package="robot_comms"/>
+    
+
+</package>
+

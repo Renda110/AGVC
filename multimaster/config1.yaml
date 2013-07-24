@@ -1,0 +1,3 @@
+local_pubs: [joy/wambot1,comms/wambot1]
+foreign_pubs: [/wambot1/map_image/compressed,/wambot1/pose,/wambot1/image/compressed,/ObjectsOfIntrest,robot/comms,/wambot1/costmap, /wambot1/path]
+

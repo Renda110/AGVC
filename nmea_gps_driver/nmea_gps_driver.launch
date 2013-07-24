@@ -1,0 +1,7 @@
+<launch>
+	<node pkg="nmea_gps_driver" type="nmea_gps_driver.py" name="nmea_gps_driver" output="screen">
+		<param name="port" value="/dev/ttyACM0"/>
+		<param name="frame_id" value="base_gps" />
+		<remap from="vel" to="fix_velocity" />
+	</node>
+</launch>

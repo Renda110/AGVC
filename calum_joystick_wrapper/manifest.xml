@@ -1,0 +1,19 @@
+<package>
+  <description brief="calum_joystick_wrapper">
+
+     calum_joystick_wrapper
+
+  </description>
+  <author>wambot</author>
+  <license>BSD</license>
+  <review status="unreviewed" notes=""/>
+  <url>http://ros.org/wiki/calum_joystick_wrapper</url>
+  <depend package="tf"/>
+  <depend package="roscpp"/>
+  <depend package="rospy"/>
+  <depend package="geometry_msgs"/>
+  <depend package="nav_msgs"/>
+
+</package>
+
+

@@ -1,0 +1,9 @@
+data/master.launch.i
+data/stack.xml.i
+data/manifest.xml.i
+data/.hgtags.i
+data/config.yaml.i
+data/master_sync.py.i
+data/mainpage.dox.i
+data/Makefile.i
+data/CMakeLists.txt.i
