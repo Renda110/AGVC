@@ -1,0 +1,23 @@
+<package>
+  <description brief="goal_provider">
+
+     goal_provider
+
+  </description>
+  <author>Enda</author>
+  <license>BSD</license>
+  <review status="unreviewed" notes=""/>
+  <url>http://ros.org/wiki/goal_provider</url>
+  <depend package="roscpp"/>
+  <depend package="std_msgs"/>
+  <depend package="geometry_msgs"/>
+  <depend package="actionlib_msgs"/>
+  <depend package="move_base_msgs"/>
+  <depend package="sensor_msgs"/>
+  <depend package="nav_msgs"/>
+  <depend package="gps_common"/>
+  <depend package="move_base"/>
+
+</package>
+
+

@@ -1,0 +1,9 @@
+<launch>
+  <node name="goal_provider_node" pkg="goal_provider" type="goal_provider_node" output="screen">
+    <param name="callbacks_till_goal_update" value="40"/>
+    <param name="competition_length" value="10" />
+    <param name="time_cutoff" value="8" />
+    <param name="goal_attempt_limit" value="5" />
+    <param name="testing" value="true" />
+  </node>
+</launch>
