@@ -8,7 +8,7 @@ import geometry_msgs.msg
 import std_msgs.msg
 
 class AutonomousStatus(genpy.Message):
-  _md5sum = "94b6bb992d032536763367c493228167"
+  _md5sum = "30cb92794b874ac9d4483e285c969826"
   _type = "goal_provider/AutonomousStatus"
   _has_header = True #flag to mark the presence of a Header object
   _full_text = """Header header
@@ -21,6 +21,7 @@ uint8 status
   uint8 GOAL_ABORTED   = 4            #Movebase aborted our goal
   uint8 GOAL_REACHED   = 5            #We have reached the goal and can start planning for the next one
   uint8 LOST           = 6            #We are lost and don't know what is happening anymore. This is terminal
+  uint8 GOAL_PREEMPTED = 7            #Another goal took priority over this one
 
 std_msgs/String text                         #For extra information
 
@@ -61,6 +62,7 @@ string data
   GOAL_ABORTED = 4
   GOAL_REACHED = 5
   LOST = 6
+  GOAL_PREEMPTED = 7
 
   __slots__ = ['header','goal','status','text']
   _slot_types = ['std_msgs/Header','geometry_msgs/Point','uint8','std_msgs/String']

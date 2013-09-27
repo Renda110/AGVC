@@ -58,6 +58,7 @@ struct AutonomousStatus_ {
   enum { GOAL_ABORTED = 4 };
   enum { GOAL_REACHED = 5 };
   enum { LOST = 6 };
+  enum { GOAL_PREEMPTED = 7 };
 
   typedef boost::shared_ptr< ::goal_provider::AutonomousStatus_<ContainerAllocator> > Ptr;
   typedef boost::shared_ptr< ::goal_provider::AutonomousStatus_<ContainerAllocator>  const> ConstPtr;
@@ -87,12 +88,12 @@ template<class ContainerAllocator>
 struct MD5Sum< ::goal_provider::AutonomousStatus_<ContainerAllocator> > {
   static const char* value() 
   {
-    return "94b6bb992d032536763367c493228167";
+    return "30cb92794b874ac9d4483e285c969826";
   }
 
   static const char* value(const  ::goal_provider::AutonomousStatus_<ContainerAllocator> &) { return value(); } 
-  static const uint64_t static_value1 = 0x94b6bb992d032536ULL;
-  static const uint64_t static_value2 = 0x763367c493228167ULL;
+  static const uint64_t static_value1 = 0x30cb92794b874ac9ULL;
+  static const uint64_t static_value2 = 0xd4483e285c969826ULL;
 };
 
 template<class ContainerAllocator>
@@ -119,6 +120,7 @@ uint8 status\n\
   uint8 GOAL_ABORTED   = 4            #Movebase aborted our goal\n\
   uint8 GOAL_REACHED   = 5            #We have reached the goal and can start planning for the next one\n\
   uint8 LOST           = 6            #We are lost and don't know what is happening anymore. This is terminal\n\
+  uint8 GOAL_PREEMPTED = 7            #Another goal took priority over this one\n\
 \n\
 std_msgs/String text                         #For extra information\n\
 \n\
