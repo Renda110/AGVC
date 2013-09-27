@@ -1,3 +1,5 @@
+#include <stdlib.h>
+
 /**
   A class to represent a Goal.
 
@@ -26,34 +28,60 @@ class Goal
 
     bool operator> (Goal& g)
     {
-      return distanceFromRobot > g.distanceFromRobot;
+        return distanceFromRobot > g.distanceFromRobot;
     }
 
     bool operator>= (Goal& g)
     {
-      return distanceFromRobot > g.distanceFromRobot;
+        return distanceFromRobot > g.distanceFromRobot;
     }
 
     bool operator< (Goal& g)
     {
-      return distanceFromRobot < g.distanceFromRobot;
+        return distanceFromRobot < g.distanceFromRobot;
     }
 
     bool operator<= (Goal& g)
     {
-      return distanceFromRobot <= g.distanceFromRobot;
+        return distanceFromRobot <= g.distanceFromRobot;
     }
 
     bool operator== (Goal& g)
     {
-      double deltaX = (x - g.x);
-      double deltaY = (y - g.y);
+        double deltaX = 0.0;
+        double deltaY = 0.0;
 
-      return (deltaX < 0.001 && deltaX > -0.001) && (deltaY < 0.001 && deltaY > -0.001);
+        if (x >= 0 && g.x >= 0)
+        {
+            deltaX = x - g.x;
+        }
+        else if (x < 0 && g.x < 0)
+        {
+            deltaX = abs(x) - abs(g.x);
+        }
+        else
+        {
+            return false;
+        }
+
+        if (y >= 0 && g.y >= 0)
+        {
+            deltaY = y - g.y;
+        }
+        else if (y < 0 && g.y < 0)
+        {
+            deltaY = abs(y) - abs(g.y);
+        }
+        else
+        {
+            return false;
+        }
+
+        return (deltaX < 0.001 && deltaX > -0.001) && (deltaY < 0.001 && deltaY > -0.001);
     }
 
     bool operator!= (Goal& g)
     {
-      return !(distanceFromRobot == g.distanceFromRobot);
+        return !(distanceFromRobot == g.distanceFromRobot);
     }
 };
