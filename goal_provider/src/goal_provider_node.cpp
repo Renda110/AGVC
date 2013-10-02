@@ -38,6 +38,7 @@ typedef actionlib::SimpleActionClient<move_base_msgs::MoveBaseAction> MoveBaseCl
     This class provides goal data to the move_base navigation stack. A typical goal is simply a GPS position
 
     @author Enda McCauley
+    @date October 2nd 2013
 */
 class GoalProvider
 {
@@ -53,9 +54,11 @@ public:
         }
 
         setOrigin = false;
+        sentFirstGoal = false;
         startTime = ros::Time::now();
         currentCallbackCount = 0;
         goalAttemptCounter = 0;
+        goalAcceptanceCounter = 0;
 
         ROS_INFO("\033[2;32mGoalProvider: Initialized at time: %d.%d\033[0m\n", startTime.sec, startTime.nsec);
 
@@ -77,6 +80,7 @@ public:
         movebaseStatusSubscriber = node.subscribe("move_base/status", 1000, &GoalProvider::movebaseStatusCallback, this);
 
         autonomousStatusPublisher = privateNode.advertise<goal_provider::AutonomousStatus>("/status", 1000);
+        hlOdomPublisher = privateNode.advertise<nav_msgs::Odometry>("/odom", 1000);
     }
 
 private:
@@ -120,6 +124,11 @@ private:
       Field to store the publisher that we publish our status on
     */
     Publisher autonomousStatusPublisher;
+
+    /**
+      Field to store the publisher that the converted Hector Localization odometry is published on
+    */
+    Publisher hlOdomPublisher;
 
     /**
       Field to store the list of Points we need to go to
@@ -180,6 +189,11 @@ private:
       Field to store the current number of position callbacks
     */
     int currentCallbackCount;
+
+    /**
+      Field to store whether or not the goal has been accepted
+    */
+    int goalAcceptanceCounter;
 
     /**
       Callback for the GPS
@@ -277,19 +291,28 @@ private:
                     case actionlib_msgs::GoalStatus::PREEMPTED:
                         ROS_INFO("\033[2;32mGoalProvider: Goal (%f, %f) preempted\033[0m\n", goal.x, goal.y);
                         publishStatus(AutonomousStatus::GOAL_PREEMPTED, "");
+
+                        goalAcceptanceCounter++;
                         break;
 
                     case actionlib_msgs::GoalStatus::ACTIVE:
                         ROS_INFO("\033[2;32mGoalProvider: Goal (%f, %f) accepted\033[0m\n", goal.x, goal.y);
                         publishStatus(AutonomousStatus::GOAL_ACTIVE, "");
+
+                        goalAcceptanceCounter++;
                         break;
 
                     case actionlib_msgs::GoalStatus::SUCCEEDED:
-                        ROS_INFO("\033[2;32mGoalProvider: Goal (%f, %f) reached\033[0m\n", goal.x, goal.y);
-                        publishStatus(AutonomousStatus::GOAL_REACHED, "");
+                        if (goalAcceptanceCounter > 2)
+                        {
+                            goalAcceptanceCounter = 0;
+                            ROS_INFO("\033[2;32mGoalProvider: Goal (%f, %f) reached\033[0m\n", goal.x, goal.y);
+                            publishStatus(AutonomousStatus::GOAL_REACHED, "");
 
-                        removeCurrentGoal();
-                        loadNewGoal();
+                            removeCurrentGoal();
+                            loadNewGoal();
+                        }
+
                         break;
 
                     case actionlib_msgs::GoalStatus::REJECTED:
@@ -308,10 +331,6 @@ private:
                         loadNewGoal(); //Not sure if this will entirely work. This callback may happen more than once before a new goal is pushed out
                         break;
                 }
-            }
-            else
-            {
-                ROS_ERROR("GoalProvider: Movebase status information is empty");
             }
         }
     }
@@ -401,9 +420,9 @@ private:
 
             Goal newGoal = coordsList.front();
 
-            if (newGoal == goal && (goalAttemptCounter >= goalAttemptLimit))
+            if (newGoal == goal && (goalAttemptCounter >= goalAttemptLimit)) //If the goal is the same but the goal limit has been exceeded
             {
-                removeCurrentGoal();
+                removeCurrentGoal(); //delete the current goal and get a new one
 
                 goal = coordsList.front();
 
@@ -415,7 +434,7 @@ private:
                 goalAttemptCounter = 1;
                 sendGoal(); //Send the new one
             }
-            else if (newGoal != goal)
+            else if (newGoal != goal) //If the goal is different to the current one then send it
             {
                 goal = newGoal;
 
@@ -426,10 +445,11 @@ private:
 
                 goalAttemptCounter = 1;
                 sendGoal(); //Send the new one
-            }
+            }//If the closest goal is the same as the current one and the attempt limit is not exceeded then continue onwards
         }
         else
-        {
+        { //Head home
+            goal.distanceFromRobot = sqrt(pow(goal.x, 2) + pow(goal.y, 2));
             goal.x = 0;
             goal.y = 0;
 
@@ -465,12 +485,7 @@ private:
 
         publishStatus(AutonomousStatus::GOAL_WAITING, "");
 
-        mb.sendGoal(target_goal);//, boost::bind(&GoalProvider::doneCb, this, _1, _2));
-    }
-
-    void doneCb(const actionlib::SimpleClientGoalState& state, const move_base_msgs::MoveBaseActionResultConstPtr& result)
-    {
-        ROS_INFO("%s", state.toString().c_str());
+        mb.sendGoal(target_goal);
     }
 
     /**
@@ -494,6 +509,9 @@ private:
     }
 };
 
+/**
+  Entry point for the application
+*/
 int main (int argc, char** argv)
 {
     ros::init(argc, argv, "goal_provider_node");
