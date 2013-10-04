@@ -156,7 +156,7 @@ private:
     bool testing;
 
     /**
-      Field to store whether or not we have sent the first goal
+      Field to store if we have sent the first goal or not
     */
     bool sentFirstGoal;
 
@@ -224,10 +224,20 @@ private:
     */
     void hlPoseCallback(const geometry_msgs::PoseStamped pose)
     {
+        //First convert the PoseStamped into Odometry and publish for use by Movebase
+        nav_msgs::Odometry toPublish;
+
+        toPublish.child_frame_id = "base_link";
+        toPublish.header = pose.header;
+        toPublish.pose.pose = pose.pose;
+
+        hlOdomPublisher.publish(toPublish);
+
         if (setOrigin)
         {
             currentCallbackCount++;
 
+            //Update the distance to all the goals
             for (list<Goal>::iterator it = coordsList.begin(); it != coordsList.end(); it++)
             {
                 double deltaX = (*it).x - (gpsUTMOrigin.x + pose.pose.position.x);
@@ -236,6 +246,7 @@ private:
                 (*it).distanceFromRobot = sqrt(pow(deltaX, 2) + pow(deltaY, 2));
             }
 
+            //If we have done enough position updates then try a goal update
             if (currentCallbackCount >= callbacksUntilGoalUpdate)
             {
                 ROS_INFO("\033[2;32mGoalProvider: Update goal?...\033[0m\n");
@@ -306,17 +317,22 @@ private:
                         if (goalAcceptanceCounter > 2)
                         {
                             goalAcceptanceCounter = 0;
+                            currentCallbackCount = 0;
                             ROS_INFO("\033[2;32mGoalProvider: Goal (%f, %f) reached\033[0m\n", goal.x, goal.y);
                             publishStatus(AutonomousStatus::GOAL_REACHED, "");
 
                             removeCurrentGoal();
-                            loadNewGoal();
+
+                            if (coordsList.size() > 0)
+                            {
+                                loadNewGoal();
+                            }
                         }
 
                         break;
 
                     case actionlib_msgs::GoalStatus::REJECTED:
-                        ROS_ERROR("\033[1;31mGoalProvider: Goal (%f, %f) rejected\033[0m\n", goal.x, goal.y);
+                        ROS_INFO("\033[1;31mGoalProvider: Goal (%f, %f) rejected\033[0m\n", goal.x, goal.y);
                         publishStatus(AutonomousStatus::GOAL_REJECTED, "");
 
                         goalAttemptCounter++;
@@ -324,7 +340,7 @@ private:
                         break;
 
                     case actionlib_msgs::GoalStatus::ABORTED:
-                        ROS_ERROR("\033[1;31mGoalProvider: Goal (%f, %f) aborted\033[0m\n", goal.x, goal.y);
+                        ROS_INFO("\033[1;31mGoalProvider: Goal (%f, %f) aborted\033[0m\n", goal.x, goal.y);
                         publishStatus(AutonomousStatus::GOAL_ABORTED, "");
 
                         goalAttemptCounter++;
@@ -420,28 +436,30 @@ private:
 
             Goal newGoal = coordsList.front();
 
-            if (newGoal == goal && (goalAttemptCounter >= goalAttemptLimit)) //If the goal is the same but the goal limit has been exceeded
+            if (!sentFirstGoal)
             {
+                sentFirstGoal = true;
+
+                ROS_INFO("\033[2;32mGoalProvider: Sending first goal(%f, %f)\033[0m\n", newGoal.x, newGoal.y);
+                goal = newGoal;
+
+                goalAttemptCounter = 1;
+                sendGoal(); //Send the new one
+            }
+            else if (newGoal == goal && (goalAttemptCounter >= goalAttemptLimit)) //If the goal is the same but the goal limit has been exceeded
+            {
+                ROS_INFO("\033[2;33mGoal:Provider: The goal (%f, %f) timed out\033[0m\n", goal.x, goal.y);
                 removeCurrentGoal(); //delete the current goal and get a new one
 
                 goal = coordsList.front();
-
-                if (sentFirstGoal)
-                {
-                    mb.cancelGoal();
-                }
 
                 goalAttemptCounter = 1;
                 sendGoal(); //Send the new one
             }
             else if (newGoal != goal) //If the goal is different to the current one then send it
             {
+                ROS_INFO("\033[2;32mGoalProvider: Goal (%f, %f) replaced goal (%f, %f)\033[0m\n", newGoal.x, newGoal.y, goal.x, goal.y);
                 goal = newGoal;
-
-                if (sentFirstGoal)
-                {
-                    mb.cancelGoal();
-                }
 
                 goalAttemptCounter = 1;
                 sendGoal(); //Send the new one
@@ -453,17 +471,7 @@ private:
             goal.x = 0;
             goal.y = 0;
 
-            if (sentFirstGoal)
-            {
-                mb.cancelGoal();
-            }
-
             sendGoal();
-        }
-
-        if (!sentFirstGoal)
-        {
-            sentFirstGoal = true;
         }
     }
 
