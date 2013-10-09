@@ -1,8 +1,12 @@
 #include <iostream>
+#include <fcntl.h>
 #include <fstream>
 #include <string>
 #include <sstream>
+#include <termios.h>
+#include <time.h>
 #include <vector>
+#include <unistd.h>
 
 #include <ros/ros.h>
 #include <nav_msgs/Odometry.h>
@@ -48,9 +52,13 @@ public:
         NodeHandle node;
         NodeHandle privateNode("~");
 
-        while(!mb.waitForServer(ros::Duration(5.0)))
+        autonomousStatusPublisher = privateNode.advertise<goal_provider::AutonomousStatus>("status", 1000);
+
+        while(!mb.waitForServer(ros::Duration(1.0)))
         {
-            ROS_INFO("\033[2;33mWaiting for the move_base action server to come up\033[0m\n");
+            ROS_INFO("\033[2;33mGoalProvider: Waiting for the Movebase action server to come up\033[0m\n");
+
+            publishStatus(AutonomousStatus::WAITING, "Waiting for the Movebase action server to come up");
         }
 
         setOrigin = false;
@@ -68,19 +76,18 @@ public:
         privateNode.param("goal_attempt_limit", goalAttemptLimit, 5);
         privateNode.param("testing", testing, false);
 
-        ROS_INFO("\033[2;32mCallbacks until goal update set to: %d\033[0m\n", callbacksUntilGoalUpdate);
-        ROS_INFO("\033[2;32mCompetition Length set to: %d\033[0m\n", competitionTimeLimit);
-        ROS_INFO("\033[2;32mTime cutoff set to: %d\033[0m\n", cutoffTime);
-        ROS_INFO("\033[2;32mGoal attempt limit set to: %d\033[0m\n", goalAttemptLimit);
-        ROS_INFO("\033[2;32mTesting set to: %d\033[0m\n", (testing) ? 1 : 0);
+        ROS_INFO("\033[2;32mGoalProvider: Callbacks until goal update set to: %d\033[0m\n", callbacksUntilGoalUpdate);
+        ROS_INFO("\033[2;32mGoalProvider: Competition Length set to: %d\033[0m\n", competitionTimeLimit);
+        ROS_INFO("\033[2;32mGoalProvider: Time cutoff set to: %d\033[0m\n", cutoffTime);
+        ROS_INFO("\033[2;32mGoalProvider: Goal attempt limit set to: %d\033[0m\n", goalAttemptLimit);
+        ROS_INFO("\033[2;32mGoalProvider: Testing set to: %d\033[0m\n", (testing) ? 1 : 0);
 
         gpsSubscriber = node.subscribe("/GPSOfSomeSort", 1000, &GoalProvider::gpsCallback, this);
         hlPoseSubscriber = node.subscribe("localization_pose", 1000, &GoalProvider::hlPoseCallback, this);
         movebaseFeedbackSubscriber = node.subscribe("move_base/feedback", 1000, &GoalProvider::movebaseFeedbackCallback, this);
         movebaseStatusSubscriber = node.subscribe("move_base/status", 1000, &GoalProvider::movebaseStatusCallback, this);
 
-        autonomousStatusPublisher = privateNode.advertise<goal_provider::AutonomousStatus>("/status", 1000);
-        hlOdomPublisher = privateNode.advertise<nav_msgs::Odometry>("/odom", 1000);
+        hlOdomPublisher = privateNode.advertise<nav_msgs::Odometry>("odom", 1000);
     }
 
 private:
@@ -248,8 +255,10 @@ private:
 
             //If we have done enough position updates then try a goal update
             if (currentCallbackCount >= callbacksUntilGoalUpdate)
-            {
+            {                
                 ROS_INFO("\033[2;32mGoalProvider: Update goal?...\033[0m\n");
+                publishStatus(AutonomousStatus::UPDATING, "Update Goal?");
+
 
                 loadNewGoal();
                 currentCallbackCount = 0;
@@ -288,27 +297,34 @@ private:
     {
         if (setOrigin)
         {
-            if (movebase_status.status_list.size() > 0)
+            if (movebase_status.status_list.size() > 0 && coordsList.size() > 0)
             {
                 actionlib_msgs::GoalStatus s = movebase_status.status_list.front();
+                char buffer[200];
 
                 switch (s.status)
                 {
                     case actionlib_msgs::GoalStatus::PENDING:
                         ROS_INFO("\033[2;32mGoalProvider: Goal (%f, %f) is pending\033[0m\n", goal.x, goal.y);
-                        publishStatus(AutonomousStatus::GOAL_WAITING, "");
+
+                        sprintf(buffer, "Goal (%f, %f) is pending", goal.x, goal.y);
+                        publishStatus(AutonomousStatus::WAITING, buffer);
                         break;
 
                     case actionlib_msgs::GoalStatus::PREEMPTED:
                         ROS_INFO("\033[2;32mGoalProvider: Goal (%f, %f) preempted\033[0m\n", goal.x, goal.y);
-                        publishStatus(AutonomousStatus::GOAL_PREEMPTED, "");
+
+                        sprintf(buffer, "Goal (%f, %f) preempted", goal.x, goal.y);
+                        publishStatus(AutonomousStatus::PREEMPTED, buffer);
 
                         goalAcceptanceCounter++;
                         break;
 
                     case actionlib_msgs::GoalStatus::ACTIVE:
                         ROS_INFO("\033[2;32mGoalProvider: Goal (%f, %f) accepted\033[0m\n", goal.x, goal.y);
-                        publishStatus(AutonomousStatus::GOAL_ACTIVE, "");
+
+                        sprintf(buffer, "Goal (%f, %f) accepted", goal.x, goal.y);
+                        publishStatus(AutonomousStatus::ACTIVE, buffer);
 
                         goalAcceptanceCounter++;
                         break;
@@ -319,7 +335,9 @@ private:
                             goalAcceptanceCounter = 0;
                             currentCallbackCount = 0;
                             ROS_INFO("\033[2;32mGoalProvider: Goal (%f, %f) reached\033[0m\n", goal.x, goal.y);
-                            publishStatus(AutonomousStatus::GOAL_REACHED, "");
+
+                            sprintf(buffer, "Goal (%f, %f) reached", goal.x, goal.y);
+                            publishStatus(AutonomousStatus::REACHED, buffer);
 
                             removeCurrentGoal();
 
@@ -333,7 +351,9 @@ private:
 
                     case actionlib_msgs::GoalStatus::REJECTED:
                         ROS_INFO("\033[1;31mGoalProvider: Goal (%f, %f) rejected\033[0m\n", goal.x, goal.y);
-                        publishStatus(AutonomousStatus::GOAL_REJECTED, "");
+
+                        sprintf(buffer, "Goal (%f, %f) rejected", goal.x, goal.y);
+                        publishStatus(AutonomousStatus::REJECTED, buffer);
 
                         goalAttemptCounter++;
                         loadNewGoal();
@@ -341,7 +361,9 @@ private:
 
                     case actionlib_msgs::GoalStatus::ABORTED:
                         ROS_INFO("\033[1;31mGoalProvider: Goal (%f, %f) aborted\033[0m\n", goal.x, goal.y);
-                        publishStatus(AutonomousStatus::GOAL_ABORTED, "");
+
+                        sprintf(buffer, "Goal (%f, %f) aborted", goal.x, goal.y);
+                        publishStatus(AutonomousStatus::ABORTED, buffer);
 
                         goalAttemptCounter++;
                         loadNewGoal(); //Not sure if this will entirely work. This callback may happen more than once before a new goal is pushed out
@@ -361,6 +383,8 @@ private:
         if (!configFile.is_open())
         {
             ROS_ERROR("\033[1;31mGoalProvider: Could not load config file\033[0m\n");
+            publishStatus(AutonomousStatus::ERROR, "Could not load config file");
+
         }
         else
         {
@@ -380,6 +404,10 @@ private:
                 if (!(iss >> latitude >> longitude))
                 {
                     ROS_ERROR("\033[1;31mGoalProvider: Could not read in GPS data on line %i\033[0m\n", lineNumber);
+
+                    char buffer[200];
+                    sprintf(buffer, "Could not read in the GPS data on %i", lineNumber);
+                    publishStatus(AutonomousStatus::ERROR, buffer);
                     break;
                 }
 
@@ -393,6 +421,10 @@ private:
 
                     ROS_INFO("\033[2;32mGoalProvider: Read in and converted GPS to UTM: (x: %f, y: %f, distance: %f)\033[0m\n", p.x, p.y, p.distanceFromRobot);
 
+                    char buffer[200];
+                    sprintf(buffer, "Read in and converted GPS to UTM: (x: %f, y: %f, distance: %f)", p.x, p.y, p.distanceFromRobot);
+                    publishStatus(AutonomousStatus::INFO, buffer);
+
                     coordsList.push_front(p);
                 }
                 else
@@ -403,6 +435,10 @@ private:
                     p.distanceFromRobot = sqrt(pow((p.x - gpsUTMOrigin.x), 2) + pow((p.y - gpsUTMOrigin.y), 2));
 
                     ROS_INFO("\033[2;32mGoalProvider: Read in local coordinates: (x: %f, y: %f, distance: %f)\033[0m\n", p.x, p.y, p.distanceFromRobot);
+
+                    char buffer[200];
+                    sprintf(buffer, "Read in local coordinates: (x: %f, y: %f, distance: %f)", p.x, p.y, p.distanceFromRobot);
+                    publishStatus(AutonomousStatus::INFO, buffer);
 
                     coordsList.push_front(p);
                 }
@@ -436,12 +472,17 @@ private:
 
             Goal newGoal = coordsList.front();
 
+            char buffer[200];
+
             if (!sentFirstGoal)
             {
                 sentFirstGoal = true;
 
                 ROS_INFO("\033[2;32mGoalProvider: Sending first goal(%f, %f)\033[0m\n", newGoal.x, newGoal.y);
                 goal = newGoal;
+
+                sprintf(buffer, "Sending first goal(%f, %f)", newGoal.x, newGoal.y);
+                publishStatus(AutonomousStatus::INFO, buffer);
 
                 goalAttemptCounter = 1;
                 sendGoal(); //Send the new one
@@ -450,6 +491,9 @@ private:
             {
                 ROS_INFO("\033[2;33mGoal:Provider: The goal (%f, %f) timed out\033[0m\n", goal.x, goal.y);
                 removeCurrentGoal(); //delete the current goal and get a new one
+
+                sprintf(buffer, "The goal (%f, %f) timed out", goal.x, goal.y);
+                publishStatus(AutonomousStatus::INFO, buffer);
 
                 goal = coordsList.front();
 
@@ -460,6 +504,9 @@ private:
             {
                 ROS_INFO("\033[2;32mGoalProvider: Goal (%f, %f) replaced goal (%f, %f)\033[0m\n", newGoal.x, newGoal.y, goal.x, goal.y);
                 goal = newGoal;
+
+                sprintf(buffer, "Goal (%f, %f) replaced goal (%f, %f)", newGoal.x, newGoal.y, goal.x, goal.y);
+                publishStatus(AutonomousStatus::INFO, buffer);
 
                 goalAttemptCounter = 1;
                 sendGoal(); //Send the new one
@@ -491,7 +538,9 @@ private:
 
         ROS_INFO("\033[2;33mGoalProvider: Attempting to send goal (%f, %f). Distance %f m\033[0m\n", goal.x, goal.y, goal.distanceFromRobot);
 
-        publishStatus(AutonomousStatus::GOAL_WAITING, "");
+        char buffer[200];
+        sprintf(buffer, "Attempting to send goal (%f, %f). Distance %f m", goal.x, goal.y, goal.distanceFromRobot);
+        publishStatus(AutonomousStatus::WAITING, buffer);
 
         mb.sendGoal(target_goal);
     }
@@ -524,10 +573,104 @@ int main (int argc, char** argv)
 {
     ros::init(argc, argv, "goal_provider_node");
 
+    //writeToSerial(5);
+
+    string input = "";
+    cout << "\n\033[2;32mGoalProvider: Press enter to start\033[0m" << endl;
+    getline(cin, input);
+
+    //writeToSerial(10);
+
     GoalProvider node;
 
     ros::spin();
 
     return 0;
+}
+
+/**
+  Function to write to serial for communication with an Arduino (hard method)
+  @param value The value to send
+*/
+void writeToSerialHardMethod(int value)
+{
+    int fileDescription = open("/dev/ttyS0", O_RDWR | O_NOCTTY | O_NDELAY);
+
+    if (fileDescription == -1)
+    {
+        ROS_ERROR("\033[1;31mGoalProvider: Could not open serial connection\033[0m\n");
+    }
+    else
+    {
+        fcntl(fileDescription, F_SETFL, 0);
+
+        //http://www.cplusplus.com/forum/beginner/6914/
+        struct termios port_settings;      // structure to store the port settings in
+
+        cfsetispeed(&port_settings, B115200);    // set baud rates
+        cfsetospeed(&port_settings, B115200);
+
+        port_settings.c_cflag &= ~PARENB;    // set no parity, stop bits, data bits
+        port_settings.c_cflag &= ~CSTOPB;
+        port_settings.c_cflag &= ~CSIZE;
+        port_settings.c_cflag |= CS8;
+
+        tcsetattr(fileDescription, TCSANOW, &port_settings);    // apply the settings to the port
+
+        char n;
+        fd_set rdfs;
+        struct timeval timeout;
+
+        // initialise the timeout structure
+        timeout.tv_sec = 10; // ten second timeout
+        timeout.tv_usec = 0;
+
+        char buffer[10];
+        sprintf(buffer, "%i\n", value);
+
+        write(fileDescription, buffer, 2);
+        printf("Wrote the bytes. \n");
+
+        // do the select
+        n = select(fileDescription + 1, &rdfs, NULL, NULL, &timeout);
+
+        // check if an error has occured
+        if(n < 0)
+        {
+            ROS_ERROR("select failed\n");
+        }
+        else if (n == 0)
+        {
+            ROS_ERROR("Timeout!");
+        }
+        else
+        {
+            ROS_INFO("\nBytes detected on the port!\n");
+        }
+
+        close(fileDescription);
+    }
+}
+
+/**
+  Function to write to Arduino using serial port (easy method)
+  @param value The value to write
+*/
+void writeToSerialEasyMethod(int value)
+{
+    fstream serial;
+
+    serial.open("/dev/ttyS0");
+
+    if (serial.is_open())
+    {
+        serial << value;
+    }
+    else
+    {
+        ROS_ERROR("Could not open serial port");
+    }
+
+    serial.close();
 }
 

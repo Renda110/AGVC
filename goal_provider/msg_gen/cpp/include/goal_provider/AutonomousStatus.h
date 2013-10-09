@@ -52,13 +52,16 @@ struct AutonomousStatus_ {
   typedef  ::std_msgs::String_<ContainerAllocator>  _text_type;
    ::std_msgs::String_<ContainerAllocator>  text;
 
-  enum { GOAL_ACTIVE = 1 };
-  enum { GOAL_WAITING = 2 };
-  enum { GOAL_REJECTED = 3 };
-  enum { GOAL_ABORTED = 4 };
-  enum { GOAL_REACHED = 5 };
+  enum { ACTIVE = 1 };
+  enum { WAITING = 2 };
+  enum { REJECTED = 3 };
+  enum { ABORTED = 4 };
+  enum { REACHED = 5 };
   enum { LOST = 6 };
-  enum { GOAL_PREEMPTED = 7 };
+  enum { PREEMPTED = 7 };
+  enum { UPDATING = 8 };
+  enum { ERROR = 9 };
+  enum { INFO = 10 };
 
   typedef boost::shared_ptr< ::goal_provider::AutonomousStatus_<ContainerAllocator> > Ptr;
   typedef boost::shared_ptr< ::goal_provider::AutonomousStatus_<ContainerAllocator>  const> ConstPtr;
@@ -88,12 +91,12 @@ template<class ContainerAllocator>
 struct MD5Sum< ::goal_provider::AutonomousStatus_<ContainerAllocator> > {
   static const char* value() 
   {
-    return "30cb92794b874ac9d4483e285c969826";
+    return "ea7b197e2bb17b8ba245241eff172721";
   }
 
   static const char* value(const  ::goal_provider::AutonomousStatus_<ContainerAllocator> &) { return value(); } 
-  static const uint64_t static_value1 = 0x30cb92794b874ac9ULL;
-  static const uint64_t static_value2 = 0xd4483e285c969826ULL;
+  static const uint64_t static_value1 = 0xea7b197e2bb17b8bULL;
+  static const uint64_t static_value2 = 0xa245241eff172721ULL;
 };
 
 template<class ContainerAllocator>
@@ -114,13 +117,16 @@ struct Definition< ::goal_provider::AutonomousStatus_<ContainerAllocator> > {
 geometry_msgs/Point goal            #The goal we are heading to\n\
 \n\
 uint8 status\n\
-  uint8 GOAL_ACTIVE    = 1            #We are actively heading to a goal\n\
-  uint8 GOAL_WAITING   = 2            #We are waiting for a goal to be accepted by move_base\n\
-  uint8 GOAL_REJECTED  = 3            #Movebase rejected our goal\n\
-  uint8 GOAL_ABORTED   = 4            #Movebase aborted our goal\n\
-  uint8 GOAL_REACHED   = 5            #We have reached the goal and can start planning for the next one\n\
-  uint8 LOST           = 6            #We are lost and don't know what is happening anymore. This is terminal\n\
-  uint8 GOAL_PREEMPTED = 7            #Another goal took priority over this one\n\
+  uint8 ACTIVE    = 1            #We are actively heading to a goal\n\
+  uint8 WAITING   = 2            #We are waiting for a goal to be accepted by move_base\n\
+  uint8 REJECTED  = 3            #Movebase rejected our goal\n\
+  uint8 ABORTED   = 4            #Movebase aborted our goal\n\
+  uint8 REACHED   = 5            #We have reached the goal and can start planning for the next one\n\
+  uint8 LOST      = 6            #We are lost and don't know what is happening anymore. This is terminal\n\
+  uint8 PREEMPTED = 7            #Another goal took priority over this one\n\
+  uint8 UPDATING  = 8            #Updating the goal or not\n\
+  uint8 ERROR     = 9            #Goal provider has gone gammy\n\
+  uint8 INFO      = 10           #INFO message\n\
 \n\
 std_msgs/String text                         #For extra information\n\
 \n\
