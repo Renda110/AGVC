@@ -1,6 +1,7 @@
 #include <iostream>
 #include <fcntl.h>
 #include <fstream>
+#include <math.h>
 #include <string>
 #include <sstream>
 #include <termios.h>
@@ -11,6 +12,7 @@
 #include <ros/ros.h>
 #include <nav_msgs/Odometry.h>
 #include <sensor_msgs/NavSatFix.h>
+#include <sensor_msgs/Imu.h>
 #include <geometry_msgs/Point.h>
 #include <geometry_msgs/PoseStamped.h>
 
@@ -35,6 +37,9 @@ using namespace ros;
 using namespace std;
 
 typedef actionlib::SimpleActionClient<move_base_msgs::MoveBaseAction> MoveBaseClient;
+
+#define PI 3.14159265
+#define d2r PI/180
 
 /**
     The GoalProvider class.
@@ -61,12 +66,14 @@ public:
             publishStatus(AutonomousStatus::WAITING, "Waiting for the Movebase action server to come up");
         }
 
-        setOrigin = false;
+        setStartingPosition = false;
+        setStartingOrientation = false;
         sentFirstGoal = false;
         startTime = ros::Time::now();
         currentCallbackCount = 0;
         goalAttemptCounter = 0;
         goalAcceptanceCounter = 0;
+        angleOffNorth = 0.0;
 
         ROS_INFO("\033[2;32mGoalProvider: Initialized at time: %d.%d\033[0m\n", startTime.sec, startTime.nsec);
 
@@ -82,7 +89,8 @@ public:
         ROS_INFO("\033[2;32mGoalProvider: Goal attempt limit set to: %d\033[0m\n", goalAttemptLimit);
         ROS_INFO("\033[2;32mGoalProvider: Testing set to: %d\033[0m\n", (testing) ? 1 : 0);
 
-        gpsSubscriber = node.subscribe("/GPSOfSomeSort", 1000, &GoalProvider::gpsCallback, this);
+        gpsSubscriber = node.subscribe("/fix", 1000, &GoalProvider::gpsCallback, this);
+        imuSubscriber = node.subscribe("/raw_imu", 1000, &GoalProvider::imuCallback, this);
         hlPoseSubscriber = node.subscribe("localization_pose", 1000, &GoalProvider::hlPoseCallback, this);
         movebaseFeedbackSubscriber = node.subscribe("move_base/feedback", 1000, &GoalProvider::movebaseFeedbackCallback, this);
         movebaseStatusSubscriber = node.subscribe("move_base/status", 1000, &GoalProvider::movebaseStatusCallback, this);
@@ -116,6 +124,11 @@ private:
       Field to store the hector_localization/localization_pose subscriber
     */
     Subscriber hlPoseSubscriber;
+
+    /**
+      Field to store the IMU subscriber
+    */
+    Subscriber imuSubscriber;
 
     /**
       Field to store the movebase feedback subscriber
@@ -153,9 +166,14 @@ private:
     Goal goal;
 
     /**
-      Field to store the number of times we have set out origin
+      Field to store whether or not we have set our starting absolute position
     */
-    bool setOrigin;
+    bool setStartingPosition;
+
+    /**
+      Field to store whether or not we have set our starting absolute orientation
+    */
+    bool setStartingOrientation;
 
     /**
       Field to store if we are testing without GPS or not
@@ -166,6 +184,11 @@ private:
       Field to store if we have sent the first goal or not
     */
     bool sentFirstGoal;
+
+    /**
+      Field to store the angle off of magnetic north that the robot started at
+    */
+    double angleOffNorth;
 
     /**
       Field to store the number of position callbacks that need to be made before we update our goal
@@ -206,22 +229,56 @@ private:
       Callback for the GPS
       @param odom The odometry data
     */
-    void gpsCallback(const nav_msgs::Odometry& odom)
+    void gpsCallback(const sensor_msgs::NavSatFix fix)
     {
-        if (!setOrigin && !testing)
+        if (!setStartingPosition && !testing)
         {
-            gpsUTMOrigin.x = odom.pose.pose.position.x;
-            gpsUTMOrigin.y = odom.pose.pose.position.y;
+            string utmZone = "";
+            double northing = 0.0;
+            double easting = 0.0;           
 
-            setOrigin = true;
+            gps_common::LLtoUTM((-1 * fix.latitude), fix.longitude, northing, easting, utmZone); //Invert latitude as we are in the southern half
 
-            //Read in config file
-            readConfigFile();
+            gpsUTMOrigin.x = northing;
+            gpsUTMOrigin.y = easting;
 
-            //Push out the first goal
-            loadNewGoal();
+            setStartingPosition = true;
 
-            goalAttemptLimit++;
+            if (setStartingOrientation)
+            {
+                //Read in config file
+                readConfigFile();
+
+                //Push out the first goal
+                loadNewGoal();
+
+                goalAttemptLimit++;
+            }
+        }
+    }
+
+    /**
+      Callback for the IMU
+      @param imu The IMU data
+    */
+    void imuCallback(const sensor_msgs::Imu imu)
+    {
+        if (!setStartingOrientation)
+        {
+            angleOffNorth = (180 * imu.orientation.z) - 1.617; //Minus 1.617 because magnetic and true north are not the same. This will need changing for the competition
+
+            setStartingOrientation = true;
+
+            if (setStartingPosition)
+            {
+                //Read in config file
+                readConfigFile();
+
+                //Push out the first goal
+                loadNewGoal();
+
+                goalAttemptLimit++;
+            }
         }
     }
 
@@ -240,15 +297,15 @@ private:
 
         hlOdomPublisher.publish(toPublish);
 
-        if (setOrigin)
+        if (setStartingPosition)
         {
             currentCallbackCount++;
 
             //Update the distance to all the goals
             for (list<Goal>::iterator it = coordsList.begin(); it != coordsList.end(); it++)
             {
-                double deltaX = (*it).x - (gpsUTMOrigin.x + pose.pose.position.x);
-                double deltaY = (*it).y - (gpsUTMOrigin.y + pose.pose.position.y);
+                double deltaX = (*it).x - pose.pose.position.x;
+                double deltaY = (*it).y - pose.pose.position.y;
 
                 (*it).distanceFromRobot = sqrt(pow(deltaX, 2) + pow(deltaY, 2));
             }
@@ -259,12 +316,11 @@ private:
                 ROS_INFO("\033[2;32mGoalProvider: Update goal?...\033[0m\n");
                 publishStatus(AutonomousStatus::UPDATING, "Update Goal?");
 
-
                 loadNewGoal();
                 currentCallbackCount = 0;
             }
         }
-        else if (testing && !setOrigin)
+        else if (testing && !setStartingPosition)
         {
             gpsUTMOrigin.x = pose.pose.position.x;
             gpsUTMOrigin.y = pose.pose.position.y;
@@ -274,7 +330,7 @@ private:
 
             goalAttemptCounter++;
 
-            setOrigin = true;
+            setStartingPosition = true;
         }
     }
 
@@ -295,7 +351,7 @@ private:
     */
     void movebaseStatusCallback(const actionlib_msgs::GoalStatusArray movebase_status)
     {
-        if (setOrigin)
+        if (setStartingPosition)
         {
             if (movebase_status.status_list.size() > 0 && coordsList.size() > 0)
             {
@@ -415,9 +471,25 @@ private:
                 {
                     latitude *= -1; //Invert latitude as we are in the southern half
 
-                    gps_common::LLtoUTM(latitude, longitude, p.y, p.x, utmZone);
+                    gps_common::LLtoUTM(latitude, longitude, p.x, p.y, utmZone);
 
-                    p.distanceFromRobot = sqrt(pow((p.x - gpsUTMOrigin.x), 2) + pow((p.y - gpsUTMOrigin.y), 2));
+                    p.x -= gpsUTMOrigin.x;
+                    p.y -= gpsUTMOrigin.y;
+
+                    p.y *= -1; //Flip this so that it is the correct direction for the robot
+
+                    p.distanceFromRobot = sqrt(pow((p.x), 2) + pow((p.y), 2));
+
+                    if (angleOffNorth >= 0)
+                    {
+                        p.x = (p.x * cos(angleOffNorth*PI/180)) - (p.y * sin(angleOffNorth*PI/180));
+                        p.y = (p.x * sin(angleOffNorth*PI/180)) + (p.y * cos(angleOffNorth*PI/180));
+                    }
+                    else
+                    {
+                        p.x = (p.x * cos(angleOffNorth*PI/180)) + (p.y * sin(angleOffNorth*PI/180));
+                        p.y = -(p.x * sin(angleOffNorth*PI/180)) + (p.y * cos(angleOffNorth*PI/180));
+                    }
 
                     ROS_INFO("\033[2;32mGoalProvider: Read in and converted GPS to UTM: (x: %f, y: %f, distance: %f)\033[0m\n", p.x, p.y, p.distanceFromRobot);
 
