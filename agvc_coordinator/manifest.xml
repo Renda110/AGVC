@@ -1,0 +1,18 @@
+<package>
+  <description brief="agvc_coordinator">
+
+     agvc_coordinator
+
+  </description>
+  <author>Enda</author>
+  <license>BSD</license>
+  <review status="unreviewed" notes=""/>
+  <url>http://ros.org/wiki/agvc_coordinator</url>
+  <depend package="roscpp"/>
+  <depend package="std_msgs"/>
+  <depend package="sensor_msgs"/>
+ <!-- <depend package="joy"/> -->
+
+</package>
+
+
