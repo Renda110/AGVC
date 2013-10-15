@@ -17,40 +17,6 @@
             <DistClean command="/usr/bin/make -f &quot;/home/enda/fuerte_workspace/sandbox/agvc_coordinator/Makefile&quot;  VERBOSE=1 clean" />
          </MakeCommands>
       </Target>
-      <Target title="AGVC_Coordinator">
-         <Option output="/home/enda/fuerte_workspace/sandbox/agvc_coordinator/bin/AGVC_Coordinator" prefix_auto="0" extension_auto="0" />
-         <Option working_dir="/home/enda/fuerte_workspace/sandbox/agvc_coordinator/bin" />
-         <Option object_output="./" />
-         <Option type="1" />
-         <Option compiler="gcc" />
-         <Compiler>
-            <Add directory="/home/enda/fuerte_workspace/sandbox/agvc_coordinator/include" />
-            <Add directory="/opt/ros/fuerte/include" />
-         </Compiler>
-         <MakeCommands>
-            <Build command="/usr/bin/make -f &quot;/home/enda/fuerte_workspace/sandbox/agvc_coordinator/Makefile&quot;  VERBOSE=1 AGVC_Coordinator" />
-            <CompileFile command="/usr/bin/make -f &quot;/home/enda/fuerte_workspace/sandbox/agvc_coordinator/Makefile&quot;  VERBOSE=1 &quot;$file&quot;" />
-            <Clean command="/usr/bin/make -f &quot;/home/enda/fuerte_workspace/sandbox/agvc_coordinator/Makefile&quot;  VERBOSE=1 clean" />
-            <DistClean command="/usr/bin/make -f &quot;/home/enda/fuerte_workspace/sandbox/agvc_coordinator/Makefile&quot;  VERBOSE=1 clean" />
-         </MakeCommands>
-      </Target>
-      <Target title="AGVC_Coordinator/fast">
-         <Option output="/home/enda/fuerte_workspace/sandbox/agvc_coordinator/bin/AGVC_Coordinator" prefix_auto="0" extension_auto="0" />
-         <Option working_dir="/home/enda/fuerte_workspace/sandbox/agvc_coordinator/bin" />
-         <Option object_output="./" />
-         <Option type="1" />
-         <Option compiler="gcc" />
-         <Compiler>
-            <Add directory="/home/enda/fuerte_workspace/sandbox/agvc_coordinator/include" />
-            <Add directory="/opt/ros/fuerte/include" />
-         </Compiler>
-         <MakeCommands>
-            <Build command="/usr/bin/make -f &quot;/home/enda/fuerte_workspace/sandbox/agvc_coordinator/Makefile&quot;  VERBOSE=1 AGVC_Coordinator/fast" />
-            <CompileFile command="/usr/bin/make -f &quot;/home/enda/fuerte_workspace/sandbox/agvc_coordinator/Makefile&quot;  VERBOSE=1 &quot;$file&quot;" />
-            <Clean command="/usr/bin/make -f &quot;/home/enda/fuerte_workspace/sandbox/agvc_coordinator/Makefile&quot;  VERBOSE=1 clean" />
-            <DistClean command="/usr/bin/make -f &quot;/home/enda/fuerte_workspace/sandbox/agvc_coordinator/Makefile&quot;  VERBOSE=1 clean" />
-         </MakeCommands>
-      </Target>
       <Target title="ROSBUILD_genmsg_cpp">
          <Option working_dir="/home/enda/fuerte_workspace/sandbox/agvc_coordinator" />
          <Option type="4" />
@@ -86,6 +52,58 @@
          <Option type="4" />
          <MakeCommands>
             <Build command="/usr/bin/make -f &quot;/home/enda/fuerte_workspace/sandbox/agvc_coordinator/Makefile&quot;  VERBOSE=1 ROSBUILD_gensrv_lisp" />
+            <CompileFile command="/usr/bin/make -f &quot;/home/enda/fuerte_workspace/sandbox/agvc_coordinator/Makefile&quot;  VERBOSE=1 &quot;$file&quot;" />
+            <Clean command="/usr/bin/make -f &quot;/home/enda/fuerte_workspace/sandbox/agvc_coordinator/Makefile&quot;  VERBOSE=1 clean" />
+            <DistClean command="/usr/bin/make -f &quot;/home/enda/fuerte_workspace/sandbox/agvc_coordinator/Makefile&quot;  VERBOSE=1 clean" />
+         </MakeCommands>
+      </Target>
+      <Target title="agvc_coordinator">
+         <Option output="/home/enda/fuerte_workspace/sandbox/agvc_coordinator/bin/agvc_coordinator" prefix_auto="0" extension_auto="0" />
+         <Option working_dir="/home/enda/fuerte_workspace/sandbox/agvc_coordinator/bin" />
+         <Option object_output="./" />
+         <Option type="1" />
+         <Option compiler="gcc" />
+         <Compiler>
+            <Add directory="/home/enda/fuerte_workspace/sandbox/agvc_coordinator/include" />
+            <Add directory="/home/enda/fuerte_workspace/sandbox/p2os/p2os_driver/include" />
+            <Add directory="/home/enda/fuerte_workspace/sandbox/p2os/p2os_driver/msg/cpp" />
+            <Add directory="/home/enda/fuerte_workspace/sandbox/p2os/p2os_driver/msg_gen/cpp/include" />
+            <Add directory="/opt/ros/fuerte/include" />
+            <Add directory="/opt/ros/fuerte/stacks/bullet/include" />
+            <Add directory="/opt/ros/fuerte/stacks/diagnostics/diagnostic_updater/include" />
+            <Add directory="/opt/ros/fuerte/stacks/geometry/angles/include" />
+            <Add directory="/opt/ros/fuerte/stacks/geometry/tf/include" />
+            <Add directory="/opt/ros/fuerte/stacks/geometry/tf/msg_gen/cpp/include" />
+            <Add directory="/opt/ros/fuerte/stacks/geometry/tf/srv_gen/cpp/include" />
+         </Compiler>
+         <MakeCommands>
+            <Build command="/usr/bin/make -f &quot;/home/enda/fuerte_workspace/sandbox/agvc_coordinator/Makefile&quot;  VERBOSE=1 agvc_coordinator" />
+            <CompileFile command="/usr/bin/make -f &quot;/home/enda/fuerte_workspace/sandbox/agvc_coordinator/Makefile&quot;  VERBOSE=1 &quot;$file&quot;" />
+            <Clean command="/usr/bin/make -f &quot;/home/enda/fuerte_workspace/sandbox/agvc_coordinator/Makefile&quot;  VERBOSE=1 clean" />
+            <DistClean command="/usr/bin/make -f &quot;/home/enda/fuerte_workspace/sandbox/agvc_coordinator/Makefile&quot;  VERBOSE=1 clean" />
+         </MakeCommands>
+      </Target>
+      <Target title="agvc_coordinator/fast">
+         <Option output="/home/enda/fuerte_workspace/sandbox/agvc_coordinator/bin/agvc_coordinator" prefix_auto="0" extension_auto="0" />
+         <Option working_dir="/home/enda/fuerte_workspace/sandbox/agvc_coordinator/bin" />
+         <Option object_output="./" />
+         <Option type="1" />
+         <Option compiler="gcc" />
+         <Compiler>
+            <Add directory="/home/enda/fuerte_workspace/sandbox/agvc_coordinator/include" />
+            <Add directory="/home/enda/fuerte_workspace/sandbox/p2os/p2os_driver/include" />
+            <Add directory="/home/enda/fuerte_workspace/sandbox/p2os/p2os_driver/msg/cpp" />
+            <Add directory="/home/enda/fuerte_workspace/sandbox/p2os/p2os_driver/msg_gen/cpp/include" />
+            <Add directory="/opt/ros/fuerte/include" />
+            <Add directory="/opt/ros/fuerte/stacks/bullet/include" />
+            <Add directory="/opt/ros/fuerte/stacks/diagnostics/diagnostic_updater/include" />
+            <Add directory="/opt/ros/fuerte/stacks/geometry/angles/include" />
+            <Add directory="/opt/ros/fuerte/stacks/geometry/tf/include" />
+            <Add directory="/opt/ros/fuerte/stacks/geometry/tf/msg_gen/cpp/include" />
+            <Add directory="/opt/ros/fuerte/stacks/geometry/tf/srv_gen/cpp/include" />
+         </Compiler>
+         <MakeCommands>
+            <Build command="/usr/bin/make -f &quot;/home/enda/fuerte_workspace/sandbox/agvc_coordinator/Makefile&quot;  VERBOSE=1 agvc_coordinator/fast" />
             <CompileFile command="/usr/bin/make -f &quot;/home/enda/fuerte_workspace/sandbox/agvc_coordinator/Makefile&quot;  VERBOSE=1 &quot;$file&quot;" />
             <Clean command="/usr/bin/make -f &quot;/home/enda/fuerte_workspace/sandbox/agvc_coordinator/Makefile&quot;  VERBOSE=1 clean" />
             <DistClean command="/usr/bin/make -f &quot;/home/enda/fuerte_workspace/sandbox/agvc_coordinator/Makefile&quot;  VERBOSE=1 clean" />
