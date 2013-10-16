@@ -27,7 +27,10 @@ public:
         NodeHandle privateNode("~");
 
         privateNode.param("joystick", usingJoystick, false);
+        privateNode.param("path", path, std::string("home/wambot/fuerte_workspace/"));
+
         ROS_INFO("\033[2;32mAGVC Coordinator: Using Joystick set to: %d\033[0m\n", (usingJoystick) ? 1 : 0);
+        ROS_INFO("\033[2;32mAGVC Coordinator: Base path set to: %s\033[0m\n", path.c_str());
 
         motorPublisher = node.advertise<p2os_driver::MotorState>("cmd_motor_state", 1000);
 
@@ -35,6 +38,10 @@ public:
         partialActive = false;
         motorsActive = false;
         bagFileActive = false;
+        startTime = ros::Time::now();
+
+        sleep(10); //wait some time for the IMU to become available. No other easy way to do this
+        system ("roslaunch xsens_driver xsens_driver.launch &");
 
         if (!usingJoystick)
         {
@@ -48,6 +55,12 @@ public:
     }
 
 private:
+
+    /**
+      Field to store the time this node started at
+    */
+    Time startTime;
+
     /**
       Field to store the subscriber for joystick message
     */
@@ -62,6 +75,11 @@ private:
       Field to store whether or not the joystick is being used
     */
     bool usingJoystick;
+
+    /**
+      Field to store the base path to this node
+    */
+    string path;
 
     /**
       Field to store whether or not the full system is active (full autonomous operation)
@@ -113,6 +131,7 @@ private:
             else
             {
                 cout << "\033[1;31mAGVC_Coordinator: Nothing to stop\033[0m" << endl;
+                writeToLog("Nothing to stop");
             }
         }
         else if (joy.buttons[2] == 1) //Button 3: Start partial mode
@@ -149,6 +168,7 @@ private:
             totalShutdown();
 
             cout << "\033[2;31mExiting... \033[0m" << endl;
+            writeToLog("Exiting...");
             exit(0);
         }
     }
@@ -205,6 +225,7 @@ private:
                 else
                 {
                     cout << "\033[1;31mAGVC_Coordinator: Nothing to stop\033[0m" << endl;
+                    writeToLog("Nothing to stop");
                 }
             }
             else if (input == "q" || input == "quit" || input == "Quit" || input == "exit" || input == "Exit")
@@ -221,6 +242,7 @@ private:
                 totalShutdown();
 
                 cout << "\033[1;31mAGVC Coordinator is exiting... \033[0m" << endl;
+                writeToLog("Exiting...");
                 break;
             }
             else
@@ -297,24 +319,28 @@ private:
                 {
                     ms.state = 0;
                     cout << "\033[2;32mAGVC_Coordinator: Motors disabled\033[0m" << endl;
+                    writeToLog("Motors disabled");
                     motorsActive = !motorsActive;
                 }
                 else
                 {
                     ms.state = 1;
                     cout << "\033[2;32mAGVC_Coordinator: Motors enabled\033[0m" << endl;
+                    writeToLog("Motors enabled");
                     motorsActive = !motorsActive;
                 }
             }
             else
             {
                 cout << "\033[1;31mAGVC_Coordinator: No mode is active\033[0m" << endl;
+                writeToLog("No mode is active");
             }
         }
         else
         {
             ms.state = 0;
             cout << "\033[2;32mAGVC_Coordinator: Motors disabled\033[0m" << endl;
+            writeToLog("Motors disabled");
             motorsActive = false;
         }
 
@@ -334,10 +360,12 @@ private:
             fullActive = true;
 
             cout << "\033[2;32mAGVC_Coordinator: Full autonomous mode activated\033[0m" << endl;
+            writeToLog("Full autonomous mode activated");
         }
         else
         {
             cout << "\033[1;31mAGVC_Coordinator: Another mode is active\033[0m" << endl;
+            writeToLog("Another mode is active");
         }
     }
 
@@ -347,6 +375,7 @@ private:
     void stopFull()
     {
         cout << "\033[2;32mAGVC_Coordinator: Stopping full mode\033[0m" << endl;
+        writeToLog("Stopping full mode");
         toggleMotorState(true);
 
         system ("rosnode list > nodes");
@@ -369,10 +398,12 @@ private:
             partialActive = true;
 
             cout << "\033[2;32mAGVC_Coordinator: Partial mode activated\033[0m" << endl;
+            writeToLog("Partial mode activated");
         }
         else
         {
             cout << "\033[1;31mAGVC_Coordinator: Another mode is active\033[0m" << endl;
+            writeToLog("Another mode is active");
         }
     }
 
@@ -382,6 +413,7 @@ private:
     void stopPartial()
     {
         cout << "\033[2;32mAGVC_Coordinator: Stopping partial mode\033[0m" << endl;
+        writeToLog("Stopping partial mode");
 
         toggleMotorState(true);
 
@@ -402,6 +434,7 @@ private:
         if (!nodeFile.is_open())
         {
             cout << "\033[1;31mAGVC_Coordinator: Could not load nodes file\033[0m\n" << endl;
+            writeToLog("Could not load nodes file");
         }
         else
         {
@@ -429,7 +462,6 @@ private:
     {
         system ("rosnode kill /joy_node");
         system ("rosnode kill /xsens_driver");
-        system ("rosnode kill /rosout");
     }
 
     /**
@@ -444,10 +476,12 @@ private:
             bagFileActive = true;
 
             cout << "\033[2;32mAGVC_Coordinator: Bag file started\033[0m" << endl;
+            writeToLog("Bag file started");
         }
         else
         {
             cout << "\033[1;31mAGVC_Coordinator: Nothing to record\033[0m\n" << endl;
+            writeToLog("Nothing to record");
         }
     }
 
@@ -465,6 +499,7 @@ private:
             if (!nodeFile.is_open())
             {
                 cout << "\033[1;31mAGVC_Coordinator: Could not load nodes file\033[0m\n" << endl;
+                writeToLog("Could not load nodes file");
             }
             else
             {
@@ -485,12 +520,39 @@ private:
             system ("rm nodes &");
 
             cout << "\033[2;32mAGVC_Coordinator: Bag file stopped\033[0m" << endl;
+            writeToLog("Bag file stopped");
 
             bagFileActive = false;
         }
         else
         {
             cout << "\033[1;31mAGVC_Coordinator: No bag file is running\033[0m\n" << endl;
+            writeToLog("No bag file is running");
+        }
+    }
+
+    /**
+      Write to the log file
+      @param text The text to write
+    */
+    void writeToLog(string text)
+    {
+        char logFilename[200];
+        ofstream log;
+
+        sprintf(logFilename, "%sagvc_coordinator/logs/Log%u", path.c_str(), startTime.nsec);
+
+        log.open(logFilename, ios::app);
+
+        if (!log.is_open())
+        {
+            ROS_ERROR("\033[1;31mAGVC_Coordinator: Could not open log file\033[0m\n");
+        }
+        else
+        {
+            log << text << endl;
+
+            log.close();
         }
     }
 };

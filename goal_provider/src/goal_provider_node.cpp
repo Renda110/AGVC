@@ -59,13 +59,6 @@ public:
 
         autonomousStatusPublisher = privateNode.advertise<goal_provider::AutonomousStatus>("status", 1000);
 
-        while(!mb.waitForServer(ros::Duration(1.0)))
-        {
-            ROS_INFO("\033[2;33mGoalProvider: Waiting for the Movebase action server to come up\033[0m\n");
-
-            publishStatus(AutonomousStatus::WAITING, "Waiting for the Movebase action server to come up");
-        }
-
         setStartingPosition = false;
         setStartingOrientation = false;
         sentFirstGoal = false;
@@ -82,12 +75,31 @@ public:
         privateNode.param("time_cutoff", cutoffTime, 80);
         privateNode.param("goal_attempt_limit", goalAttemptLimit, 5);
         privateNode.param("testing", testing, false);
+        privateNode.param("path", path, std::string("/home/wambot/fuerte_workspace/"));
 
         ROS_INFO("\033[2;32mGoalProvider: Callbacks until goal update set to: %d\033[0m\n", callbacksUntilGoalUpdate);
         ROS_INFO("\033[2;32mGoalProvider: Competition Length set to: %d\033[0m\n", competitionTimeLimit);
         ROS_INFO("\033[2;32mGoalProvider: Time cutoff set to: %d\033[0m\n", cutoffTime);
         ROS_INFO("\033[2;32mGoalProvider: Goal attempt limit set to: %d\033[0m\n", goalAttemptLimit);
+        ROS_INFO("\033[2;32mGoalProvider: Package path set to: %s\033[0m\n", path.c_str());
         ROS_INFO("\033[2;32mGoalProvider: Testing set to: %d\033[0m\n", (testing) ? 1 : 0);
+
+        if(!mb.waitForServer(ros::Duration(5.0)))
+        {
+            ROS_INFO("\033[2;33mGoalProvider: The move_base action server did not come up within 5 seconds. Trying for another 5s\033[0m\n");
+
+            publishStatus(AutonomousStatus::WAITING, "The move_base action server did not come up within 5 seconds. Trying for another 5s");
+
+            if (!mb.waitForServer(ros::Duration(5.0)))
+            {
+                ROS_INFO("\033[2;33mGoalProvider: The move_base action server did not come up within a second 5s. Exiting...\033[0m\n");
+
+                publishStatus(AutonomousStatus::WAITING, "The move_base action server did not come up within a second 5s. Exiting...");
+
+                exit(0);
+
+            }
+        }
 
         gpsSubscriber = node.subscribe("/gpsfix", 1000, &GoalProvider::gpsCallback, this);
         imuSubscriber = node.subscribe("/raw_imu", 1000, &GoalProvider::imuCallback, this);
@@ -224,6 +236,11 @@ private:
       Field to store whether or not the goal has been accepted
     */
     int goalAcceptanceCounter;
+
+    /**
+      Field to store the base path to this node
+    */
+    string path;
 
     /**
       Callback for the GPS
@@ -434,7 +451,9 @@ private:
     */
     void readConfigFile()
     {
-        ifstream configFile("/home/wambot/fuerte_workspace/goal_provider/config/GPSCoords");
+        string configFilename = path + "goal_provider/config/GPSCoords";
+
+        ifstream configFile(configFilename.c_str());
 
         if (!configFile.is_open())
         {
@@ -635,6 +654,32 @@ private:
         status.text = text;
 
         autonomousStatusPublisher.publish(status);
+
+        writeToLog(message);
+    }
+
+    /**
+      Write to the log file
+      @param text The text to write
+    */
+    void writeToLog(string text)
+    {
+        char logFilename[200];
+        sprintf(logFilename, "%sgoal_provider/logs/Log%u", path.c_str(), startTime.nsec);
+
+        ofstream log;
+        log.open(logFilename, ios::app);
+
+        if (!log.is_open())
+        {
+            ROS_ERROR("\033[1;31mGoalProvider: Could not open log file\033[0m\n");
+        }
+        else
+        {
+            log << text << endl;
+
+            log.close();
+        }
     }
 };
 

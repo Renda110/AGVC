@@ -5,5 +5,6 @@
     <param name="time_cutoff" value="8" />
     <param name="goal_attempt_limit" value="5" />
     <param name="testing" value="true" />
+    <param name="path" value="/home/enda/fuerte_workspace/sandbox/" />
   </node>
 </launch>
