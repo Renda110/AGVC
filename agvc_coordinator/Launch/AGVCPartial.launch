@@ -34,7 +34,7 @@
   </node>
 
   <node name="LMS100" pkg="LMS1xx" type="LMS100" > 
-    <param name="host" value="192.168.4.3"/>
+    <param name="host" value="192.168.4.3"/> <!-- Make sure to change this for different robots -->
 		<param name="frame_id" value="base_laser" />
   </node>
 

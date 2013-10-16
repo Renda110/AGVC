@@ -89,7 +89,7 @@ public:
         ROS_INFO("\033[2;32mGoalProvider: Goal attempt limit set to: %d\033[0m\n", goalAttemptLimit);
         ROS_INFO("\033[2;32mGoalProvider: Testing set to: %d\033[0m\n", (testing) ? 1 : 0);
 
-        gpsSubscriber = node.subscribe("/fix", 1000, &GoalProvider::gpsCallback, this);
+        gpsSubscriber = node.subscribe("/gpsfix", 1000, &GoalProvider::gpsCallback, this);
         imuSubscriber = node.subscribe("/raw_imu", 1000, &GoalProvider::imuCallback, this);
         hlPoseSubscriber = node.subscribe("localization_pose", 1000, &GoalProvider::hlPoseCallback, this);
         movebaseFeedbackSubscriber = node.subscribe("move_base/feedback", 1000, &GoalProvider::movebaseFeedbackCallback, this);
@@ -644,14 +644,6 @@ private:
 int main (int argc, char** argv)
 {
     ros::init(argc, argv, "goal_provider_node");
-
-    //writeToSerial(5);
-
-    string input = "";
-    cout << "\n\033[2;32mGoalProvider: Press enter to start\033[0m" << endl;
-    getline(cin, input);
-
-    //writeToSerial(10);
 
     GoalProvider node;
 

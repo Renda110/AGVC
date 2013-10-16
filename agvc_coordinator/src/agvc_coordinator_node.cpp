@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <unistd.h>
 
 #include <p2os_driver/MotorState.h>
 #include <ros/ros.h>
@@ -33,6 +34,7 @@ public:
         fullActive = false;
         partialActive = false;
         motorsActive = false;
+        bagFileActive = false;
 
         if (!usingJoystick)
         {
@@ -77,6 +79,11 @@ private:
     bool motorsActive;
 
     /**
+      Field to store whether or not a bag file is active
+    */
+    bool bagFileActive;
+
+    /**
       Callback for joystick input
       @param joy The joystick input
     */
@@ -91,14 +98,7 @@ private:
 
         if (joy.buttons[0] == 1) //Button 1: Start full mode
         {
-            if (!fullActive && !partialActive)
-            {
-                startFull(false);
-            }
-            else
-            {
-                cout << "\033[2;31mAGVC_Coordinator: Another mode is active\033[0m" << endl;
-            }
+            startFull();
         }
         else if (joy.buttons[1] == 1) //Button 2: Stop whichever mode is active
         {
@@ -112,29 +112,27 @@ private:
             }
             else
             {
-                cout << "\033[2;31mAGVC_Coordinator: Nothing to stop\033[0m" << endl;
+                cout << "\033[1;31mAGVC_Coordinator: Nothing to stop\033[0m" << endl;
             }
         }
         else if (joy.buttons[2] == 1) //Button 3: Start partial mode
         {
-            if (!partialActive && !fullActive)
-            {
-                startPartial(false);
-            }
-            else
-            {
-                cout << "\033[2;31mAGVC_Coordinator: Another mode is active\033[0m" << endl;
-            }
+            startPartial();
         }
         else if (joy.buttons[3] == 1) //Button 4: Switch motor states
         {
-            if (fullActive || partialActive)
+            toggleMotorState(false);
+
+        }
+        else if (joy.buttons[8] == 1) //Button 9: Toggle a bag file on or off
+        {
+            if (bagFileActive)
             {
-                toggleMotorState(false);
+                stopBagfile();
             }
             else
             {
-                cout << "\033[2;31mAGVC_Coordinator: No mode is active\033[0m" << endl;
+                startBagfile();
             }
         }
         else if (joy.buttons[9] == 1) //Button 10: Turn everything off including this node
@@ -173,11 +171,26 @@ private:
             }
             else if (input == "full" || input == "Full")
             {
-                startFull(true);
+                startFull();
+            }
+            else if (input == "partial" || input == "Partial")
+            {
+                startPartial();
             }
             else if (input == "record" || input == "Record")
             {
-                startPartial(true);
+                if (bagFileActive)
+                {
+                    stopBagfile();
+                }
+                else
+                {
+                    startBagfile();
+                }
+            }
+            else if (input == "motors" || input == "Motors")
+            {
+                toggleMotorState(false);
             }
             else if (input == "stop" || input == "Stop")
             {
@@ -188,6 +201,10 @@ private:
                 else if (partialActive)
                 {
                     stopPartial();
+                }
+                else
+                {
+                    cout << "\033[1;31mAGVC_Coordinator: Nothing to stop\033[0m" << endl;
                 }
             }
             else if (input == "q" || input == "quit" || input == "Quit" || input == "exit" || input == "Exit")
@@ -227,9 +244,13 @@ private:
         cout << "\033[2;32mAvailable commands:\033[0m" << endl;
         cout << "\033[2;32m\t full or Full:\033[0m" << endl;
         cout << "\033[2;32m\t\t Use this for full autonomous mode and goal planning\033[0m" << endl;
-        cout << "\033[2;32m\t record or Record: \033[0m" << endl;
+        cout << "\033[2;32m\t partial or Partial: \033[0m" << endl;
         cout << "\033[2;32m\t\t Use this to start everything except for the path planner and the goal provider.\033[0m" << endl;
-        cout << "\033[2;32m\t\t This mode also allows full joystick input and a bag file is started to record everything\033[0m" << endl;
+        cout << "\033[2;32m\t\t This mode also allows full joystick input\033[0m" << endl;
+        cout << "\033[2;32m\t record or Record: \033[0m" << endl;
+        cout << "\033[2;32m\t\t Stops or starts a bag file recording.\033[0m" << endl;
+        cout << "\033[2;32m\t motors or Motors\033[0m" << endl;
+        cout << "\033[2;32m\t\t Enable or disable the motors\033[0m" << endl;
         cout << "\033[2;32m\t stop or Stop:\033[0m" << endl;
         cout << "\033[2;32m\t\t Stops all rosnodes except for this one\033[0m" << endl;
         cout << "\033[2;32m\t q, quit, Quit, exit or Exit: \033[0m" << endl;
@@ -253,8 +274,10 @@ private:
         cout << "\033[2;32m\t\t Stops all rosnodes except for this one\033[0m" << endl;
         cout << "\033[2;32m\t 4\033[0m" << endl;
         cout << "\033[2;32m\t\t Turns the motors on or off\033[0m" << endl;
+        cout << "\033[2;32m\t 9 \033[0m" << endl;
+        cout << "\033[2;32m\t\t Press this to stop/start a bag file\033[0m" << endl;
         cout << "\033[2;32m\t 10 \033[0m" << endl;
-        cout << "\033[2;32m\t\t Enter any of these to stop this node as well as all other nodes\033[0m" << endl;
+        cout << "\033[2;32m\t\t Press this to stop this node as well as all other nodes\033[0m" << endl;
         cout << "\033[2;32m********************************************************************************************************************\033[0m" << endl;
     }
 
@@ -268,17 +291,24 @@ private:
 
         if (!shutdown)
         {
-            if (motorsActive)
+            if (fullActive || partialActive)
             {
-                ms.state = 0;
-                cout << "\033[2;32mAGVC_Coordinator: Motors disabled\033[0m" << endl;
-                motorsActive = !motorsActive;
+                if (motorsActive)
+                {
+                    ms.state = 0;
+                    cout << "\033[2;32mAGVC_Coordinator: Motors disabled\033[0m" << endl;
+                    motorsActive = !motorsActive;
+                }
+                else
+                {
+                    ms.state = 1;
+                    cout << "\033[2;32mAGVC_Coordinator: Motors enabled\033[0m" << endl;
+                    motorsActive = !motorsActive;
+                }
             }
             else
             {
-                ms.state = 1;
-                cout << "\033[2;32mAGVC_Coordinator: Motors enabled\033[0m" << endl;
-                motorsActive = !motorsActive;
+                cout << "\033[1;31mAGVC_Coordinator: No mode is active\033[0m" << endl;
             }
         }
         else
@@ -293,21 +323,22 @@ private:
 
     /**
       Launches the necessary nodes for the full autonomous mode
-      @param motors Whether or not we want the motors enabled as well
     */
-    void startFull(bool motors)
+    void startFull()
     {
-        system ("roslaunch agvc_coordinator xsens_driver.launch &" ); //Ideally this will be one launch file
-        system ("roslaunch agvc_coordinator AGVCFull.launch &");
-
-        fullActive = true;
-
-        if (motors)
+        if (!fullActive && !partialActive)
         {
-            toggleMotorState(false);
-        }
+            //system ("roslaunch agvc_coordinator xsens_driver.launch &" ); //Ideally this will be one launch file
+            system ("roslaunch agvc_coordinator AGVCFull.launch &");
 
-        cout << "\033[2;32mAGVC_Coordinator: Full autonomous mode activated\033[0m" << endl;
+            fullActive = true;
+
+            cout << "\033[2;32mAGVC_Coordinator: Full autonomous mode activated\033[0m" << endl;
+        }
+        else
+        {
+            cout << "\033[1;31mAGVC_Coordinator: Another mode is active\033[0m" << endl;
+        }
     }
 
     /**
@@ -327,21 +358,22 @@ private:
 
     /**
       Launches the necessary nodes for the partial mode
-      @param Whether or not we want the motors enabled as well
     */
-    void startPartial(bool motors)
+    void startPartial()
     {
-        system ("roslaunch agvc_coordinator AGVCPartial.launch &");
-        //system ("roslaunch hector_pose_estimation hector_pose_estimation.launch &");
-
-        partialActive = true;
-
-        if (motors)
+        if (!partialActive && !fullActive)
         {
-            toggleMotorState(false);
-        }
+            system ("roslaunch agvc_coordinator AGVCPartial.launch &");
+            //system ("roslaunch hector_pose_estimation hector_pose_estimation.launch &");
 
-        cout << "\033[2;32mAGVC_Coordinator: Partial mode activated\033[0m" << endl;
+            partialActive = true;
+
+            cout << "\033[2;32mAGVC_Coordinator: Partial mode activated\033[0m" << endl;
+        }
+        else
+        {
+            cout << "\033[1;31mAGVC_Coordinator: Another mode is active\033[0m" << endl;
+        }
     }
 
     /**
@@ -369,7 +401,7 @@ private:
 
         if (!nodeFile.is_open())
         {
-            cout << "\033[1;31mGoalProvider: Could not load nodes file\033[0m\n" << endl;
+            cout << "\033[1;31mAGVC_Coordinator: Could not load nodes file\033[0m\n" << endl;
         }
         else
         {
@@ -377,7 +409,7 @@ private:
 
             while(getline(nodeFile, line))
             {
-                if (line != "/agvc_coordinator" && line != "/rosout" && line != "/rosout_agg" && line != "/joy_node")
+                if (line != "/agvc_coordinator" && line != "/rosout" && line != "/rosout_agg" && line != "/joy_node" && line != "/xsens_driver")
                 {
                     char buffer[100];
                     sprintf(buffer, "rosnode kill %s", line.c_str());
@@ -387,7 +419,7 @@ private:
         }
 
         nodeFile.close();
-        system ("rm nodes &");
+        system ("rm nodes");
     }
 
     /**
@@ -395,7 +427,71 @@ private:
     */
     void totalShutdown()
     {
-        system ("rosnode kill joy_node");
+        system ("rosnode kill /joy_node");
+        system ("rosnode kill /xsens_driver");
+        system ("rosnode kill /rosout");
+    }
+
+    /**
+      Starts a bag file to record all active topics
+    */
+    void startBagfile()
+    {
+        if (fullActive || partialActive)
+        {
+            system ("rosbag record -a &");
+
+            bagFileActive = true;
+
+            cout << "\033[2;32mAGVC_Coordinator: Bag file started\033[0m" << endl;
+        }
+        else
+        {
+            cout << "\033[1;31mAGVC_Coordinator: Nothing to record\033[0m\n" << endl;
+        }
+    }
+
+    /**
+      Stops the currently running bag file
+    */
+    void stopBagfile()
+    {
+        if (bagFileActive)
+        {
+            system ("rosnode list > nodes");
+
+            ifstream nodeFile("nodes");
+
+            if (!nodeFile.is_open())
+            {
+                cout << "\033[1;31mAGVC_Coordinator: Could not load nodes file\033[0m\n" << endl;
+            }
+            else
+            {
+                string line;
+
+                while(getline(nodeFile, line))
+                {
+                    if (line.substr(0, 7) == "/record")
+                    {
+                        char buffer[100];
+                        sprintf(buffer, "rosnode kill %s", line.c_str());
+                        system (buffer);
+                    }
+                }
+            }
+
+            nodeFile.close();
+            system ("rm nodes &");
+
+            cout << "\033[2;32mAGVC_Coordinator: Bag file stopped\033[0m" << endl;
+
+            bagFileActive = false;
+        }
+        else
+        {
+            cout << "\033[1;31mAGVC_Coordinator: No bag file is running\033[0m\n" << endl;
+        }
     }
 };
 
