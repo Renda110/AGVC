@@ -47,7 +47,7 @@ typedef actionlib::SimpleActionClient<move_base_msgs::MoveBaseAction> MoveBaseCl
     This class provides goal data to the move_base navigation stack. A typical goal is simply a GPS position
 
     @author Enda McCauley
-    @date October 2nd 2013
+    @date October 23rd 2013
 */
 class GoalProvider
 {
@@ -62,13 +62,14 @@ public:
         setStartingPosition = false;
         setStartingOrientation = false;
         sentFirstGoal = false;
-        startTime = ros::Time::now();
         currentCallbackCount = 0;
         goalAttemptCounter = 0;
         goalAcceptanceCounter = 0;
         angleOffNorth = 0.0;
 
-        ROS_INFO("\033[2;32mGoalProvider: Initialized at time: %d.%d\033[0m\n", startTime.sec, startTime.nsec);
+        setStartTime();
+
+        ROS_INFO("\033[2;32mGoalProvider: Initialized at time: %s\033[0m\n", startTime.c_str());
 
         privateNode.param("callbacks_till_goal_update", callbacksUntilGoalUpdate, 1000);
         privateNode.param("competition_length", competitionTimeLimit, 100);
@@ -97,14 +98,12 @@ public:
                 publishStatus(AutonomousStatus::WAITING, "The move_base action server did not come up within a second 5s. Exiting...");
 
                 exit(0);
-
             }
         }
 
         gpsSubscriber = node.subscribe("/gpsfix", 1000, &GoalProvider::gpsCallback, this);
         imuSubscriber = node.subscribe("/raw_imu", 1000, &GoalProvider::imuCallback, this);
         hlPoseSubscriber = node.subscribe("localization_pose", 1000, &GoalProvider::hlPoseCallback, this);
-        movebaseFeedbackSubscriber = node.subscribe("move_base/feedback", 1000, &GoalProvider::movebaseFeedbackCallback, this);
         movebaseStatusSubscriber = node.subscribe("move_base/status", 1000, &GoalProvider::movebaseStatusCallback, this);
 
         hlOdomPublisher = privateNode.advertise<nav_msgs::Odometry>("odom", 1000);
@@ -114,7 +113,7 @@ private:
     /**
       Field to store the start time
     */
-    Time startTime;
+    string startTime;
 
     /**
       Field to store an Actionlib object. It allows us to send goals to move_base and monitor them
@@ -141,11 +140,6 @@ private:
       Field to store the IMU subscriber
     */
     Subscriber imuSubscriber;
-
-    /**
-      Field to store the movebase feedback subscriber
-    */
-    Subscriber movebaseFeedbackSubscriber;
 
     /**
       Field to store the movebase status subscriber
@@ -259,6 +253,12 @@ private:
             gpsUTMOrigin.x = northing;
             gpsUTMOrigin.y = easting;
 
+            ROS_INFO("\033[2;32mGoalProvider: Set starting point to (%f, %f)\033[0m\n", gpsUTMOrigin.x, gpsUTMOrigin.y);
+
+            char buffer[200];
+            sprintf(buffer, "Set starting point to (%f, %f)", gpsUTMOrigin.x, gpsUTMOrigin.y);
+            publishStatus(AutonomousStatus::WAITING, buffer);
+
             setStartingPosition = true;
 
             if (setStartingOrientation)
@@ -285,6 +285,12 @@ private:
             angleOffNorth = (180 * imu.orientation.z) - 1.617; //Minus 1.617 because magnetic and true north are not the same. This will need changing for the competition
 
             setStartingOrientation = true;
+
+            ROS_INFO("\033[2;32mGoalProvider: Set angle off of north to %f\033[0m\n", angleOffNorth);
+
+            char buffer[200];
+            sprintf(buffer, "Set angle off of north to %f", angleOffNorth);
+            publishStatus(AutonomousStatus::WAITING, buffer);
 
             if (setStartingPosition)
             {
@@ -349,17 +355,6 @@ private:
 
             setStartingPosition = true;
         }
-    }
-
-    /**
-      Callback for the move_base feedback
-      @param feedback The actual feedback data
-    */
-    void movebaseFeedbackCallback(const move_base_msgs::MoveBaseActionFeedback feedback)
-    {
-        //Movebase feedback is based off of wheel odometry and hence is less accurate than using Hector Localization.
-        //We could replace the odometry with hector localization but this would require conversion from PoseStamped to Odometry
-        //currentCallbackCount++;
     }
 
     /**
@@ -459,7 +454,6 @@ private:
         {
             ROS_ERROR("\033[1;31mGoalProvider: Could not load config file\033[0m\n");
             publishStatus(AutonomousStatus::ERROR, "Could not load config file");
-
         }
         else
         {
@@ -570,10 +564,10 @@ private:
                 sentFirstGoal = true;
 
                 ROS_INFO("\033[2;32mGoalProvider: Sending first goal(%f, %f)\033[0m\n", newGoal.x, newGoal.y);
-                goal = newGoal;
-
                 sprintf(buffer, "Sending first goal(%f, %f)", newGoal.x, newGoal.y);
                 publishStatus(AutonomousStatus::INFO, buffer);
+
+                goal = newGoal;
 
                 goalAttemptCounter = 1;
                 sendGoal(); //Send the new one
@@ -594,10 +588,10 @@ private:
             else if (newGoal != goal) //If the goal is different to the current one then send it
             {
                 ROS_INFO("\033[2;32mGoalProvider: Goal (%f, %f) replaced goal (%f, %f)\033[0m\n", newGoal.x, newGoal.y, goal.x, goal.y);
-                goal = newGoal;
-
                 sprintf(buffer, "Goal (%f, %f) replaced goal (%f, %f)", newGoal.x, newGoal.y, goal.x, goal.y);
                 publishStatus(AutonomousStatus::INFO, buffer);
+
+                goal = newGoal;
 
                 goalAttemptCounter = 1;
                 sendGoal(); //Send the new one
@@ -665,7 +659,7 @@ private:
     void writeToLog(string text)
     {
         char logFilename[200];
-        sprintf(logFilename, "%sgoal_provider/logs/Log%u", path.c_str(), startTime.nsec);
+        sprintf(logFilename, "%sgoal_provider/logs/Log%s", path.c_str(), startTime.c_str());
 
         ofstream log;
         log.open(logFilename, ios::app);
@@ -680,6 +674,22 @@ private:
 
             log.close();
         }
+    }
+
+    /**
+      Sets the time that this node was started
+    */
+    void setStartTime()
+    {
+        time_t     now = time(0);
+        struct tm  tstruct;
+        char       buf[80];
+        tstruct = *localtime(&now);
+        // Visit http://en.cppreference.com/w/cpp/chrono/c/strftime
+        // for more information about date/time format
+        strftime(buf, sizeof(buf), "%Y-%m-%d-%H-%M-%S", &tstruct);
+
+        startTime = buf;
     }
 };
 
