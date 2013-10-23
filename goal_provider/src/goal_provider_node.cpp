@@ -76,7 +76,7 @@ public:
         privateNode.param("time_cutoff", cutoffTime, 80);
         privateNode.param("goal_attempt_limit", goalAttemptLimit, 5);
         privateNode.param("testing", testing, false);
-        privateNode.param("path", path, std::string("/home/wambot/fuerte_workspace/"));
+        privateNode.param("path", path, std::string("/home/enda/fuerte_workspace/sandbox/"));
 
         ROS_INFO("\033[2;32mGoalProvider: Callbacks until goal update set to: %d\033[0m\n", callbacksUntilGoalUpdate);
         ROS_INFO("\033[2;32mGoalProvider: Competition Length set to: %d\033[0m\n", competitionTimeLimit);
@@ -101,7 +101,7 @@ public:
             }
         }
 
-        gpsSubscriber = node.subscribe("/gpsfix", 1000, &GoalProvider::gpsCallback, this);
+        gpsSubscriber = node.subscribe("/gps_fix", 1000, &GoalProvider::gpsCallback, this);
         imuSubscriber = node.subscribe("/raw_imu", 1000, &GoalProvider::imuCallback, this);
         hlPoseSubscriber = node.subscribe("localization_pose", 1000, &GoalProvider::hlPoseCallback, this);
         movebaseStatusSubscriber = node.subscribe("move_base/status", 1000, &GoalProvider::movebaseStatusCallback, this);
@@ -248,7 +248,7 @@ private:
             double northing = 0.0;
             double easting = 0.0;           
 
-            gps_common::LLtoUTM((-1 * fix.latitude), fix.longitude, northing, easting, utmZone); //Invert latitude as we are in the southern half
+            gps_common::LLtoUTM(fix.latitude, fix.longitude, northing, easting, utmZone);
 
             gpsUTMOrigin.x = northing;
             gpsUTMOrigin.y = easting;
@@ -475,15 +475,13 @@ private:
                     ROS_ERROR("\033[1;31mGoalProvider: Could not read in GPS data on line %i\033[0m\n", lineNumber);
 
                     char buffer[200];
-                    sprintf(buffer, "Could not read in the GPS data on %i", lineNumber);
+                    sprintf(buffer, "Could not read in the GPS data on line %i", lineNumber);
                     publishStatus(AutonomousStatus::ERROR, buffer);
                     break;
                 }
 
                 if (!testing)
                 {
-                    latitude *= -1; //Invert latitude as we are in the southern half
-
                     gps_common::LLtoUTM(latitude, longitude, p.x, p.y, utmZone);
 
                     p.x -= gpsUTMOrigin.x;
@@ -659,7 +657,7 @@ private:
     void writeToLog(string text)
     {
         char logFilename[200];
-        sprintf(logFilename, "%sgoal_provider/logs/Log%s", path.c_str(), startTime.c_str());
+        sprintf(logFilename, "%sgoal_provider/logs/Log-%s", path.c_str(), startTime.c_str());
 
         ofstream log;
         log.open(logFilename, ios::app);

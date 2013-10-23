@@ -1,4 +1,11 @@
 <launch>
+  <node name="nmea_gps_driver" pkg="nmea_gps_driver" type="nmea_gps_driver.py">
+    <param name="port" value="/dev/ttyACM0"/>
+    <param name="frame_id" value="base_gps" />
+    <remap from="/fix" to="/gps_fix" />
+    <remap from="/vel" to="gps_velocity" />
+  </node>
+
 	<node name="p2os" pkg="p2os_driver" type="p2os" >
 		<param name="pulse" value="1.0" />
 		<remap from="pose" to="odom" />
@@ -33,12 +40,6 @@
   <node name="LMS100" pkg="LMS1xx" type="LMS100" > 
     <param name="host" value="192.168.1.3"/> <!-- Make sure to change this for different robots -->
 		<param name="frame_id" value="base_laser" />
-  </node>
-
-  <node name="nmea_gps_driver" pkg="nmea_gps_driver" type="nmea_gps_driver.py">
-    <param name="port" value="/dev/ttyACM1"/>
-    <param name="frame_id" value="base_gps" />
-    <remap from="/fix" to="/gpsfix" />
   </node>
 
   <node name="usb_cam" pkg="usb_cam" type="usb_cam_node" output="screen" >
@@ -79,10 +80,12 @@
 	  <param name="footprint_frame" value="" />
 	  <param name="position_frame" value="" />
 	  <param name="stabilized_frame" value="" />
+    <remap from="/fix" to="/gps_fix" />
+    <remap from="/fix_velocity" to="gps_velocity"
   </node>
 
   <node name="goal_provider_node" pkg="goal_provider" type="goal_provider_node" output="screen">
-    <param name="callbacks_till_goal_update" value="500"/>
+    <param name="callbacks_till_goal_update" value="1000"/>
     <param name="competition_length" value="10" />
     <param name="time_cutoff" value="8" />
     <param name="goal_attempt_limit" value="5" />
