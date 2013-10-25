@@ -65,6 +65,8 @@
     <param name="oscillation_distance" value="0.5" />
     <param name="oscillation_timeout" value="10.0" />
     <param name="conservative_reset_dist " value="0.01" />
+
+    <param name="TrajectoryPlannerROS/max_vel_x" value="0.6" />
     
 		<rosparam file="/home/wambot/fuerte_workspace/run_wambotX/costmap_common_params.yaml" command="load" ns="global_costmap" />
 		<rosparam file="/home/wambot/fuerte_workspace/run_wambotX/costmap_common_params.yaml" command="load" ns="local_costmap" />

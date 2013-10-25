@@ -109,6 +109,11 @@ public:
         hlOdomPublisher = privateNode.advertise<nav_msgs::Odometry>("odom", 1000);
     }
 
+    ~GoalProvider()
+    {
+        mb.cancelAllGoals();
+    }
+
 private:
     /**
       Field to store the start time
@@ -253,10 +258,10 @@ private:
             gpsUTMOrigin.x = northing;
             gpsUTMOrigin.y = easting;
 
-            ROS_INFO("\033[2;32mGoalProvider: Set starting point to (%f, %f)\033[0m\n", gpsUTMOrigin.x, gpsUTMOrigin.y);
+            ROS_INFO("\033[2;32mGoalProvider: Set starting point to (%f, %f) or (%f, %f)\033[0m\n", fix.latitude, fix.longitude, gpsUTMOrigin.x, gpsUTMOrigin.y);
 
             char buffer[200];
-            sprintf(buffer, "Set starting point to (%f, %f)", gpsUTMOrigin.x, gpsUTMOrigin.y);
+            sprintf(buffer, "Set starting point to (%f, %f) or (%f, %f)", fix.latitude, fix.longitude, gpsUTMOrigin.x, gpsUTMOrigin.y);
             publishStatus(AutonomousStatus::WAITING, buffer);
 
             setStartingPosition = true;
@@ -282,7 +287,16 @@ private:
     {
         if (!setStartingOrientation)
         {
-            angleOffNorth = (180 * imu.orientation.z) - 1.617; //Minus 1.617 because magnetic and true north are not the same. This will need changing for the competition
+            angleOffNorth = (180 * imu.orientation.z); //Minus 1.617 because magnetic and true north are not the same. This will need changing for the competition
+
+            if (angleOffNorth >= 0)
+            {
+                angleOffNorth -= 1.617;
+            }
+            else
+            {
+                angleOffNorth += 1.617;
+            }
 
             setStartingOrientation = true;
 
@@ -578,10 +592,31 @@ private:
                 sprintf(buffer, "The goal (%f, %f) timed out", goal.x, goal.y);
                 publishStatus(AutonomousStatus::INFO, buffer);
 
-                goal = coordsList.front();
+                //If there are other goals to visit
+                if (coordsList.size() > 0)
+                {
+                    goal = coordsList.front();
 
-                goalAttemptCounter = 1;
-                sendGoal(); //Send the new one
+                    goalAttemptCounter = 1;
+
+                    ROS_INFO("\033[2;32mGoalProvider: Goal (%f, %f) distance %f replaced the timed out goal (%f, %f)\033[0m\n", goal.x, goal.y, goal.distanceFromRobot, newGoal.x, newGoal.y);
+                    sprintf(buffer, "Goal (%f, %f) distance %f replaced the timed out goal (%f, %f)\033[0m\n", goal.x, goal.y, goal.distanceFromRobot, newGoal.x, newGoal.y);
+                    publishStatus(AutonomousStatus::INFO, buffer);
+
+                    sendGoal(); //Send the new one
+                }
+                else //otherwise go home
+                {
+                    ROS_INFO("\033[2;32mGoalProvider: No goals left, going home replaced the terminated goal (%f, %f)\033[0m\n", goal.x, goal.y);
+                    sprintf(buffer, "No goals left, going home replaced terminated goal (%f, %f)", goal.x, goal.y);
+                    publishStatus(AutonomousStatus::INFO, buffer);
+
+                    goal.distanceFromRobot = sqrt(pow(goal.x, 2) + pow(goal.y, 2));
+                    goal.x = 0;
+                    goal.y = 0;
+
+                    sendGoal();
+                }
             }
             else if (newGoal != goal) //If the goal is different to the current one then send it
             {
@@ -597,6 +632,9 @@ private:
         }
         else
         { //Head home
+            ROS_INFO("\033[2;32mGoalProvider: Going home\033[0m\n");
+            publishStatus(AutonomousStatus::INFO, "Going home");
+
             goal.distanceFromRobot = sqrt(pow(goal.x, 2) + pow(goal.y, 2));
             goal.x = 0;
             goal.y = 0;

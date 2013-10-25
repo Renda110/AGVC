@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <time.h>
 #include <unistd.h>
 
 #include <p2os_driver/MotorState.h>
@@ -38,7 +39,8 @@ public:
         partialActive = false;
         motorsActive = false;
         bagFileActive = false;
-        startTime = ros::Time::now();
+
+        setStartTime();
 
         sleep(10); //wait some time for the IMU to become available. No other easy way to do this
         system ("roslaunch xsens_driver xsens_driver.launch &");
@@ -59,7 +61,7 @@ private:
     /**
       Field to store the time this node started at
     */
-    Time startTime;
+    string startTime;
 
     /**
       Field to store the subscriber for joystick message
@@ -540,7 +542,7 @@ private:
         char logFilename[200];
         ofstream log;
 
-        sprintf(logFilename, "%sagvc_coordinator/logs/Log%u", path.c_str(), startTime.nsec);
+        sprintf(logFilename, "%sagvc_coordinator/logs/Log-%s", path.c_str(), startTime.c_str());
 
         log.open(logFilename, ios::app);
 
@@ -554,6 +556,22 @@ private:
 
             log.close();
         }
+    }
+
+    /**
+      Sets the time that this node was started
+    */
+    void setStartTime()
+    {
+        time_t     now = time(0);
+        struct tm  tstruct;
+        char       buf[80];
+        tstruct = *localtime(&now);
+        // Visit http://en.cppreference.com/w/cpp/chrono/c/strftime
+        // for more information about date/time format
+        strftime(buf, sizeof(buf), "%Y-%m-%d-%H-%M-%S", &tstruct);
+
+        startTime = buf;
     }
 };
 
