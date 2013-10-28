@@ -1,0 +1,8 @@
+<launch>
+	<node pkg="xsens_driver" type="mtnode.py" name="xsens_driver" output="screen" >
+		<param name="frame_id" value="/base_imu" />
+		<remap from="/imu/data" to="/raw_imu" />
+		<param name="port" value="/dev/ttyUSB0"/>
+		<param name="baudrate" value="115200"/>
+	</node>
+</launch>

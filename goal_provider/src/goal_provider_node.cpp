@@ -72,30 +72,43 @@ public:
         ROS_INFO("\033[2;32mGoalProvider: Initialized at time: %s\033[0m\n", startTime.c_str());
 
         privateNode.param("callbacks_till_goal_update", callbacksUntilGoalUpdate, 1000);
-        privateNode.param("competition_length", competitionTimeLimit, 100);
-        privateNode.param("time_cutoff", cutoffTime, 80);
         privateNode.param("goal_attempt_limit", goalAttemptLimit, 5);
         privateNode.param("testing", testing, false);
         privateNode.param("path", path, std::string("/home/enda/fuerte_workspace/sandbox/"));
+        privateNode.param("subgoal_distance", subgoalDistance, -1);
 
+        char buffer[300];
         ROS_INFO("\033[2;32mGoalProvider: Callbacks until goal update set to: %d\033[0m\n", callbacksUntilGoalUpdate);
-        ROS_INFO("\033[2;32mGoalProvider: Competition Length set to: %d\033[0m\n", competitionTimeLimit);
-        ROS_INFO("\033[2;32mGoalProvider: Time cutoff set to: %d\033[0m\n", cutoffTime);
+        sprintf(buffer, "Callbacks until goal update set to: %d", callbacksUntilGoalUpdate);
+        writeToLog(buffer);
+
         ROS_INFO("\033[2;32mGoalProvider: Goal attempt limit set to: %d\033[0m\n", goalAttemptLimit);
+        sprintf(buffer, "Goal attempt limit set to: %d", goalAttemptLimit);
+        writeToLog(buffer);
+
         ROS_INFO("\033[2;32mGoalProvider: Package path set to: %s\033[0m\n", path.c_str());
+        sprintf(buffer, "Package path set to: %s", path.c_str());
+        writeToLog(buffer);
+
+        ROS_INFO("\033[2;32mGoalProvider: Subgoal distance set to %d\033[0m\n", subgoalDistance);
+        sprintf(buffer, "Subgoal distance set %d", subgoalDistance);
+        writeToLog(buffer);
+
         ROS_INFO("\033[2;32mGoalProvider: Testing set to: %d\033[0m\n", (testing) ? 1 : 0);
+        sprintf(buffer, "Testing set to: %d", (testing) ? 1 : 0);
+        writeToLog(buffer);
 
         if(!mb.waitForServer(ros::Duration(5.0)))
         {
             ROS_INFO("\033[2;33mGoalProvider: The move_base action server did not come up within 5 seconds. Trying for another 5s\033[0m\n");
 
-            publishStatus(AutonomousStatus::WAITING, "The move_base action server did not come up within 5 seconds. Trying for another 5s");
+            publishStatus(AutonomousStatus::WAITING, "The move_base action server did not come up within 5 seconds. Trying for another 10s");
 
-            if (!mb.waitForServer(ros::Duration(5.0)))
+            if (!mb.waitForServer(ros::Duration(10.0)))
             {
-                ROS_INFO("\033[2;33mGoalProvider: The move_base action server did not come up within a second 5s. Exiting...\033[0m\n");
+                ROS_INFO("\033[2;33mGoalProvider: The move_base action server did not come up within 10s. Exiting...\033[0m\n");
 
-                publishStatus(AutonomousStatus::WAITING, "The move_base action server did not come up within a second 5s. Exiting...");
+                publishStatus(AutonomousStatus::WAITING, "The move_base action server did not come up within 10s. Exiting...");
 
                 exit(0);
             }
@@ -103,7 +116,7 @@ public:
 
         gpsSubscriber = node.subscribe("/gps_fix", 1000, &GoalProvider::gpsCallback, this);
         imuSubscriber = node.subscribe("/raw_imu", 1000, &GoalProvider::imuCallback, this);
-        hlPoseSubscriber = node.subscribe("localization_pose", 1000, &GoalProvider::hlPoseCallback, this);
+        hlPoseSubscriber = node.subscribe("/localization_pose", 1000, &GoalProvider::hlPoseCallback, this);
         movebaseStatusSubscriber = node.subscribe("move_base/status", 1000, &GoalProvider::movebaseStatusCallback, this);
 
         hlOdomPublisher = privateNode.advertise<nav_msgs::Odometry>("odom", 1000);
@@ -177,6 +190,11 @@ private:
     Goal goal;
 
     /**
+      Field to store the current location of the robot
+    */
+    Goal currentLocation;
+
+    /**
       Field to store whether or not we have set our starting absolute position
     */
     bool setStartingPosition;
@@ -217,16 +235,6 @@ private:
     int goalAttemptCounter;
 
     /**
-      Field to store the available time to complete the course
-    */
-    int competitionTimeLimit;
-
-    /**
-      Field to store the cutoff time before we start working to home
-    */
-    int cutoffTime;
-
-    /**
       Field to store the current number of position callbacks
     */
     int currentCallbackCount;
@@ -235,6 +243,11 @@ private:
       Field to store whether or not the goal has been accepted
     */
     int goalAcceptanceCounter;
+
+    /**
+      Field to store the subgoal distance. -1 means subgoals will not be used
+    */
+    int subgoalDistance;
 
     /**
       Field to store the base path to this node
@@ -334,7 +347,10 @@ private:
 
         hlOdomPublisher.publish(toPublish);
 
-        if (setStartingPosition)
+        currentLocation.x = pose.pose.position.x;
+        currentLocation.y = pose.pose.position.y;
+
+        if (setStartingPosition && setStartingOrientation)
         {
             currentCallbackCount++;
 
@@ -507,13 +523,13 @@ private:
 
                     if (angleOffNorth >= 0)
                     {
-                        p.x = (p.x * cos(angleOffNorth*PI/180)) - (p.y * sin(angleOffNorth*PI/180));
-                        p.y = (p.x * sin(angleOffNorth*PI/180)) + (p.y * cos(angleOffNorth*PI/180));
+                        p.x = (p.x * cos(angleOffNorth*d2r)) - (p.y * sin(angleOffNorth*d2r));
+                        p.y = (p.x * sin(angleOffNorth*d2r)) + (p.y * cos(angleOffNorth*d2r));
                     }
                     else
                     {
-                        p.x = (p.x * cos(angleOffNorth*PI/180)) + (p.y * sin(angleOffNorth*PI/180));
-                        p.y = -(p.x * sin(angleOffNorth*PI/180)) + (p.y * cos(angleOffNorth*PI/180));
+                        p.x = (p.x * cos(angleOffNorth*d2r)) + (p.y * sin(angleOffNorth*d2r));
+                        p.y = -(p.x * sin(angleOffNorth*d2r)) + (p.y * cos(angleOffNorth*d2r));
                     }
 
                     ROS_INFO("\033[2;32mGoalProvider: Read in and converted GPS to UTM: (x: %f, y: %f, distance: %f)\033[0m\n", p.x, p.y, p.distanceFromRobot);
@@ -571,64 +587,111 @@ private:
 
             char buffer[200];
 
-            if (!sentFirstGoal)
+            if (subgoalDistance > 0 && newGoal.distanceFromRobot > subgoalDistance)
             {
-                sentFirstGoal = true;
+                double angleOfLinearPath = atan (abs(newGoal.y) / abs(newGoal.x));
 
-                ROS_INFO("\033[2;32mGoalProvider: Sending first goal(%f, %f)\033[0m\n", newGoal.x, newGoal.y);
-                sprintf(buffer, "Sending first goal(%f, %f)", newGoal.x, newGoal.y);
-                publishStatus(AutonomousStatus::INFO, buffer);
+                double deltaX = 0.0;sin (angleOfLinearPath) * subgoalDistance;
+                double deltaY = 0.0;cos (angleOfLinearPath) * subgoalDistance;
 
-                goal = newGoal;
-
-                goalAttemptCounter = 1;
-                sendGoal(); //Send the new one
-            }
-            else if (newGoal == goal && (goalAttemptCounter >= goalAttemptLimit)) //If the goal is the same but the goal limit has been exceeded
-            {
-                ROS_INFO("\033[2;33mGoal:Provider: The goal (%f, %f) timed out\033[0m\n", goal.x, goal.y);
-                removeCurrentGoal(); //delete the current goal and get a new one
-
-                sprintf(buffer, "The goal (%f, %f) timed out", goal.x, goal.y);
-                publishStatus(AutonomousStatus::INFO, buffer);
-
-                //If there are other goals to visit
-                if (coordsList.size() > 0)
+                if (newGoal.x > currentLocation.x)
                 {
-                    goal = coordsList.front();
+                    deltaX = sin (angleOfLinearPath) * subgoalDistance;
+                    deltaY = cos (angleOfLinearPath) * subgoalDistance;
+                }
+                else
+                {
+                    deltaX = cos (angleOfLinearPath) * subgoalDistance;
+                    deltaY = sin (angleOfLinearPath) * subgoalDistance;
+                }
+
+                goal.distanceFromRobot = 20;
+
+                if (newGoal.x > currentLocation.x)
+                {
+                    goal.x = (currentLocation.x + deltaX);
+                }
+                else
+                {
+                    goal.x = (currentLocation.x - deltaX);
+                }
+
+                if (newGoal.y > currentLocation.y)
+                {
+                    goal.y = (currentLocation.y + deltaY);
+                }
+                else
+                {
+                    goal.y = (currentLocation.y - deltaY);
+                }
+
+                ROS_INFO("\033[2;32mGoalProvider: Goal is beyond %d. Use subgoal (%f, %f) instead", subgoalDistance, goal.x, goal.y);
+                sprintf(buffer, "Goal is beyond %d. Use subgoal (%f, %f) instead", subgoalDistance, goal.x, goal.y);
+                publishStatus(AutonomousStatus::INFO, buffer);
+
+                sendGoal();
+            }
+            else
+            {
+                if (!sentFirstGoal)
+                {
+                    sentFirstGoal = true;
+
+                    ROS_INFO("\033[2;32mGoalProvider: Sending first goal(%f, %f)\033[0m\n", newGoal.x, newGoal.y);
+                    sprintf(buffer, "Sending first goal(%f, %f)", newGoal.x, newGoal.y);
+                    publishStatus(AutonomousStatus::INFO, buffer);
+
+                    goal = newGoal;
 
                     goalAttemptCounter = 1;
-
-                    ROS_INFO("\033[2;32mGoalProvider: Goal (%f, %f) distance %f replaced the timed out goal (%f, %f)\033[0m\n", goal.x, goal.y, goal.distanceFromRobot, newGoal.x, newGoal.y);
-                    sprintf(buffer, "Goal (%f, %f) distance %f replaced the timed out goal (%f, %f)\033[0m\n", goal.x, goal.y, goal.distanceFromRobot, newGoal.x, newGoal.y);
-                    publishStatus(AutonomousStatus::INFO, buffer);
-
                     sendGoal(); //Send the new one
                 }
-                else //otherwise go home
+                else if (newGoal == goal && (goalAttemptCounter >= goalAttemptLimit)) //If the goal is the same but the goal limit has been exceeded
                 {
-                    ROS_INFO("\033[2;32mGoalProvider: No goals left, going home replaced the terminated goal (%f, %f)\033[0m\n", goal.x, goal.y);
-                    sprintf(buffer, "No goals left, going home replaced terminated goal (%f, %f)", goal.x, goal.y);
+                    ROS_INFO("\033[2;33mGoal:Provider: The goal (%f, %f) timed out\033[0m\n", goal.x, goal.y);
+                    removeCurrentGoal(); //delete the current goal and get a new one
+
+                    sprintf(buffer, "The goal (%f, %f) timed out", goal.x, goal.y);
                     publishStatus(AutonomousStatus::INFO, buffer);
 
-                    goal.distanceFromRobot = sqrt(pow(goal.x, 2) + pow(goal.y, 2));
-                    goal.x = 0;
-                    goal.y = 0;
+                    //If there are other goals to visit
+                    if (coordsList.size() > 0)
+                    {
+                        goal = coordsList.front();
 
-                    sendGoal();
+                        goalAttemptCounter = 1;
+
+                        ROS_INFO("\033[2;32mGoalProvider: Goal (%f, %f) distance %f replaced the timed out goal (%f, %f)\033[0m\n", goal.x, goal.y, goal.distanceFromRobot, newGoal.x, newGoal.y);
+                        sprintf(buffer, "Goal (%f, %f) distance %f replaced the timed out goal (%f, %f)\033[0m\n", goal.x, goal.y, goal.distanceFromRobot, newGoal.x, newGoal.y);
+                        publishStatus(AutonomousStatus::INFO, buffer);
+
+                        sendGoal(); //Send the new one
+                    }
+                    else //otherwise go home
+                    {
+                        ROS_INFO("\033[2;32mGoalProvider: No goals left, going home replaced the terminated goal (%f, %f)\033[0m\n", goal.x, goal.y);
+                        sprintf(buffer, "No goals left, going home replaced terminated goal (%f, %f)", goal.x, goal.y);
+                        publishStatus(AutonomousStatus::INFO, buffer);
+
+                        goal.distanceFromRobot = sqrt(pow(goal.x, 2) + pow(goal.y, 2));
+                        goal.x = 0;
+                        goal.y = 0;
+
+                        sendGoal();
+                    }
                 }
+                else if (newGoal != goal) //If the goal is different to the current one then send it
+                {
+                    ROS_INFO("\033[2;32mGoalProvider: Goal (%f, %f) replaced goal (%f, %f)\033[0m\n", newGoal.x, newGoal.y, goal.x, goal.y);
+                    sprintf(buffer, "Goal (%f, %f) replaced goal (%f, %f)", newGoal.x, newGoal.y, goal.x, goal.y);
+                    publishStatus(AutonomousStatus::INFO, buffer);
+
+                    goal = newGoal;
+
+                    goalAttemptCounter = 1;
+                    sendGoal(); //Send the new one
+                }//If the closest goal is the same as the current one and the attempt limit is not exceeded then continue onwards
             }
-            else if (newGoal != goal) //If the goal is different to the current one then send it
-            {
-                ROS_INFO("\033[2;32mGoalProvider: Goal (%f, %f) replaced goal (%f, %f)\033[0m\n", newGoal.x, newGoal.y, goal.x, goal.y);
-                sprintf(buffer, "Goal (%f, %f) replaced goal (%f, %f)", newGoal.x, newGoal.y, goal.x, goal.y);
-                publishStatus(AutonomousStatus::INFO, buffer);
-
-                goal = newGoal;
-
-                goalAttemptCounter = 1;
-                sendGoal(); //Send the new one
-            }//If the closest goal is the same as the current one and the attempt limit is not exceeded then continue onwards
         }
         else
         { //Head home

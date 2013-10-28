@@ -1,0 +1,8 @@
+<launch>
+  <node name="agvc_coordinator" pkg="agvc_coordinator" type="agvc_coordinator" output="screen">
+    <param name="joystick" value="true" />
+    <param name="path" value="/home/enda/fuerte_workspace/sandbox/" />
+  </node>
+
+  <node name="joy_node" pkg="joy" type="joy_node" output="screen" />
+</launch>
