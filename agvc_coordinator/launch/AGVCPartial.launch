@@ -59,6 +59,17 @@
   	<remap from="scan" to="tilt_scan"/>
   	<param name="frame_id" value="tilt_laser" />
   </node>
-  
-  
+
+  <node pkg="hector_pose_estimation" type="pose_estimation" name="pose_estimation">
+	  <param name="world_frame" value="map" />
+	  <param name="nav_frame" value="odom" />
+	  <param name="base_frame" value="base_link" />
+	  <param name="footprint_frame" value="" />
+	  <param name="position_frame" value="" />
+	  <param name="stabilized_frame" value="" />
+    <remap from="/fix" to="/gps_fix" />
+    <remap from="/fix_velocity" to="gps_velocity" />
+
+    <remap from="/local_poseupdate" to="/poseupdate" />
+  </node>
 </launch>

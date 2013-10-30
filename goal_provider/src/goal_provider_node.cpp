@@ -66,6 +66,8 @@ public:
         goalAttemptCounter = 0;
         goalAcceptanceCounter = 0;
         angleOffNorth = 0.0;
+        positionCounter = 0;
+        imuCounter = 0;
 
         setStartTime();
 
@@ -250,6 +252,17 @@ private:
     int subgoalDistance;
 
     /**
+      Field to store the number of times we have set our position
+    */
+
+    int positionCounter;
+
+    /**
+      Field to store the number of times we have set our orientation
+    */
+    int imuCounter;
+
+    /**
       Field to store the base path to this node
     */
     string path;
@@ -266,10 +279,14 @@ private:
             double northing = 0.0;
             double easting = 0.0;           
 
+            //Convert GPS to UTM
             gps_common::LLtoUTM(fix.latitude, fix.longitude, northing, easting, utmZone);
 
-            gpsUTMOrigin.x = northing;
-            gpsUTMOrigin.y = easting;
+            //Accumulate estimations
+            gpsUTMOrigin.x += northing;
+            gpsUTMOrigin.y += easting;
+
+            positionCounter++;
 
             ROS_INFO("\033[2;32mGoalProvider: Set starting point to (%f, %f) or (%f, %f)\033[0m\n", fix.latitude, fix.longitude, gpsUTMOrigin.x, gpsUTMOrigin.y);
 
@@ -277,17 +294,24 @@ private:
             sprintf(buffer, "Set starting point to (%f, %f) or (%f, %f)", fix.latitude, fix.longitude, gpsUTMOrigin.x, gpsUTMOrigin.y);
             publishStatus(AutonomousStatus::WAITING, buffer);
 
-            setStartingPosition = true;
-
-            if (setStartingOrientation)
+            //Only if we have set our position 10 times
+            if (positionCounter >= 10)
             {
-                //Read in config file
-                readConfigFile();
+                gpsUTMOrigin.x = gpsUTMOrigin.x / 10;
+                gpsUTMOrigin.y = gpsUTMOrigin.y / 10;
 
-                //Push out the first goal
-                loadNewGoal();
+                setStartingPosition = true;
 
-                goalAttemptLimit++;
+                if (setStartingOrientation)
+                {
+                    //Read in config file
+                    readConfigFile();
+
+                    //Push out the first goal
+                    loadNewGoal();
+
+                    goalAttemptLimit++;
+                }
             }
         }
     }
@@ -300,34 +324,44 @@ private:
     {
         if (!setStartingOrientation)
         {
-            angleOffNorth = (180 * imu.orientation.z); //Minus 1.617 because magnetic and true north are not the same. This will need changing for the competition
+            //Set the angle
+            double angle = (180 * imu.orientation.z); //Minus 1.617 because magnetic and true north are not the same. This will need changing for the competition
 
-            if (angleOffNorth >= 0)
+            if (angle >= 0)
             {
-                angleOffNorth -= 1.617;
+                angle -= 1.617;
             }
             else
             {
-                angleOffNorth += 1.617;
+                angle += 1.617;
             }
 
-            setStartingOrientation = true;
+            angleOffNorth += angle;
+            imuCounter++;
 
-            ROS_INFO("\033[2;32mGoalProvider: Set angle off of north to %f\033[0m\n", angleOffNorth);
-
-            char buffer[200];
-            sprintf(buffer, "Set angle off of north to %f", angleOffNorth);
-            publishStatus(AutonomousStatus::WAITING, buffer);
-
-            if (setStartingPosition)
+            //Only if we have set our orientation 10 times
+            if (imuCounter >= 10)
             {
-                //Read in config file
-                readConfigFile();
+                setStartingOrientation = true;
 
-                //Push out the first goal
-                loadNewGoal();
+                angleOffNorth = angleOffNorth / 10;
 
-                goalAttemptLimit++;
+                ROS_INFO("\033[2;32mGoalProvider: Set angle off of north to %f\033[0m\n", angleOffNorth);
+
+                char buffer[200];
+                sprintf(buffer, "Set angle off of north to %f", angleOffNorth);
+                publishStatus(AutonomousStatus::WAITING, buffer);
+
+                if (setStartingPosition)
+                {
+                    //Read in config file
+                    readConfigFile();
+
+                    //Push out the first goal
+                    loadNewGoal();
+
+                    goalAttemptLimit++;
+                }
             }
         }
     }
@@ -512,8 +546,14 @@ private:
 
                 if (!testing)
                 {
+                    char buffer[200];
                     gps_common::LLtoUTM(latitude, longitude, p.x, p.y, utmZone);
 
+                    ROS_INFO("\033[2;32mGoalProvider: Converted GPS (%f, %f) into UTM (%f, %f)\033[0m\n", latitude, longitude, p.x, p.y);
+                    sprintf(buffer, "Converted GPS (%f, %f) into UTM (%f, %f)", latitude, longitude, p.x, p.y);
+                    publishStatus(AutonomousStatus::INFO, buffer);
+
+                    //Translate the UTM into our coordinate frame
                     p.x -= gpsUTMOrigin.x;
                     p.y -= gpsUTMOrigin.y;
 
@@ -521,6 +561,7 @@ private:
 
                     p.distanceFromRobot = sqrt(pow((p.x), 2) + pow((p.y), 2));
 
+                    //Rotate the UTM into the robot coordinate frame
                     if (angleOffNorth >= 0)
                     {
                         p.x = (p.x * cos(angleOffNorth*d2r)) - (p.y * sin(angleOffNorth*d2r));
@@ -532,10 +573,9 @@ private:
                         p.y = -(p.x * sin(angleOffNorth*d2r)) + (p.y * cos(angleOffNorth*d2r));
                     }
 
-                    ROS_INFO("\033[2;32mGoalProvider: Read in and converted GPS to UTM: (x: %f, y: %f, distance: %f)\033[0m\n", p.x, p.y, p.distanceFromRobot);
+                    ROS_INFO("\033[2;32mGoalProvider: Shifted UTM into robot frame (%f, %f) with distance: %f)\033[0m\n", p.x, p.y, p.distanceFromRobot);
 
-                    char buffer[200];
-                    sprintf(buffer, "Read in and converted GPS to UTM: (x: %f, y: %f, distance: %f)", p.x, p.y, p.distanceFromRobot);
+                    sprintf(buffer, "Shifted UTM into robot frame (%f, %f) with distance: %f)", p.x, p.y, p.distanceFromRobot);
                     publishStatus(AutonomousStatus::INFO, buffer);
 
                     coordsList.push_front(p);
@@ -589,10 +629,17 @@ private:
 
             if (subgoalDistance > 0 && newGoal.distanceFromRobot > subgoalDistance)
             {
-                double angleOfLinearPath = atan (abs(newGoal.y) / abs(newGoal.x));
+                ROS_INFO("\033[2;32mGoalProvider: Current location (%f, %f)\033[0m\n", currentLocation.x, currentLocation.y);
+                sprintf(buffer, "Current location (%f, %f)\033[0m\n", currentLocation.x, currentLocation.y);
+                publishStatus(AutonomousStatus::INFO, buffer);
 
-                double deltaX = 0.0;sin (angleOfLinearPath) * subgoalDistance;
-                double deltaY = 0.0;cos (angleOfLinearPath) * subgoalDistance;
+                double xDistance = abs(currentLocation.x - newGoal.x);
+                double yDistance = abs(currentLocation.y - newGoal.y);
+
+                double angleOfLinearPath = atan (yDistance / xDistance);
+
+                double deltaX = 0.0;
+                double deltaY = 0.0;
 
                 if (newGoal.x > currentLocation.x)
                 {
@@ -625,8 +672,8 @@ private:
                     goal.y = (currentLocation.y - deltaY);
                 }
 
-                ROS_INFO("\033[2;32mGoalProvider: Goal is beyond %d. Use subgoal (%f, %f) instead", subgoalDistance, goal.x, goal.y);
-                sprintf(buffer, "Goal is beyond %d. Use subgoal (%f, %f) instead", subgoalDistance, goal.x, goal.y);
+                ROS_INFO("\033[2;32mGoalProvider: Goal is %f which is beyond %d. Use subgoal (%f, %f) instead\033[0m\n", newGoal.distanceFromRobot, subgoalDistance, goal.x, goal.y);
+                sprintf(buffer, "Goal is %f which is beyond %d. Use subgoal (%f, %f) instead", newGoal.distanceFromRobot, subgoalDistance, goal.x, goal.y);
                 publishStatus(AutonomousStatus::INFO, buffer);
 
                 sendGoal();

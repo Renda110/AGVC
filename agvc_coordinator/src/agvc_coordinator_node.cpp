@@ -444,7 +444,7 @@ private:
 
             while(getline(nodeFile, line))
             {
-                if (line != "/agvc_coordinator" && line != "/rosout" && line != "/rosout_agg" && line != "/joy_node" && line != "/xsens_driver")
+                if (line != "/agvc_coordinator" && line != "/rosout" && line != "/rosout_agg" && line != "/joy_node" && line != "/xsens_driver" && line != "/imagetest")
                 {
                     char buffer[100];
                     sprintf(buffer, "rosnode kill %s", line.c_str());
