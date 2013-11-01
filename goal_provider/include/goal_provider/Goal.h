@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include <math.h>
 
 /**
   A class to represent a Goal.
@@ -8,6 +9,7 @@
 class Goal
 {
   public:
+
     /**
       Field to store the x location of this Goal
     */
@@ -19,12 +21,14 @@ class Goal
     double y;
 
     /**
-      Field to store the distance of this Goal from the robot
+      Field to store the distance of this goal from the robot
     */
     double distanceFromRobot;
 
     Goal();
     Goal(double, double, double);
+
+    friend Goal operator-(const Goal& g1, const Goal& g2);
 
     bool operator> (Goal& g)
     {

@@ -288,15 +288,15 @@ private:
 
             positionCounter++;
 
-            ROS_INFO("\033[2;32mGoalProvider: Set starting point to (%f, %f) or (%f, %f)\033[0m\n", fix.latitude, fix.longitude, gpsUTMOrigin.x, gpsUTMOrigin.y);
-
-            char buffer[200];
-            sprintf(buffer, "Set starting point to (%f, %f) or (%f, %f)", fix.latitude, fix.longitude, gpsUTMOrigin.x, gpsUTMOrigin.y);
-            publishStatus(AutonomousStatus::WAITING, buffer);
-
             //Only if we have set our position 10 times
             if (positionCounter >= 10)
             {
+                ROS_INFO("\033[2;32mGoalProvider: Set starting point to (%f, %f) or (%f, %f)\033[0m\n", fix.latitude, fix.longitude, gpsUTMOrigin.x, gpsUTMOrigin.y);
+
+                char buffer[200];
+                sprintf(buffer, "Set starting point to (%f, %f) or (%f, %f)", fix.latitude, fix.longitude, gpsUTMOrigin.x, gpsUTMOrigin.y);
+                publishStatus(AutonomousStatus::WAITING, buffer);
+
                 gpsUTMOrigin.x = gpsUTMOrigin.x / 10;
                 gpsUTMOrigin.y = gpsUTMOrigin.y / 10;
 
@@ -322,7 +322,7 @@ private:
     */
     void imuCallback(const sensor_msgs::Imu imu)
     {
-        if (!setStartingOrientation)
+        if (!setStartingOrientation && !testing)
         {
             //Set the angle
             double angle = (180 * imu.orientation.z); //Minus 1.617 because magnetic and true north are not the same. This will need changing for the competition
@@ -384,7 +384,7 @@ private:
         currentLocation.x = pose.pose.position.x;
         currentLocation.y = pose.pose.position.y;
 
-        if (setStartingPosition && setStartingOrientation)
+        if (setStartingPosition && (setStartingOrientation || testing))
         {
             currentCallbackCount++;
 
@@ -629,54 +629,47 @@ private:
 
             if (subgoalDistance > 0 && newGoal.distanceFromRobot > subgoalDistance)
             {
-                ROS_INFO("\033[2;32mGoalProvider: Current location (%f, %f)\033[0m\n", currentLocation.x, currentLocation.y);
-                sprintf(buffer, "Current location (%f, %f)\033[0m\n", currentLocation.x, currentLocation.y);
-                publishStatus(AutonomousStatus::INFO, buffer);
+                Goal temp;
+                generateSubgoal(temp, newGoal);
 
-                double xDistance = abs(currentLocation.x - newGoal.x);
-                double yDistance = abs(currentLocation.y - newGoal.y);
-
-                double angleOfLinearPath = atan (yDistance / xDistance);
-
-                double deltaX = 0.0;
-                double deltaY = 0.0;
-
-                if (newGoal.x > currentLocation.x)
+                if (temp == goal && goalAttemptCounter < goalAttemptLimit)
                 {
-                    deltaX = sin (angleOfLinearPath) * subgoalDistance;
-                    deltaY = cos (angleOfLinearPath) * subgoalDistance;
+                    sendGoal();
+                }
+                else if (temp == goal && goalAttemptCounter > goalAttemptLimit)
+                {
+                    removeCurrentGoal();
+
+                    if(coordsList.size() > 0)
+                    {
+                        newGoal = coordsList.front();
+
+                        if (newGoal.distanceFromRobot > subgoalDistance)
+                        {
+                            generateSubgoal(temp, newGoal);
+                            goal = temp;
+                        }
+                        else
+                        {
+                            goal = newGoal;
+                        }
+                    }
+                    else
+                    {
+                        goal.x = 0;
+                        goal.y = 0;
+                    }
+
+                    goalAttemptCounter = 1;
+                    sendGoal();
                 }
                 else
                 {
-                    deltaX = cos (angleOfLinearPath) * subgoalDistance;
-                    deltaY = sin (angleOfLinearPath) * subgoalDistance;
-                }
+                    goal = temp;
+                    goalAttemptCounter = 1;
 
-                goal.distanceFromRobot = 20;
-
-                if (newGoal.x > currentLocation.x)
-                {
-                    goal.x = (currentLocation.x + deltaX);
+                    sendGoal();
                 }
-                else
-                {
-                    goal.x = (currentLocation.x - deltaX);
-                }
-
-                if (newGoal.y > currentLocation.y)
-                {
-                    goal.y = (currentLocation.y + deltaY);
-                }
-                else
-                {
-                    goal.y = (currentLocation.y - deltaY);
-                }
-
-                ROS_INFO("\033[2;32mGoalProvider: Goal is %f which is beyond %d. Use subgoal (%f, %f) instead\033[0m\n", newGoal.distanceFromRobot, subgoalDistance, goal.x, goal.y);
-                sprintf(buffer, "Goal is %f which is beyond %d. Use subgoal (%f, %f) instead", newGoal.distanceFromRobot, subgoalDistance, goal.x, goal.y);
-                publishStatus(AutonomousStatus::INFO, buffer);
-
-                sendGoal();
             }
             else
             {
@@ -751,6 +744,38 @@ private:
 
             sendGoal();
         }
+    }
+
+    /**
+      Generates a subgoal
+      @param subgoal Reference to store the new subgoal in
+      @param overallGoal The overall destination we wish to reach
+    */
+    void generateSubgoal(Goal& subgoal, Goal &overallGoal)
+    {
+        char buffer[200];
+
+        ROS_INFO("\033[2;32mGoalProvider: Current location (%f, %f)\033[0m\n", currentLocation.x, currentLocation.y);
+        sprintf(buffer, "Current location (%f, %f)", currentLocation.x, currentLocation.y);
+        publishStatus(AutonomousStatus::INFO, buffer);
+
+        Goal difference = overallGoal - currentLocation;
+
+        ROS_INFO("\033[2;32mGoalProvider: Offset from goal (%f, %f)\033[0m\n", difference.x, difference.y);
+        sprintf(buffer, "Offset from goal (%f, %f)", difference.x, difference.y);
+        publishStatus(AutonomousStatus::INFO, buffer);
+
+        double angleOfLinearPath = atan2(difference.x, -difference.y);
+
+        double deltaX = subgoalDistance * sin(angleOfLinearPath);
+        double deltaY = -subgoalDistance * cos(angleOfLinearPath);
+
+        subgoal.x = currentLocation.x + deltaX;
+        subgoal.y = currentLocation.y + deltaY;
+
+        ROS_INFO("\033[2;32mGoalProvider: Goal is %fm which is beyond %dm. Use subgoal (%f, %f) instead\033[0m\n", overallGoal.distanceFromRobot, subgoalDistance, subgoal.x, subgoal.y);
+        sprintf(buffer, "Goal is %f which is beyond %d. Use subgoal (%f, %f) instead", overallGoal.distanceFromRobot, subgoalDistance, subgoal.x, subgoal.y);
+        publishStatus(AutonomousStatus::INFO, buffer);
     }
 
     /**

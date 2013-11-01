@@ -22,3 +22,13 @@ Goal::Goal(double x, double y, double distanceFromRobot)
   this->y = y;
   this->distanceFromRobot = distanceFromRobot;
 }
+
+Goal operator- (const Goal& g1, const Goal& g2)
+{
+    Goal g;
+
+    g.x = g1.x - g2.x;
+    g.y = g1.y - g2.y;
+
+    return g;
+}
