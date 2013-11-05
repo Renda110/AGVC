@@ -4,6 +4,7 @@
     <param name="goal_attempt_limit" value="5" />
     <param name="subgoal_distance" value="10" />
     <param name="testing" value="true" />
+    <param name="using_imu" value="false" />
     <param name="path" value="/home/enda/fuerte_workspace/sandbox/" />
   </node>
 </launch>

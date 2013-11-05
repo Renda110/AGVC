@@ -81,7 +81,7 @@ class Goal
             return false;
         }
 
-        return (deltaX < 0.001 && deltaX > -0.001) && (deltaY < 0.001 && deltaY > -0.001);
+        return (deltaX < 0.5 && deltaX > -0.5) && (deltaY < 0.5 && deltaY > -0.5);
     }
 
     bool operator!= (Goal& g)

@@ -76,6 +76,7 @@ public:
         privateNode.param("callbacks_till_goal_update", callbacksUntilGoalUpdate, 1000);
         privateNode.param("goal_attempt_limit", goalAttemptLimit, 5);
         privateNode.param("testing", testing, false);
+        privateNode.param("using_imu", usingImu, true);
         privateNode.param("path", path, std::string("/home/enda/fuerte_workspace/sandbox/"));
         privateNode.param("subgoal_distance", subgoalDistance, -1);
 
@@ -100,6 +101,10 @@ public:
         sprintf(buffer, "Testing set to: %d", (testing) ? 1 : 0);
         writeToLog(buffer);
 
+        ROS_INFO("\033[2;32mGoalProvider: Using the IMU set to: %d\033[0m\n", (usingImu) ? 1 : 0);
+        sprintf(buffer, "Using the IMU set to: %d", (usingImu) ? 1 : 0);
+        writeToLog(buffer);
+
         if(!mb.waitForServer(ros::Duration(5.0)))
         {
             ROS_INFO("\033[2;33mGoalProvider: The move_base action server did not come up within 5 seconds. Trying for another 5s\033[0m\n");
@@ -114,6 +119,12 @@ public:
 
                 exit(0);
             }
+        }
+
+        //Not using the imu so set the starting orientation now
+        if (!usingImu)
+        {
+            setStartingOrientation = true;
         }
 
         gpsSubscriber = node.subscribe("/gps_fix", 1000, &GoalProvider::gpsCallback, this);
@@ -210,6 +221,11 @@ private:
       Field to store if we are testing without GPS or not
     */
     bool testing;
+
+    /**
+      Field to store if we are using the IMU to set the starting orientation of the robot
+    */
+    bool usingImu;
 
     /**
       Field to store if we have sent the first goal or not
@@ -636,8 +652,11 @@ private:
                 {
                     sendGoal();
                 }
-                else if (temp == goal && goalAttemptCounter > goalAttemptLimit)
+                else if (temp == goal && goalAttemptCounter >= goalAttemptLimit)
                 {
+                    sprintf(buffer, "Goal (%f, %f) failed too many times", (goal.x, goal.y));
+                    publishStatus(AutonomousStatus::INFO, buffer);
+
                     removeCurrentGoal();
 
                     if(coordsList.size() > 0)
@@ -656,9 +675,14 @@ private:
                     }
                     else
                     {
+                        publishStatus(AutonomousStatus::INFO, "Going home...");
                         goal.x = 0;
                         goal.y = 0;
+                        goal.distanceFromRobot = sqrt(pow(currentLocation.x, 2) + pow(currentLocation.y, 2));
                     }
+
+                    sprintf(buffer, "Replacement goal chosen as (%f, %f)", goal.x, goal.y);
+                    publishStatus(AutonomousStatus::INFO, buffer);
 
                     goalAttemptCounter = 1;
                     sendGoal();
@@ -772,6 +796,7 @@ private:
 
         subgoal.x = currentLocation.x + deltaX;
         subgoal.y = currentLocation.y + deltaY;
+        subgoal.distanceFromRobot = sqrt(pow(subgoal.x, 2) + pow(subgoal.y, 2));
 
         ROS_INFO("\033[2;32mGoalProvider: Goal is %fm which is beyond %dm. Use subgoal (%f, %f) instead\033[0m\n", overallGoal.distanceFromRobot, subgoalDistance, subgoal.x, subgoal.y);
         sprintf(buffer, "Goal is %f which is beyond %d. Use subgoal (%f, %f) instead", overallGoal.distanceFromRobot, subgoalDistance, subgoal.x, subgoal.y);

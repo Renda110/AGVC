@@ -84,7 +84,6 @@
          <Option type="1" />
          <Option compiler="gcc" />
          <Compiler>
-            <Add option="-DBOOST_CB_DISABLE_DEBUG" />
             <Add directory="/home/enda/fuerte_workspace/sandbox/goal_provider/include" />
             <Add directory="/home/enda/fuerte_workspace/sandbox/goal_provider/msg_gen/cpp/include" />
             <Add directory="/home/enda/fuerte_workspace/sandbox/gps_common/include" />
@@ -147,7 +146,6 @@
          <Option type="1" />
          <Option compiler="gcc" />
          <Compiler>
-            <Add option="-DBOOST_CB_DISABLE_DEBUG" />
             <Add directory="/home/enda/fuerte_workspace/sandbox/goal_provider/include" />
             <Add directory="/home/enda/fuerte_workspace/sandbox/goal_provider/msg_gen/cpp/include" />
             <Add directory="/home/enda/fuerte_workspace/sandbox/gps_common/include" />
