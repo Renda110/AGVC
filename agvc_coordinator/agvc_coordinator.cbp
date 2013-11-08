@@ -68,6 +68,9 @@
             <Add directory="/home/enda/fuerte_workspace/sandbox/p2os/p2os_driver/include" />
             <Add directory="/home/enda/fuerte_workspace/sandbox/p2os/p2os_driver/msg/cpp" />
             <Add directory="/home/enda/fuerte_workspace/sandbox/p2os/p2os_driver/msg_gen/cpp/include" />
+            <Add directory="/home/enda/fuerte_workspace/sandbox/sound_play/include" />
+            <Add directory="/home/enda/fuerte_workspace/sandbox/sound_play/msg/cpp" />
+            <Add directory="/home/enda/fuerte_workspace/sandbox/sound_play/msg_gen/cpp/include" />
             <Add directory="/opt/ros/fuerte/include" />
             <Add directory="/opt/ros/fuerte/stacks/bullet/include" />
             <Add directory="/opt/ros/fuerte/stacks/diagnostics/diagnostic_updater/include" />
@@ -94,6 +97,9 @@
             <Add directory="/home/enda/fuerte_workspace/sandbox/p2os/p2os_driver/include" />
             <Add directory="/home/enda/fuerte_workspace/sandbox/p2os/p2os_driver/msg/cpp" />
             <Add directory="/home/enda/fuerte_workspace/sandbox/p2os/p2os_driver/msg_gen/cpp/include" />
+            <Add directory="/home/enda/fuerte_workspace/sandbox/sound_play/include" />
+            <Add directory="/home/enda/fuerte_workspace/sandbox/sound_play/msg/cpp" />
+            <Add directory="/home/enda/fuerte_workspace/sandbox/sound_play/msg_gen/cpp/include" />
             <Add directory="/opt/ros/fuerte/include" />
             <Add directory="/opt/ros/fuerte/stacks/bullet/include" />
             <Add directory="/opt/ros/fuerte/stacks/diagnostics/diagnostic_updater/include" />

@@ -1,9 +1,11 @@
 <launch>
+  <node name="sound_play" pkg="sound_play" type="soundplay_node.py" />
+
   <node name="nmea_gps_driver" pkg="nmea_gps_driver" type="nmea_gps_driver.py">
     <param name="port" value="/dev/ttyACM1"/>
     <param name="frame_id" value="base_gps" />
     <remap from="/fix" to="/gps_fix" />
-    <remap from="/vel" to="gps_velocity" />
+    <remap from="/vel" to="/gps_velocity" />
   </node>
 
 	<node name="p2os" pkg="p2os_driver" type="p2os" >
@@ -85,8 +87,8 @@
 	  <param name="position_frame" value="" />
 	  <param name="stabilized_frame" value="" />
     <remap from="/fix" to="/gps_fix" />
-    <remap from="/fix_velocity" to="gps_velocity" />
-
+    <remap from="/fix_velocity" to="/gps_velocity" />
+    <remap from="/velocity" to="/hl_velocity" />
     <remap from="/local_poseupdate" to="/poseupdate" />
   </node>
 
@@ -95,6 +97,7 @@
     <param name="goal_attempt_limit" value="5" />
     <param name="subgoal_distance" value="10" />
     <param name="testing" value="true" />
+    <param name="using_imu" value="true" />
     <param name="path" value="/home/wambot/fuerte_workspace/" />
   </node>
 </launch>

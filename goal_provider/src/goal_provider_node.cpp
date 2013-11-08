@@ -40,6 +40,7 @@ typedef actionlib::SimpleActionClient<move_base_msgs::MoveBaseAction> MoveBaseCl
 
 #define PI 3.14159265
 #define d2r PI/180
+#define r2d 180/PI
 
 /**
     The GoalProvider class.
@@ -299,22 +300,22 @@ private:
             gps_common::LLtoUTM(fix.latitude, fix.longitude, northing, easting, utmZone);
 
             //Accumulate estimations
-            gpsUTMOrigin.x += northing;
-            gpsUTMOrigin.y += easting;
+            gpsUTMOrigin.x += easting;
+            gpsUTMOrigin.y += northing;
 
             positionCounter++;
 
             //Only if we have set our position 10 times
             if (positionCounter >= 10)
             {
+                gpsUTMOrigin.x = gpsUTMOrigin.x / 10;
+                gpsUTMOrigin.y = gpsUTMOrigin.y / 10;
+
                 ROS_INFO("\033[2;32mGoalProvider: Set starting point to (%f, %f) or (%f, %f)\033[0m\n", fix.latitude, fix.longitude, gpsUTMOrigin.x, gpsUTMOrigin.y);
 
                 char buffer[200];
                 sprintf(buffer, "Set starting point to (%f, %f) or (%f, %f)", fix.latitude, fix.longitude, gpsUTMOrigin.x, gpsUTMOrigin.y);
                 publishStatus(AutonomousStatus::WAITING, buffer);
-
-                gpsUTMOrigin.x = gpsUTMOrigin.x / 10;
-                gpsUTMOrigin.y = gpsUTMOrigin.y / 10;
 
                 setStartingPosition = true;
 
@@ -341,7 +342,7 @@ private:
         if (!setStartingOrientation && !testing)
         {
             //Set the angle
-            double angle = (180 * imu.orientation.z); //Minus 1.617 because magnetic and true north are not the same. This will need changing for the competition
+            double angle = quatToEuler(imu); //Minus 1.617 because magnetic and true north are not the same. This will need changing for the competition
 
             if (angle >= 0)
             {
@@ -379,6 +380,29 @@ private:
                     goalAttemptLimit++;
                 }
             }
+        }
+    }
+
+    /**
+      Converts the quaternion orientation measurements from the IMU into euler measurements
+      @param imuData The IMU measurement
+      @return The rotation of the IMU around the z axis
+    */
+    double quatToEuler(const sensor_msgs::Imu imuData)
+    {
+        double test = imuData.orientation.x*imuData.orientation.y + imuData.orientation.z*imuData.orientation.w;
+
+        if (test > 0.499)
+        { // singularity at north pole
+             return ((PI/2) * r2d);
+        }
+        else if (test < -0.499)
+        {
+            return ((-PI/2) * r2d);
+        }
+        else
+        {
+            return (asin(2*test) * r2d);
         }
     }
 
@@ -563,17 +587,15 @@ private:
                 if (!testing)
                 {
                     char buffer[200];
-                    gps_common::LLtoUTM(latitude, longitude, p.x, p.y, utmZone);
+                    gps_common::LLtoUTM(latitude, longitude, p.y, p.x, utmZone);
 
                     ROS_INFO("\033[2;32mGoalProvider: Converted GPS (%f, %f) into UTM (%f, %f)\033[0m\n", latitude, longitude, p.x, p.y);
                     sprintf(buffer, "Converted GPS (%f, %f) into UTM (%f, %f)", latitude, longitude, p.x, p.y);
                     publishStatus(AutonomousStatus::INFO, buffer);
 
                     //Translate the UTM into our coordinate frame
-                    p.x -= gpsUTMOrigin.x;
-                    p.y -= gpsUTMOrigin.y;
-
-                    p.y *= -1; //Flip this so that it is the correct direction for the robot
+                    p.x = gpsUTMOrigin.x - p.x;
+                    p.y = gpsUTMOrigin.y - p.y;
 
                     p.distanceFromRobot = sqrt(pow((p.x), 2) + pow((p.y), 2));
 
@@ -588,6 +610,11 @@ private:
                         p.x = (p.x * cos(angleOffNorth*d2r)) + (p.y * sin(angleOffNorth*d2r));
                         p.y = -(p.x * sin(angleOffNorth*d2r)) + (p.y * cos(angleOffNorth*d2r));
                     }
+
+                    //Change the coordinate frame to be correct for the robot
+                    double temp = p.x;
+                    p.x = p.y;
+                    p.y = -temp;
 
                     ROS_INFO("\033[2;32mGoalProvider: Shifted UTM into robot frame (%f, %f) with distance: %f)\033[0m\n", p.x, p.y, p.distanceFromRobot);
 

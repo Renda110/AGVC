@@ -6,6 +6,7 @@
 #include <unistd.h>
 
 #include <p2os_driver/MotorState.h>
+#include <sound_play/sound_play.h>
 #include <ros/ros.h>
 #include <sensor_msgs/Joy.h>
 
@@ -42,7 +43,7 @@ public:
 
         setStartTime();
 
-        sleep(10); //wait some time for the IMU to become available. No other easy way to do this
+        sleep(10); //wait some time for the IMU and sound driver to become available. No other easy way to do this
         system ("roslaunch xsens_driver xsens_driver.launch &");
 
         if (!usingJoystick)
@@ -144,6 +145,10 @@ private:
         {
             toggleMotorState(false);
 
+        }
+        else if (joy.buttons[7] == 1) //Shut the robot up
+        {
+            shutup();
         }
         else if (joy.buttons[8] == 1) //Button 9: Toggle a bag file on or off
         {
@@ -323,6 +328,8 @@ private:
                     cout << "\033[2;32mAGVC_Coordinator: Motors disabled\033[0m" << endl;
                     writeToLog("Motors disabled");
                     motorsActive = !motorsActive;
+
+                    playSound("Motors disabled");
                 }
                 else
                 {
@@ -330,12 +337,16 @@ private:
                     cout << "\033[2;32mAGVC_Coordinator: Motors enabled\033[0m" << endl;
                     writeToLog("Motors enabled");
                     motorsActive = !motorsActive;
+
+                    playSound("Motors enabled");
                 }
             }
             else
             {
                 cout << "\033[1;31mAGVC_Coordinator: No mode is active\033[0m" << endl;
                 writeToLog("No mode is active");
+
+                playSound("No mode is active");
             }
         }
         else
@@ -363,11 +374,15 @@ private:
 
             cout << "\033[2;32mAGVC_Coordinator: Full autonomous mode activated\033[0m" << endl;
             writeToLog("Full autonomous mode activated");
+
+            playSound("Autonomy enabled");
         }
         else
         {
             cout << "\033[1;31mAGVC_Coordinator: Another mode is active\033[0m" << endl;
             writeToLog("Another mode is active");
+
+            playSound("Another mode is active");
         }
     }
 
@@ -385,6 +400,8 @@ private:
         killNodes();
 
         fullActive = false;
+
+        playSound("Autonomy disabled");
     }
 
     /**
@@ -401,11 +418,15 @@ private:
 
             cout << "\033[2;32mAGVC_Coordinator: Partial mode activated\033[0m" << endl;
             writeToLog("Partial mode activated");
+
+            playSound("Manual control enabled");
         }
         else
         {
             cout << "\033[1;31mAGVC_Coordinator: Another mode is active\033[0m" << endl;
             writeToLog("Another mode is active");
+
+            playSound("Another mode is active");
         }
     }
 
@@ -424,6 +445,8 @@ private:
         killNodes();
 
         partialActive = false;
+
+        playSound("Manual control disabled");
     }
 
     /**
@@ -432,29 +455,65 @@ private:
     void killNodes()
     {
         ifstream nodeFile("nodes");
+        char allowedNodesFilename[200];
+        list<string> allowedNodes;
+
+        if (fullActive)
+        {
+            sprintf(allowedNodesFilename, "%sagvc_coordinator/config/AutonomousNodesToKeep", path.c_str());
+        }
+        else
+        {
+            sprintf(allowedNodesFilename, "%sagvc_coordinator/config/ManualNodesToKeep", path.c_str());
+        }
+
+        ifstream allowedNodesFile(allowedNodesFilename);
 
         if (!nodeFile.is_open())
         {
             cout << "\033[1;31mAGVC_Coordinator: Could not load nodes file\033[0m\n" << endl;
             writeToLog("Could not load nodes file");
         }
+        else if (!allowedNodesFile.is_open())
+        {
+            cout << "\033[1;31mAGVC_Coordinator: Could not load allowed nodes file\033[0m\n" << endl;
+            writeToLog("Could not load allowed nodes file");
+        }
         else
         {
             string line;
 
+            while(getline(allowedNodesFile, line))
+            {
+                allowedNodes.push_front(line);
+            }
+
             while(getline(nodeFile, line))
             {
-                if (line != "/agvc_coordinator" && line != "/rosout" && line != "/rosout_agg" && line != "/joy_node" && line != "/xsens_driver" && line != "/imagetest")
+                bool keep = false;
+
+                for(list<string>::const_iterator it = allowedNodes.begin(); it != allowedNodes.end(); it++)
+                {
+                    if (line == (*it))
+                    {
+                        keep = true;
+                    }
+                }
+
+                if (!keep)
                 {
                     char buffer[100];
                     sprintf(buffer, "rosnode kill %s", line.c_str());
                     system (buffer);
+
+                    writeToLog(buffer);
                 }
             }
-        }
 
-        nodeFile.close();
-        system ("rm nodes");
+            allowedNodesFile.close();
+            nodeFile.close();
+            system ("rm nodes");
+        }
     }
 
     /**
@@ -479,6 +538,8 @@ private:
 
             cout << "\033[2;32mAGVC_Coordinator: Bag file started\033[0m" << endl;
             writeToLog("Bag file started");
+
+            playSound("Bag file started");
         }
         else
         {
@@ -525,6 +586,8 @@ private:
             writeToLog("Bag file stopped");
 
             bagFileActive = false;
+
+            playSound("Bag file stopped");
         }
         else
         {
@@ -572,6 +635,26 @@ private:
         strftime(buf, sizeof(buf), "%Y-%m-%d-%H-%M-%S", &tstruct);
 
         startTime = buf;
+    }
+
+    /**
+      Gets the computer to say the specified sound
+    */
+    void playSound(string sound)
+    {
+        sound_play::SoundClient sc;
+
+        sc.say(sound);
+    }
+
+    /**
+      Shuts the robot up
+    */
+    void shutup()
+    {
+        sound_play::SoundClient sc;
+
+        sc.stopAll();
     }
 };
 

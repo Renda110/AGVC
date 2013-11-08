@@ -1,4 +1,13 @@
 <launch>
+  <node name="sound_play" pkg="sound_play" type="soundplay_node.py" />
+
+  <node name="nmea_gps_driver" pkg="nmea_gps_driver" type="nmea_gps_driver.py">
+    <param name="port" value="/dev/ttyACM1"/>
+    <param name="frame_id" value="base_gps" />
+    <remap from="/fix" to="/gps_fix" />
+    <remap from="/vel" to="/gps_velocity" />
+  </node>
+
 	<node name="p2os" pkg="p2os_driver" type="p2os" >
 		<param name="pulse" value="1.0" />
 		<remap from="pose" to="odom" />
@@ -14,7 +23,6 @@
 
   <node name="calum_joystick_wrapper" pkg="calum_joystick_wrapper" type="calum_joystick_wrapper" />
 
-	<!--Make this map smaller to run on interface better, need to do untill map builder is working better -->
   <node name="hector_mapping" pkg="hector_mapping" type="hector_mapping" > 
   	<param name="map_frame" value="map" />
   	<remap from="map" to="map"/>
@@ -41,11 +49,6 @@
   <node name="webcam" pkg="webcam" type="webcam_node">
   </node>
 
-  <node name="nmea_gps_driver" pkg="nmea_gps_driver" type="nmea_gps_driver.py">
-    <param name="port" value="/dev/ttyACM1"/>
-    <param name="frame_id" value="base_gps" />
-  </node>
-
   <node name="usb_cam" pkg="usb_cam" type="usb_cam_node" output="screen" >
     <param name="video_device" value="/dev/video0" />
     <param name="image_width" value="640" />
@@ -68,8 +71,8 @@
 	  <param name="position_frame" value="" />
 	  <param name="stabilized_frame" value="" />
     <remap from="/fix" to="/gps_fix" />
-    <remap from="/fix_velocity" to="gps_velocity" />
-
+    <remap from="/fix_velocity" to="/gps_velocity" />
+    <remap from="/velocity" to="/hl_velocity" />
     <remap from="/local_poseupdate" to="/poseupdate" />
   </node>
 </launch>
