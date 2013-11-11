@@ -1,4 +1,5 @@
 #include <fstream>
+#include <cstdio>
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -45,6 +46,7 @@ public:
 
         sleep(10); //wait some time for the IMU and sound driver to become available. No other easy way to do this
         system ("roslaunch xsens_driver xsens_driver.launch &");
+        system("roslaunch sound_play soundplay_node.launch &");
 
         if (!usingJoystick)
         {
@@ -54,6 +56,9 @@ public:
         {
             joySubscriber = node.subscribe("/joy", 1000, &AGVC_Coordinator::joyCallback, this);
             printJoystickHelp();
+
+            sleep(2);
+            speak("Awaiting orders");
         }
     }
 
@@ -133,6 +138,7 @@ private:
             }
             else
             {
+                speak("No mode is active");
                 cout << "\033[1;31mAGVC_Coordinator: Nothing to stop\033[0m" << endl;
                 writeToLog("Nothing to stop");
             }
@@ -328,8 +334,6 @@ private:
                     cout << "\033[2;32mAGVC_Coordinator: Motors disabled\033[0m" << endl;
                     writeToLog("Motors disabled");
                     motorsActive = !motorsActive;
-
-                    playSound("Motors disabled");
                 }
                 else
                 {
@@ -337,8 +341,6 @@ private:
                     cout << "\033[2;32mAGVC_Coordinator: Motors enabled\033[0m" << endl;
                     writeToLog("Motors enabled");
                     motorsActive = !motorsActive;
-
-                    playSound("Motors enabled");
                 }
             }
             else
@@ -346,7 +348,7 @@ private:
                 cout << "\033[1;31mAGVC_Coordinator: No mode is active\033[0m" << endl;
                 writeToLog("No mode is active");
 
-                playSound("No mode is active");
+                speak("No mode is active");
             }
         }
         else
@@ -358,6 +360,15 @@ private:
         }
 
         motorPublisher.publish(ms);
+
+        if (motorsActive)
+        {
+            speak("Motors enabled");
+        }
+        else
+        {
+            speak("Motors disabled");
+        }
     }
 
     /**
@@ -375,14 +386,14 @@ private:
             cout << "\033[2;32mAGVC_Coordinator: Full autonomous mode activated\033[0m" << endl;
             writeToLog("Full autonomous mode activated");
 
-            playSound("Autonomy enabled");
+            speak("Autonomous mode enabled");
         }
         else
         {
             cout << "\033[1;31mAGVC_Coordinator: Another mode is active\033[0m" << endl;
             writeToLog("Another mode is active");
 
-            playSound("Another mode is active");
+            speak("Another mode is active");
         }
     }
 
@@ -391,6 +402,8 @@ private:
     */
     void stopFull()
     {
+        speak("Disabling autonomous mode");
+
         cout << "\033[2;32mAGVC_Coordinator: Stopping full mode\033[0m" << endl;
         writeToLog("Stopping full mode");
         toggleMotorState(true);
@@ -401,7 +414,7 @@ private:
 
         fullActive = false;
 
-        playSound("Autonomy disabled");
+        speak("Autonomous mode disabled");
     }
 
     /**
@@ -419,14 +432,14 @@ private:
             cout << "\033[2;32mAGVC_Coordinator: Partial mode activated\033[0m" << endl;
             writeToLog("Partial mode activated");
 
-            playSound("Manual control enabled");
+            speak("Manual control enabled");
         }
         else
         {
             cout << "\033[1;31mAGVC_Coordinator: Another mode is active\033[0m" << endl;
             writeToLog("Another mode is active");
 
-            playSound("Another mode is active");
+            speak("Another mode is active");
         }
     }
 
@@ -435,6 +448,7 @@ private:
     */
     void stopPartial()
     {
+        speak("Disabling manual control");
         cout << "\033[2;32mAGVC_Coordinator: Stopping partial mode\033[0m" << endl;
         writeToLog("Stopping partial mode");
 
@@ -446,7 +460,7 @@ private:
 
         partialActive = false;
 
-        playSound("Manual control disabled");
+        speak("Manual control disabled");
     }
 
     /**
@@ -517,12 +531,14 @@ private:
     }
 
     /**
-      Shuts down any remaining nodes (we can't actually kill everything - rosout will remain running)
+      Shuts down any remaining nodes (we can't actually kill everything - rosout will remain running) and restarts the robot
     */
     void totalShutdown()
     {
-        system ("rosnode kill /joy_node");
-        system ("rosnode kill /xsens_driver");
+        speak("Restarting");
+        sleep(2);
+
+        system("echo Magic2010 | sudo -S reboot");
     }
 
     /**
@@ -539,7 +555,7 @@ private:
             cout << "\033[2;32mAGVC_Coordinator: Bag file started\033[0m" << endl;
             writeToLog("Bag file started");
 
-            playSound("Bag file started");
+            speak("Bag file started");
         }
         else
         {
@@ -587,7 +603,7 @@ private:
 
             bagFileActive = false;
 
-            playSound("Bag file stopped");
+            speak("Bag file stopped");
         }
         else
         {
@@ -638,23 +654,61 @@ private:
     }
 
     /**
-      Gets the computer to say the specified sound
+      Gets the computer to say the specified sound (does work)
     */
-    void playSound(string sound)
+    void speak(string sound)
     {
-        sound_play::SoundClient sc;
+        char buffer[200];
 
-        sc.say(sound);
+        sprintf(buffer, "rosrun sound_play say.py \"%s\"", sound.c_str());
+
+        system(buffer);
     }
 
     /**
-      Shuts the robot up
+      Shuts the robot up (doesn't work)
     */
     void shutup()
     {
         sound_play::SoundClient sc;
 
         sc.stopAll();
+    }
+
+    /**
+      Function to write to serial for communication with an Arduino (hard method)
+      @param value The value to send
+    */
+    void writeToSerial(int value)
+    {
+        FILE *file;
+        file = fopen("/dev/ttyUSB0","w");  //Opening device file
+
+        file << value;
+
+        fclose(file);
+    }
+
+    /**
+      Function to write to Arduino using serial port
+      @param value The value to write
+    */
+    void writeToSerial(int value)
+    {
+        fstream serial;
+
+        serial.open("/dev/ttyS0");
+
+        if (serial.is_open())
+        {
+            serial << value << endl;
+        }
+        else
+        {
+            ROS_ERROR("Could not open serial port");
+        }
+
+        serial.close();
     }
 };
 

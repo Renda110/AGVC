@@ -594,10 +594,14 @@ private:
                     publishStatus(AutonomousStatus::INFO, buffer);
 
                     //Translate the UTM into our coordinate frame
-                    p.x = gpsUTMOrigin.x - p.x;
-                    p.y = gpsUTMOrigin.y - p.y;
+                    p.x = p.x - gpsUTMOrigin.x;
+                    p.y = p.y - gpsUTMOrigin.y;
 
                     p.distanceFromRobot = sqrt(pow((p.x), 2) + pow((p.y), 2));
+
+                    ROS_INFO("\033[2;32mGoalProvider: Changed UTM to robot origin (%f, %f)\033[0m\n", p.x, p.y);
+                    sprintf(buffer, "Change UTM to robot origin (%f, %f)", p.x, p.y);
+                    publishStatus(AutonomousStatus::INFO, buffer);
 
                     //Rotate the UTM into the robot coordinate frame
                     if (angleOffNorth >= 0)
@@ -608,8 +612,12 @@ private:
                     else
                     {
                         p.x = (p.x * cos(angleOffNorth*d2r)) + (p.y * sin(angleOffNorth*d2r));
-                        p.y = -(p.x * sin(angleOffNorth*d2r)) + (p.y * cos(angleOffNorth*d2r));
+                        p.y = (-1 * p.x * sin(angleOffNorth*d2r)) + (p.y * cos(angleOffNorth*d2r));
                     }
+
+                    ROS_INFO("\033[2;32mGoalProvider: Rotated UTM into robot frame (%f, %f)\033[0m\n", p.x, p.y);
+                    sprintf(buffer, "Rotated UTM into robot frame (%f, %f)", p.x, p.y);
+                    publishStatus(AutonomousStatus::INFO, buffer);
 
                     //Change the coordinate frame to be correct for the robot
                     double temp = p.x;
@@ -617,7 +625,6 @@ private:
                     p.y = -temp;
 
                     ROS_INFO("\033[2;32mGoalProvider: Shifted UTM into robot frame (%f, %f) with distance: %f)\033[0m\n", p.x, p.y, p.distanceFromRobot);
-
                     sprintf(buffer, "Shifted UTM into robot frame (%f, %f) with distance: %f)", p.x, p.y, p.distanceFromRobot);
                     publishStatus(AutonomousStatus::INFO, buffer);
 
@@ -929,90 +936,3 @@ int main (int argc, char** argv)
 
     return 0;
 }
-
-/**
-  Function to write to serial for communication with an Arduino (hard method)
-  @param value The value to send
-*/
-void writeToSerialHardMethod(int value)
-{
-    int fileDescription = open("/dev/ttyS0", O_RDWR | O_NOCTTY | O_NDELAY);
-
-    if (fileDescription == -1)
-    {
-        ROS_ERROR("\033[1;31mGoalProvider: Could not open serial connection\033[0m\n");
-    }
-    else
-    {
-        fcntl(fileDescription, F_SETFL, 0);
-
-        //http://www.cplusplus.com/forum/beginner/6914/
-        struct termios port_settings;      // structure to store the port settings in
-
-        cfsetispeed(&port_settings, B115200);    // set baud rates
-        cfsetospeed(&port_settings, B115200);
-
-        port_settings.c_cflag &= ~PARENB;    // set no parity, stop bits, data bits
-        port_settings.c_cflag &= ~CSTOPB;
-        port_settings.c_cflag &= ~CSIZE;
-        port_settings.c_cflag |= CS8;
-
-        tcsetattr(fileDescription, TCSANOW, &port_settings);    // apply the settings to the port
-
-        char n;
-        fd_set rdfs;
-        struct timeval timeout;
-
-        // initialise the timeout structure
-        timeout.tv_sec = 10; // ten second timeout
-        timeout.tv_usec = 0;
-
-        char buffer[10];
-        sprintf(buffer, "%i\n", value);
-
-        write(fileDescription, buffer, 2);
-        printf("Wrote the bytes. \n");
-
-        // do the select
-        n = select(fileDescription + 1, &rdfs, NULL, NULL, &timeout);
-
-        // check if an error has occured
-        if(n < 0)
-        {
-            ROS_ERROR("select failed\n");
-        }
-        else if (n == 0)
-        {
-            ROS_ERROR("Timeout!");
-        }
-        else
-        {
-            ROS_INFO("\nBytes detected on the port!\n");
-        }
-
-        close(fileDescription);
-    }
-}
-
-/**
-  Function to write to Arduino using serial port (easy method)
-  @param value The value to write
-*/
-void writeToSerialEasyMethod(int value)
-{
-    fstream serial;
-
-    serial.open("/dev/ttyS0");
-
-    if (serial.is_open())
-    {
-        serial << value;
-    }
-    else
-    {
-        ROS_ERROR("Could not open serial port");
-    }
-
-    serial.close();
-}
-

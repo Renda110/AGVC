@@ -1,6 +1,4 @@
 <launch>
-  <node name="sound_play" pkg="sound_play" type="soundplay_node.py" />
-
   <node name="nmea_gps_driver" pkg="nmea_gps_driver" type="nmea_gps_driver.py">
     <param name="port" value="/dev/ttyACM1"/>
     <param name="frame_id" value="base_gps" />
@@ -94,7 +92,7 @@
 
   <node name="goal_provider_node" pkg="goal_provider" type="goal_provider_node" output="screen">
     <param name="callbacks_till_goal_update" value="1000"/>
-    <param name="goal_attempt_limit" value="5" />
+    <param name="goal_attempt_limit" value="10" />
     <param name="subgoal_distance" value="10" />
     <param name="testing" value="true" />
     <param name="using_imu" value="true" />
