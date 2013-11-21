@@ -1,0 +1,376 @@
+\hypertarget{classGoalProvider}{\section{\-Goal\-Provider \-Class \-Reference}
+\label{classGoalProvider}\index{\-Goal\-Provider@{\-Goal\-Provider}}
+}
+\subsection*{\-Public \-Member \-Functions}
+\begin{DoxyCompactItemize}
+\item 
+\hyperlink{classGoalProvider_a5f01df42b1cce4fd1ef3aee990ee2442}{\-Goal\-Provider} ()
+\end{DoxyCompactItemize}
+\subsection*{\-Private \-Member \-Functions}
+\begin{DoxyCompactItemize}
+\item 
+void \hyperlink{classGoalProvider_aa68c410fb110c40cc31dc99320f20a60}{gps\-Callback} (const sensor\-\_\-msgs\-::\-Nav\-Sat\-Fix fix)
+\item 
+void \hyperlink{classGoalProvider_a9aa7639c95eff543d55fef82ba005088}{imu\-Callback} (const sensor\-\_\-msgs\-::\-Imu imu)
+\item 
+void \hyperlink{classGoalProvider_a5448a289886afe3e96a900bd0b8557d4}{quat\-To\-Euler} (double x, double y, double z, double w, double $\ast$attitude, double $\ast$bank, double $\ast$heading)
+\item 
+void \hyperlink{classGoalProvider_a6e91d11b611820597420497fd82613d1}{hl\-Pose\-Callback} (const geometry\-\_\-msgs\-::\-Pose\-Stamped pose)
+\item 
+void \hyperlink{classGoalProvider_a13d66dd274899d8012a021ef2cbeab7e}{movebase\-Status\-Callback} (const actionlib\-\_\-msgs\-::\-Goal\-Status\-Array movebase\-\_\-status)
+\item 
+void \hyperlink{classGoalProvider_a58ec86314e501683db946eba1141d464}{read\-Config\-File} ()
+\item 
+void \hyperlink{classGoalProvider_a8089b33dddf424c923e74d771574edb7}{remove\-Current\-Goal} ()
+\item 
+void \hyperlink{classGoalProvider_aa8e215f654aa702f0ee949fb95538fed}{load\-New\-Goal} ()
+\item 
+void \hyperlink{classGoalProvider_aa86d86dde0ce1948dca9a06abf6b3fdd}{generate\-Subgoal} (\hyperlink{classGoal}{\-Goal} \&subgoal, \hyperlink{classGoal}{\-Goal} \&overall\-Goal)
+\item 
+void \hyperlink{classGoalProvider_ace0fb8a759d933ba643664e4f261241e}{send\-Goal} ()
+\item 
+void \hyperlink{classGoalProvider_a3ce49c1e51eae73ba9820b89f03b8e5a}{publish\-Status} (uint current\-Status, string message)
+\item 
+void \hyperlink{classGoalProvider_accc06df736068317e64060ceae2512ae}{write\-To\-Log} (string text)
+\item 
+void \hyperlink{classGoalProvider_a967141633b8fba8dcc158074775fb1a1}{set\-Start\-Time} ()
+\end{DoxyCompactItemize}
+\subsection*{\-Private \-Attributes}
+\begin{DoxyCompactItemize}
+\item 
+string \hyperlink{classGoalProvider_a6329ae18effbfa5a6eddf9956851c973}{start\-Time}
+\item 
+\-Move\-Base\-Client \hyperlink{classGoalProvider_a903cb379ce27ab3072fc273f8d344b0b}{mb}
+\item 
+\-Autonomous\-Status \hyperlink{classGoalProvider_aecddfd46c7aba939da77c5a207a97039}{status}
+\item 
+\-Subscriber \hyperlink{classGoalProvider_a25af65ca4565bee69daba5c9b2c11b8f}{gps\-Subscriber}
+\item 
+\-Subscriber \hyperlink{classGoalProvider_a2322770657c65da748d21c844c787f5e}{hl\-Pose\-Subscriber}
+\item 
+\-Subscriber \hyperlink{classGoalProvider_a5f5494e3cd35116f170082bce82201e5}{p2os\-Odom\-Subscriber}
+\item 
+\-Subscriber \hyperlink{classGoalProvider_a86cffa9e45e8fdb0813964ca79e4a327}{imu\-Subscriber}
+\item 
+\-Subscriber \hyperlink{classGoalProvider_a16a3122fd49b058c08a56e8eac93c08b}{movebase\-Status\-Subscriber}
+\item 
+\-Publisher \hyperlink{classGoalProvider_a8827c194d8a7568578307c30b5947276}{autonomous\-Status\-Publisher}
+\item 
+\-Publisher \hyperlink{classGoalProvider_a24a2ea4ae8b62c0086602471a57b74d3}{hl\-Odom\-Publisher}
+\item 
+list$<$ \hyperlink{classGoal}{\-Goal} $>$ \hyperlink{classGoalProvider_a81829c05683244c4450e548129e4cb1d}{coords\-List}
+\item 
+\hyperlink{classGoal}{\-Goal} \hyperlink{classGoalProvider_a274c71aaace4fb19551ecfd58356744a}{gps\-U\-T\-M\-Origin}
+\item 
+\hyperlink{classGoal}{\-Goal} \hyperlink{classGoalProvider_a7c8eb368dbd85c32f1000fead79190dc}{goal}
+\item 
+geometry\-\_\-msgs\-::\-Pose \hyperlink{classGoalProvider_a043ea6fbbd89e54ea39501ae30da8774}{current\-Location}
+\item 
+bool \hyperlink{classGoalProvider_aae2c69715ab4565f5d0e96cd16411444}{set\-Starting\-Position}
+\item 
+bool \hyperlink{classGoalProvider_a94c6c903648ec2ff61396d04686bc466}{set\-Starting\-Orientation}
+\item 
+bool \hyperlink{classGoalProvider_aefb932adf68011afd36e0796a001c147}{testing}
+\item 
+bool \hyperlink{classGoalProvider_a344bf023e320a812a824654c69531f31}{using\-Imu}
+\item 
+bool \hyperlink{classGoalProvider_aa576e5466ea93048ed6c231f226c9658}{sent\-First\-Goal}
+\item 
+double \hyperlink{classGoalProvider_a165b0eda7247ff32649b097a3e2d160a}{angle\-Off\-North}
+\item 
+int \hyperlink{classGoalProvider_a7ac4fe26923010d8bcb85fd50b90e259}{callbacks\-Until\-Goal\-Update}
+\item 
+int \hyperlink{classGoalProvider_ab63657ef75bd9c478d01b270a142103e}{goal\-Attempt\-Limit}
+\item 
+int \hyperlink{classGoalProvider_a35c75c0ef169d26dc40393e988f6f9ef}{goal\-Attempt\-Counter}
+\item 
+int \hyperlink{classGoalProvider_aca962edcdb380d56a7e551de7b5c36a6}{current\-Callback\-Count}
+\item 
+int \hyperlink{classGoalProvider_a27a290eb0662fbb7dc1dbe696f9fcb00}{goal\-Acceptance\-Counter}
+\item 
+int \hyperlink{classGoalProvider_ad4a03daf04350450ceee088c9f5f6c54}{subgoal\-Distance}
+\item 
+int \hyperlink{classGoalProvider_a9f314d13331aa611c5b96202742be0e9}{position\-Counter}
+\item 
+int \hyperlink{classGoalProvider_a1429bea432a6411c063cd3cf4990f1ca}{imu\-Counter}
+\item 
+string \hyperlink{classGoalProvider_a82146db14a5565a12fe979c68156d45c}{path}
+\end{DoxyCompactItemize}
+
+
+\subsection{\-Detailed \-Description}
+\-The \hyperlink{classGoalProvider}{\-Goal\-Provider} class.
+
+\-This class provides goal data to the move\-\_\-base navigation stack. \-A typical goal is simply a \-G\-P\-S position
+
+\begin{DoxyAuthor}{\-Author}
+\-Enda \-Mc\-Cauley 
+\end{DoxyAuthor}
+\begin{DoxyDate}{\-Date}
+\-November 21st 2013 
+\end{DoxyDate}
+
+
+\subsection{\-Constructor \& \-Destructor \-Documentation}
+\hypertarget{classGoalProvider_a5f01df42b1cce4fd1ef3aee990ee2442}{\index{\-Goal\-Provider@{\-Goal\-Provider}!\-Goal\-Provider@{\-Goal\-Provider}}
+\index{\-Goal\-Provider@{\-Goal\-Provider}!GoalProvider@{\-Goal\-Provider}}
+\subsubsection[{\-Goal\-Provider}]{\setlength{\rightskip}{0pt plus 5cm}{\bf \-Goal\-Provider\-::\-Goal\-Provider} (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily  \mbox{[}inline\mbox{]}}}}\label{classGoalProvider_a5f01df42b1cce4fd1ef3aee990ee2442}
+\-Constructs a new \hyperlink{classGoalProvider}{\-Goal\-Provider} object 
+
+\subsection{\-Member \-Function \-Documentation}
+\hypertarget{classGoalProvider_aa86d86dde0ce1948dca9a06abf6b3fdd}{\index{\-Goal\-Provider@{\-Goal\-Provider}!generate\-Subgoal@{generate\-Subgoal}}
+\index{generate\-Subgoal@{generate\-Subgoal}!GoalProvider@{\-Goal\-Provider}}
+\subsubsection[{generate\-Subgoal}]{\setlength{\rightskip}{0pt plus 5cm}void {\bf \-Goal\-Provider\-::generate\-Subgoal} (
+\begin{DoxyParamCaption}
+\item[{{\bf \-Goal} \&}]{subgoal, }
+\item[{{\bf \-Goal} \&}]{overall\-Goal}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily  \mbox{[}inline, private\mbox{]}}}}\label{classGoalProvider_aa86d86dde0ce1948dca9a06abf6b3fdd}
+\-Generates a subgoal 
+\begin{DoxyParams}{\-Parameters}
+{\em subgoal} & \-Reference to store the new subgoal in \\
+\hline
+{\em overall\-Goal} & \-The overall destination we wish to reach \\
+\hline
+\end{DoxyParams}
+\hypertarget{classGoalProvider_aa68c410fb110c40cc31dc99320f20a60}{\index{\-Goal\-Provider@{\-Goal\-Provider}!gps\-Callback@{gps\-Callback}}
+\index{gps\-Callback@{gps\-Callback}!GoalProvider@{\-Goal\-Provider}}
+\subsubsection[{gps\-Callback}]{\setlength{\rightskip}{0pt plus 5cm}void {\bf \-Goal\-Provider\-::gps\-Callback} (
+\begin{DoxyParamCaption}
+\item[{const sensor\-\_\-msgs\-::\-Nav\-Sat\-Fix}]{fix}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily  \mbox{[}inline, private\mbox{]}}}}\label{classGoalProvider_aa68c410fb110c40cc31dc99320f20a60}
+\-Callback for the \-G\-P\-S 
+\begin{DoxyParams}{\-Parameters}
+{\em fix} & \-The \-G\-P\-S data \\
+\hline
+\end{DoxyParams}
+\hypertarget{classGoalProvider_a6e91d11b611820597420497fd82613d1}{\index{\-Goal\-Provider@{\-Goal\-Provider}!hl\-Pose\-Callback@{hl\-Pose\-Callback}}
+\index{hl\-Pose\-Callback@{hl\-Pose\-Callback}!GoalProvider@{\-Goal\-Provider}}
+\subsubsection[{hl\-Pose\-Callback}]{\setlength{\rightskip}{0pt plus 5cm}void {\bf \-Goal\-Provider\-::hl\-Pose\-Callback} (
+\begin{DoxyParamCaption}
+\item[{const geometry\-\_\-msgs\-::\-Pose\-Stamped}]{pose}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily  \mbox{[}inline, private\mbox{]}}}}\label{classGoalProvider_a6e91d11b611820597420497fd82613d1}
+\-Callback for the hector\-\_\-pose\-\_\-estimation position estimation 
+\begin{DoxyParams}{\-Parameters}
+{\em pose} & \-The actual pose data \\
+\hline
+\end{DoxyParams}
+\hypertarget{classGoalProvider_a9aa7639c95eff543d55fef82ba005088}{\index{\-Goal\-Provider@{\-Goal\-Provider}!imu\-Callback@{imu\-Callback}}
+\index{imu\-Callback@{imu\-Callback}!GoalProvider@{\-Goal\-Provider}}
+\subsubsection[{imu\-Callback}]{\setlength{\rightskip}{0pt plus 5cm}void {\bf \-Goal\-Provider\-::imu\-Callback} (
+\begin{DoxyParamCaption}
+\item[{const sensor\-\_\-msgs\-::\-Imu}]{imu}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily  \mbox{[}inline, private\mbox{]}}}}\label{classGoalProvider_a9aa7639c95eff543d55fef82ba005088}
+\-Callback for the \-I\-M\-U 
+\begin{DoxyParams}{\-Parameters}
+{\em imu} & \-The \-I\-M\-U data \\
+\hline
+\end{DoxyParams}
+\hypertarget{classGoalProvider_aa8e215f654aa702f0ee949fb95538fed}{\index{\-Goal\-Provider@{\-Goal\-Provider}!load\-New\-Goal@{load\-New\-Goal}}
+\index{load\-New\-Goal@{load\-New\-Goal}!GoalProvider@{\-Goal\-Provider}}
+\subsubsection[{load\-New\-Goal}]{\setlength{\rightskip}{0pt plus 5cm}void {\bf \-Goal\-Provider\-::load\-New\-Goal} (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily  \mbox{[}inline, private\mbox{]}}}}\label{classGoalProvider_aa8e215f654aa702f0ee949fb95538fed}
+\-Loads a new movement goal. \-The closest \-G\-P\-S goal is chosen as the desired goal \hypertarget{classGoalProvider_a13d66dd274899d8012a021ef2cbeab7e}{\index{\-Goal\-Provider@{\-Goal\-Provider}!movebase\-Status\-Callback@{movebase\-Status\-Callback}}
+\index{movebase\-Status\-Callback@{movebase\-Status\-Callback}!GoalProvider@{\-Goal\-Provider}}
+\subsubsection[{movebase\-Status\-Callback}]{\setlength{\rightskip}{0pt plus 5cm}void {\bf \-Goal\-Provider\-::movebase\-Status\-Callback} (
+\begin{DoxyParamCaption}
+\item[{const actionlib\-\_\-msgs\-::\-Goal\-Status\-Array}]{movebase\-\_\-status}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily  \mbox{[}inline, private\mbox{]}}}}\label{classGoalProvider_a13d66dd274899d8012a021ef2cbeab7e}
+\-Callback for the move\-\_\-base status 
+\begin{DoxyParams}{\-Parameters}
+{\em movebase\-\_\-status} & \-The actual status data \\
+\hline
+\end{DoxyParams}
+\hypertarget{classGoalProvider_a3ce49c1e51eae73ba9820b89f03b8e5a}{\index{\-Goal\-Provider@{\-Goal\-Provider}!publish\-Status@{publish\-Status}}
+\index{publish\-Status@{publish\-Status}!GoalProvider@{\-Goal\-Provider}}
+\subsubsection[{publish\-Status}]{\setlength{\rightskip}{0pt plus 5cm}void {\bf \-Goal\-Provider\-::publish\-Status} (
+\begin{DoxyParamCaption}
+\item[{uint}]{current\-Status, }
+\item[{string}]{message}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily  \mbox{[}inline, private\mbox{]}}}}\label{classGoalProvider_a3ce49c1e51eae73ba9820b89f03b8e5a}
+\-Encapsulates all status updates made by this node
+
+
+\begin{DoxyParams}{\-Parameters}
+{\em current\-Status} & \-The status we wish to publish \\
+\hline
+{\em message} & \-Any extra message information we wish to send \\
+\hline
+\end{DoxyParams}
+\hypertarget{classGoalProvider_a5448a289886afe3e96a900bd0b8557d4}{\index{\-Goal\-Provider@{\-Goal\-Provider}!quat\-To\-Euler@{quat\-To\-Euler}}
+\index{quat\-To\-Euler@{quat\-To\-Euler}!GoalProvider@{\-Goal\-Provider}}
+\subsubsection[{quat\-To\-Euler}]{\setlength{\rightskip}{0pt plus 5cm}void {\bf \-Goal\-Provider\-::quat\-To\-Euler} (
+\begin{DoxyParamCaption}
+\item[{double}]{x, }
+\item[{double}]{y, }
+\item[{double}]{z, }
+\item[{double}]{w, }
+\item[{double $\ast$}]{attitude, }
+\item[{double $\ast$}]{bank, }
+\item[{double $\ast$}]{heading}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily  \mbox{[}inline, private\mbox{]}}}}\label{classGoalProvider_a5448a289886afe3e96a900bd0b8557d4}
+\-Converts the quaternion orientation measurements from the \-I\-M\-U into euler measurements 
+\begin{DoxyParams}{\-Parameters}
+{\em x} & \-The x component of the quaternion \\
+\hline
+{\em y} & \-The y component of the quaternion \\
+\hline
+{\em z} & \-The z component of the quaternion \\
+\hline
+{\em w} & \-The w component of the quaternion \\
+\hline
+{\em attitude} & \-A pointer to store the attitude (z) orientation \\
+\hline
+{\em bank} & \-A pointer to store the bank (x) orientation \\
+\hline
+{\em heading} & \-A pointer to store the heading (y) orientation \\
+\hline
+\end{DoxyParams}
+\hypertarget{classGoalProvider_a58ec86314e501683db946eba1141d464}{\index{\-Goal\-Provider@{\-Goal\-Provider}!read\-Config\-File@{read\-Config\-File}}
+\index{read\-Config\-File@{read\-Config\-File}!GoalProvider@{\-Goal\-Provider}}
+\subsubsection[{read\-Config\-File}]{\setlength{\rightskip}{0pt plus 5cm}void {\bf \-Goal\-Provider\-::read\-Config\-File} (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily  \mbox{[}inline, private\mbox{]}}}}\label{classGoalProvider_a58ec86314e501683db946eba1141d464}
+\-Read in the \-G\-P\-S\-Config file to get the list of \-U\-T\-M based \-Points we need to go to \hypertarget{classGoalProvider_a8089b33dddf424c923e74d771574edb7}{\index{\-Goal\-Provider@{\-Goal\-Provider}!remove\-Current\-Goal@{remove\-Current\-Goal}}
+\index{remove\-Current\-Goal@{remove\-Current\-Goal}!GoalProvider@{\-Goal\-Provider}}
+\subsubsection[{remove\-Current\-Goal}]{\setlength{\rightskip}{0pt plus 5cm}void {\bf \-Goal\-Provider\-::remove\-Current\-Goal} (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily  \mbox{[}inline, private\mbox{]}}}}\label{classGoalProvider_a8089b33dddf424c923e74d771574edb7}
+\-Removes the current goal. \-Used when the goal is achieved, broken etc... \hypertarget{classGoalProvider_ace0fb8a759d933ba643664e4f261241e}{\index{\-Goal\-Provider@{\-Goal\-Provider}!send\-Goal@{send\-Goal}}
+\index{send\-Goal@{send\-Goal}!GoalProvider@{\-Goal\-Provider}}
+\subsubsection[{send\-Goal}]{\setlength{\rightskip}{0pt plus 5cm}void {\bf \-Goal\-Provider\-::send\-Goal} (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily  \mbox{[}inline, private\mbox{]}}}}\label{classGoalProvider_ace0fb8a759d933ba643664e4f261241e}
+\-Sends the current goal to the robot \hypertarget{classGoalProvider_a967141633b8fba8dcc158074775fb1a1}{\index{\-Goal\-Provider@{\-Goal\-Provider}!set\-Start\-Time@{set\-Start\-Time}}
+\index{set\-Start\-Time@{set\-Start\-Time}!GoalProvider@{\-Goal\-Provider}}
+\subsubsection[{set\-Start\-Time}]{\setlength{\rightskip}{0pt plus 5cm}void {\bf \-Goal\-Provider\-::set\-Start\-Time} (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily  \mbox{[}inline, private\mbox{]}}}}\label{classGoalProvider_a967141633b8fba8dcc158074775fb1a1}
+\-Sets the time that this node was started \hypertarget{classGoalProvider_accc06df736068317e64060ceae2512ae}{\index{\-Goal\-Provider@{\-Goal\-Provider}!write\-To\-Log@{write\-To\-Log}}
+\index{write\-To\-Log@{write\-To\-Log}!GoalProvider@{\-Goal\-Provider}}
+\subsubsection[{write\-To\-Log}]{\setlength{\rightskip}{0pt plus 5cm}void {\bf \-Goal\-Provider\-::write\-To\-Log} (
+\begin{DoxyParamCaption}
+\item[{string}]{text}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily  \mbox{[}inline, private\mbox{]}}}}\label{classGoalProvider_accc06df736068317e64060ceae2512ae}
+\-Write to the log file 
+\begin{DoxyParams}{\-Parameters}
+{\em text} & \-The text to write \\
+\hline
+\end{DoxyParams}
+
+
+\subsection{\-Member \-Data \-Documentation}
+\hypertarget{classGoalProvider_a165b0eda7247ff32649b097a3e2d160a}{\index{\-Goal\-Provider@{\-Goal\-Provider}!angle\-Off\-North@{angle\-Off\-North}}
+\index{angle\-Off\-North@{angle\-Off\-North}!GoalProvider@{\-Goal\-Provider}}
+\subsubsection[{angle\-Off\-North}]{\setlength{\rightskip}{0pt plus 5cm}double {\bf \-Goal\-Provider\-::angle\-Off\-North}\hspace{0.3cm}{\ttfamily  \mbox{[}private\mbox{]}}}}\label{classGoalProvider_a165b0eda7247ff32649b097a3e2d160a}
+\-Field to store the angle off of magnetic north that the robot started at \hypertarget{classGoalProvider_a8827c194d8a7568578307c30b5947276}{\index{\-Goal\-Provider@{\-Goal\-Provider}!autonomous\-Status\-Publisher@{autonomous\-Status\-Publisher}}
+\index{autonomous\-Status\-Publisher@{autonomous\-Status\-Publisher}!GoalProvider@{\-Goal\-Provider}}
+\subsubsection[{autonomous\-Status\-Publisher}]{\setlength{\rightskip}{0pt plus 5cm}\-Publisher {\bf \-Goal\-Provider\-::autonomous\-Status\-Publisher}\hspace{0.3cm}{\ttfamily  \mbox{[}private\mbox{]}}}}\label{classGoalProvider_a8827c194d8a7568578307c30b5947276}
+\-Field to store the publisher that we publish our status on \hypertarget{classGoalProvider_a7ac4fe26923010d8bcb85fd50b90e259}{\index{\-Goal\-Provider@{\-Goal\-Provider}!callbacks\-Until\-Goal\-Update@{callbacks\-Until\-Goal\-Update}}
+\index{callbacks\-Until\-Goal\-Update@{callbacks\-Until\-Goal\-Update}!GoalProvider@{\-Goal\-Provider}}
+\subsubsection[{callbacks\-Until\-Goal\-Update}]{\setlength{\rightskip}{0pt plus 5cm}int {\bf \-Goal\-Provider\-::callbacks\-Until\-Goal\-Update}\hspace{0.3cm}{\ttfamily  \mbox{[}private\mbox{]}}}}\label{classGoalProvider_a7ac4fe26923010d8bcb85fd50b90e259}
+\-Field to store the number of position callbacks that need to be made before we update our goal \hypertarget{classGoalProvider_a81829c05683244c4450e548129e4cb1d}{\index{\-Goal\-Provider@{\-Goal\-Provider}!coords\-List@{coords\-List}}
+\index{coords\-List@{coords\-List}!GoalProvider@{\-Goal\-Provider}}
+\subsubsection[{coords\-List}]{\setlength{\rightskip}{0pt plus 5cm}list$<${\bf \-Goal}$>$ {\bf \-Goal\-Provider\-::coords\-List}\hspace{0.3cm}{\ttfamily  \mbox{[}private\mbox{]}}}}\label{classGoalProvider_a81829c05683244c4450e548129e4cb1d}
+\-Field to store the list of \-Points we need to go to \hypertarget{classGoalProvider_aca962edcdb380d56a7e551de7b5c36a6}{\index{\-Goal\-Provider@{\-Goal\-Provider}!current\-Callback\-Count@{current\-Callback\-Count}}
+\index{current\-Callback\-Count@{current\-Callback\-Count}!GoalProvider@{\-Goal\-Provider}}
+\subsubsection[{current\-Callback\-Count}]{\setlength{\rightskip}{0pt plus 5cm}int {\bf \-Goal\-Provider\-::current\-Callback\-Count}\hspace{0.3cm}{\ttfamily  \mbox{[}private\mbox{]}}}}\label{classGoalProvider_aca962edcdb380d56a7e551de7b5c36a6}
+\-Field to store the current number of position callbacks \hypertarget{classGoalProvider_a043ea6fbbd89e54ea39501ae30da8774}{\index{\-Goal\-Provider@{\-Goal\-Provider}!current\-Location@{current\-Location}}
+\index{current\-Location@{current\-Location}!GoalProvider@{\-Goal\-Provider}}
+\subsubsection[{current\-Location}]{\setlength{\rightskip}{0pt plus 5cm}geometry\-\_\-msgs\-::\-Pose {\bf \-Goal\-Provider\-::current\-Location}\hspace{0.3cm}{\ttfamily  \mbox{[}private\mbox{]}}}}\label{classGoalProvider_a043ea6fbbd89e54ea39501ae30da8774}
+\-Field to store the current location of the robot \hypertarget{classGoalProvider_a7c8eb368dbd85c32f1000fead79190dc}{\index{\-Goal\-Provider@{\-Goal\-Provider}!goal@{goal}}
+\index{goal@{goal}!GoalProvider@{\-Goal\-Provider}}
+\subsubsection[{goal}]{\setlength{\rightskip}{0pt plus 5cm}{\bf \-Goal} {\bf \-Goal\-Provider\-::goal}\hspace{0.3cm}{\ttfamily  \mbox{[}private\mbox{]}}}}\label{classGoalProvider_a7c8eb368dbd85c32f1000fead79190dc}
+\-Field to store our current goal \hypertarget{classGoalProvider_a27a290eb0662fbb7dc1dbe696f9fcb00}{\index{\-Goal\-Provider@{\-Goal\-Provider}!goal\-Acceptance\-Counter@{goal\-Acceptance\-Counter}}
+\index{goal\-Acceptance\-Counter@{goal\-Acceptance\-Counter}!GoalProvider@{\-Goal\-Provider}}
+\subsubsection[{goal\-Acceptance\-Counter}]{\setlength{\rightskip}{0pt plus 5cm}int {\bf \-Goal\-Provider\-::goal\-Acceptance\-Counter}\hspace{0.3cm}{\ttfamily  \mbox{[}private\mbox{]}}}}\label{classGoalProvider_a27a290eb0662fbb7dc1dbe696f9fcb00}
+\-Field to store whether or not the goal has been accepted \hypertarget{classGoalProvider_a35c75c0ef169d26dc40393e988f6f9ef}{\index{\-Goal\-Provider@{\-Goal\-Provider}!goal\-Attempt\-Counter@{goal\-Attempt\-Counter}}
+\index{goal\-Attempt\-Counter@{goal\-Attempt\-Counter}!GoalProvider@{\-Goal\-Provider}}
+\subsubsection[{goal\-Attempt\-Counter}]{\setlength{\rightskip}{0pt plus 5cm}int {\bf \-Goal\-Provider\-::goal\-Attempt\-Counter}\hspace{0.3cm}{\ttfamily  \mbox{[}private\mbox{]}}}}\label{classGoalProvider_a35c75c0ef169d26dc40393e988f6f9ef}
+\-Field to store the number of attempts made to get to the current goal \hypertarget{classGoalProvider_ab63657ef75bd9c478d01b270a142103e}{\index{\-Goal\-Provider@{\-Goal\-Provider}!goal\-Attempt\-Limit@{goal\-Attempt\-Limit}}
+\index{goal\-Attempt\-Limit@{goal\-Attempt\-Limit}!GoalProvider@{\-Goal\-Provider}}
+\subsubsection[{goal\-Attempt\-Limit}]{\setlength{\rightskip}{0pt plus 5cm}int {\bf \-Goal\-Provider\-::goal\-Attempt\-Limit}\hspace{0.3cm}{\ttfamily  \mbox{[}private\mbox{]}}}}\label{classGoalProvider_ab63657ef75bd9c478d01b270a142103e}
+\-Field to store the maximum number of goal attempts before choosing a new one \hypertarget{classGoalProvider_a25af65ca4565bee69daba5c9b2c11b8f}{\index{\-Goal\-Provider@{\-Goal\-Provider}!gps\-Subscriber@{gps\-Subscriber}}
+\index{gps\-Subscriber@{gps\-Subscriber}!GoalProvider@{\-Goal\-Provider}}
+\subsubsection[{gps\-Subscriber}]{\setlength{\rightskip}{0pt plus 5cm}\-Subscriber {\bf \-Goal\-Provider\-::gps\-Subscriber}\hspace{0.3cm}{\ttfamily  \mbox{[}private\mbox{]}}}}\label{classGoalProvider_a25af65ca4565bee69daba5c9b2c11b8f}
+\-Field to store the \-G\-P\-S subscriber \hypertarget{classGoalProvider_a274c71aaace4fb19551ecfd58356744a}{\index{\-Goal\-Provider@{\-Goal\-Provider}!gps\-U\-T\-M\-Origin@{gps\-U\-T\-M\-Origin}}
+\index{gps\-U\-T\-M\-Origin@{gps\-U\-T\-M\-Origin}!GoalProvider@{\-Goal\-Provider}}
+\subsubsection[{gps\-U\-T\-M\-Origin}]{\setlength{\rightskip}{0pt plus 5cm}{\bf \-Goal} {\bf \-Goal\-Provider\-::gps\-U\-T\-M\-Origin}\hspace{0.3cm}{\ttfamily  \mbox{[}private\mbox{]}}}}\label{classGoalProvider_a274c71aaace4fb19551ecfd58356744a}
+\-Field to store the starting position of the robot based on \-G\-P\-S converted into \-U\-T\-M \hypertarget{classGoalProvider_a24a2ea4ae8b62c0086602471a57b74d3}{\index{\-Goal\-Provider@{\-Goal\-Provider}!hl\-Odom\-Publisher@{hl\-Odom\-Publisher}}
+\index{hl\-Odom\-Publisher@{hl\-Odom\-Publisher}!GoalProvider@{\-Goal\-Provider}}
+\subsubsection[{hl\-Odom\-Publisher}]{\setlength{\rightskip}{0pt plus 5cm}\-Publisher {\bf \-Goal\-Provider\-::hl\-Odom\-Publisher}\hspace{0.3cm}{\ttfamily  \mbox{[}private\mbox{]}}}}\label{classGoalProvider_a24a2ea4ae8b62c0086602471a57b74d3}
+\-Field to store the publisher that the converted \-Hector \-Localization odometry is published on \hypertarget{classGoalProvider_a2322770657c65da748d21c844c787f5e}{\index{\-Goal\-Provider@{\-Goal\-Provider}!hl\-Pose\-Subscriber@{hl\-Pose\-Subscriber}}
+\index{hl\-Pose\-Subscriber@{hl\-Pose\-Subscriber}!GoalProvider@{\-Goal\-Provider}}
+\subsubsection[{hl\-Pose\-Subscriber}]{\setlength{\rightskip}{0pt plus 5cm}\-Subscriber {\bf \-Goal\-Provider\-::hl\-Pose\-Subscriber}\hspace{0.3cm}{\ttfamily  \mbox{[}private\mbox{]}}}}\label{classGoalProvider_a2322770657c65da748d21c844c787f5e}
+\-Field to store the hector\-\_\-localization/localization\-\_\-pose subscriber \hypertarget{classGoalProvider_a1429bea432a6411c063cd3cf4990f1ca}{\index{\-Goal\-Provider@{\-Goal\-Provider}!imu\-Counter@{imu\-Counter}}
+\index{imu\-Counter@{imu\-Counter}!GoalProvider@{\-Goal\-Provider}}
+\subsubsection[{imu\-Counter}]{\setlength{\rightskip}{0pt plus 5cm}int {\bf \-Goal\-Provider\-::imu\-Counter}\hspace{0.3cm}{\ttfamily  \mbox{[}private\mbox{]}}}}\label{classGoalProvider_a1429bea432a6411c063cd3cf4990f1ca}
+\-Field to store the number of times we have set our orientation \hypertarget{classGoalProvider_a86cffa9e45e8fdb0813964ca79e4a327}{\index{\-Goal\-Provider@{\-Goal\-Provider}!imu\-Subscriber@{imu\-Subscriber}}
+\index{imu\-Subscriber@{imu\-Subscriber}!GoalProvider@{\-Goal\-Provider}}
+\subsubsection[{imu\-Subscriber}]{\setlength{\rightskip}{0pt plus 5cm}\-Subscriber {\bf \-Goal\-Provider\-::imu\-Subscriber}\hspace{0.3cm}{\ttfamily  \mbox{[}private\mbox{]}}}}\label{classGoalProvider_a86cffa9e45e8fdb0813964ca79e4a327}
+\-Field to store the \-I\-M\-U subscriber \hypertarget{classGoalProvider_a903cb379ce27ab3072fc273f8d344b0b}{\index{\-Goal\-Provider@{\-Goal\-Provider}!mb@{mb}}
+\index{mb@{mb}!GoalProvider@{\-Goal\-Provider}}
+\subsubsection[{mb}]{\setlength{\rightskip}{0pt plus 5cm}\-Move\-Base\-Client {\bf \-Goal\-Provider\-::mb}\hspace{0.3cm}{\ttfamily  \mbox{[}private\mbox{]}}}}\label{classGoalProvider_a903cb379ce27ab3072fc273f8d344b0b}
+\-Field to store an \-Actionlib object. \-It allows us to send goals to move\-\_\-base and monitor them all in one system \hypertarget{classGoalProvider_a16a3122fd49b058c08a56e8eac93c08b}{\index{\-Goal\-Provider@{\-Goal\-Provider}!movebase\-Status\-Subscriber@{movebase\-Status\-Subscriber}}
+\index{movebase\-Status\-Subscriber@{movebase\-Status\-Subscriber}!GoalProvider@{\-Goal\-Provider}}
+\subsubsection[{movebase\-Status\-Subscriber}]{\setlength{\rightskip}{0pt plus 5cm}\-Subscriber {\bf \-Goal\-Provider\-::movebase\-Status\-Subscriber}\hspace{0.3cm}{\ttfamily  \mbox{[}private\mbox{]}}}}\label{classGoalProvider_a16a3122fd49b058c08a56e8eac93c08b}
+\-Field to store the movebase status subscriber \hypertarget{classGoalProvider_a5f5494e3cd35116f170082bce82201e5}{\index{\-Goal\-Provider@{\-Goal\-Provider}!p2os\-Odom\-Subscriber@{p2os\-Odom\-Subscriber}}
+\index{p2os\-Odom\-Subscriber@{p2os\-Odom\-Subscriber}!GoalProvider@{\-Goal\-Provider}}
+\subsubsection[{p2os\-Odom\-Subscriber}]{\setlength{\rightskip}{0pt plus 5cm}\-Subscriber {\bf \-Goal\-Provider\-::p2os\-Odom\-Subscriber}\hspace{0.3cm}{\ttfamily  \mbox{[}private\mbox{]}}}}\label{classGoalProvider_a5f5494e3cd35116f170082bce82201e5}
+\-Field to store the p2os odometry subscriber \hypertarget{classGoalProvider_a82146db14a5565a12fe979c68156d45c}{\index{\-Goal\-Provider@{\-Goal\-Provider}!path@{path}}
+\index{path@{path}!GoalProvider@{\-Goal\-Provider}}
+\subsubsection[{path}]{\setlength{\rightskip}{0pt plus 5cm}string {\bf \-Goal\-Provider\-::path}\hspace{0.3cm}{\ttfamily  \mbox{[}private\mbox{]}}}}\label{classGoalProvider_a82146db14a5565a12fe979c68156d45c}
+\-Field to store the base path to this node \hypertarget{classGoalProvider_a9f314d13331aa611c5b96202742be0e9}{\index{\-Goal\-Provider@{\-Goal\-Provider}!position\-Counter@{position\-Counter}}
+\index{position\-Counter@{position\-Counter}!GoalProvider@{\-Goal\-Provider}}
+\subsubsection[{position\-Counter}]{\setlength{\rightskip}{0pt plus 5cm}int {\bf \-Goal\-Provider\-::position\-Counter}\hspace{0.3cm}{\ttfamily  \mbox{[}private\mbox{]}}}}\label{classGoalProvider_a9f314d13331aa611c5b96202742be0e9}
+\-Field to store the number of times we have set our position \hypertarget{classGoalProvider_aa576e5466ea93048ed6c231f226c9658}{\index{\-Goal\-Provider@{\-Goal\-Provider}!sent\-First\-Goal@{sent\-First\-Goal}}
+\index{sent\-First\-Goal@{sent\-First\-Goal}!GoalProvider@{\-Goal\-Provider}}
+\subsubsection[{sent\-First\-Goal}]{\setlength{\rightskip}{0pt plus 5cm}bool {\bf \-Goal\-Provider\-::sent\-First\-Goal}\hspace{0.3cm}{\ttfamily  \mbox{[}private\mbox{]}}}}\label{classGoalProvider_aa576e5466ea93048ed6c231f226c9658}
+\-Field to store if we have sent the first goal or not \hypertarget{classGoalProvider_a94c6c903648ec2ff61396d04686bc466}{\index{\-Goal\-Provider@{\-Goal\-Provider}!set\-Starting\-Orientation@{set\-Starting\-Orientation}}
+\index{set\-Starting\-Orientation@{set\-Starting\-Orientation}!GoalProvider@{\-Goal\-Provider}}
+\subsubsection[{set\-Starting\-Orientation}]{\setlength{\rightskip}{0pt plus 5cm}bool {\bf \-Goal\-Provider\-::set\-Starting\-Orientation}\hspace{0.3cm}{\ttfamily  \mbox{[}private\mbox{]}}}}\label{classGoalProvider_a94c6c903648ec2ff61396d04686bc466}
+\-Field to store whether or not we have set our starting absolute orientation \hypertarget{classGoalProvider_aae2c69715ab4565f5d0e96cd16411444}{\index{\-Goal\-Provider@{\-Goal\-Provider}!set\-Starting\-Position@{set\-Starting\-Position}}
+\index{set\-Starting\-Position@{set\-Starting\-Position}!GoalProvider@{\-Goal\-Provider}}
+\subsubsection[{set\-Starting\-Position}]{\setlength{\rightskip}{0pt plus 5cm}bool {\bf \-Goal\-Provider\-::set\-Starting\-Position}\hspace{0.3cm}{\ttfamily  \mbox{[}private\mbox{]}}}}\label{classGoalProvider_aae2c69715ab4565f5d0e96cd16411444}
+\-Field to store whether or not we have set our starting absolute position \hypertarget{classGoalProvider_a6329ae18effbfa5a6eddf9956851c973}{\index{\-Goal\-Provider@{\-Goal\-Provider}!start\-Time@{start\-Time}}
+\index{start\-Time@{start\-Time}!GoalProvider@{\-Goal\-Provider}}
+\subsubsection[{start\-Time}]{\setlength{\rightskip}{0pt plus 5cm}string {\bf \-Goal\-Provider\-::start\-Time}\hspace{0.3cm}{\ttfamily  \mbox{[}private\mbox{]}}}}\label{classGoalProvider_a6329ae18effbfa5a6eddf9956851c973}
+\-Field to store the start time \hypertarget{classGoalProvider_aecddfd46c7aba939da77c5a207a97039}{\index{\-Goal\-Provider@{\-Goal\-Provider}!status@{status}}
+\index{status@{status}!GoalProvider@{\-Goal\-Provider}}
+\subsubsection[{status}]{\setlength{\rightskip}{0pt plus 5cm}\-Autonomous\-Status {\bf \-Goal\-Provider\-::status}\hspace{0.3cm}{\ttfamily  \mbox{[}private\mbox{]}}}}\label{classGoalProvider_aecddfd46c7aba939da77c5a207a97039}
+\-Field to store the status of this node \hypertarget{classGoalProvider_ad4a03daf04350450ceee088c9f5f6c54}{\index{\-Goal\-Provider@{\-Goal\-Provider}!subgoal\-Distance@{subgoal\-Distance}}
+\index{subgoal\-Distance@{subgoal\-Distance}!GoalProvider@{\-Goal\-Provider}}
+\subsubsection[{subgoal\-Distance}]{\setlength{\rightskip}{0pt plus 5cm}int {\bf \-Goal\-Provider\-::subgoal\-Distance}\hspace{0.3cm}{\ttfamily  \mbox{[}private\mbox{]}}}}\label{classGoalProvider_ad4a03daf04350450ceee088c9f5f6c54}
+\-Field to store the subgoal distance. -\/1 means subgoals will not be used \hypertarget{classGoalProvider_aefb932adf68011afd36e0796a001c147}{\index{\-Goal\-Provider@{\-Goal\-Provider}!testing@{testing}}
+\index{testing@{testing}!GoalProvider@{\-Goal\-Provider}}
+\subsubsection[{testing}]{\setlength{\rightskip}{0pt plus 5cm}bool {\bf \-Goal\-Provider\-::testing}\hspace{0.3cm}{\ttfamily  \mbox{[}private\mbox{]}}}}\label{classGoalProvider_aefb932adf68011afd36e0796a001c147}
+\-Field to store if we are testing without \-G\-P\-S or not \hypertarget{classGoalProvider_a344bf023e320a812a824654c69531f31}{\index{\-Goal\-Provider@{\-Goal\-Provider}!using\-Imu@{using\-Imu}}
+\index{using\-Imu@{using\-Imu}!GoalProvider@{\-Goal\-Provider}}
+\subsubsection[{using\-Imu}]{\setlength{\rightskip}{0pt plus 5cm}bool {\bf \-Goal\-Provider\-::using\-Imu}\hspace{0.3cm}{\ttfamily  \mbox{[}private\mbox{]}}}}\label{classGoalProvider_a344bf023e320a812a824654c69531f31}
+\-Field to store if we are using the \-I\-M\-U to set the starting orientation of the robot 
+
+\-The documentation for this class was generated from the following file\-:\begin{DoxyCompactItemize}
+\item 
+src/goal\-\_\-provider\-\_\-node.\-cpp\end{DoxyCompactItemize}

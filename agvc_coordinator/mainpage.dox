@@ -1,14 +1,55 @@
 /**
 \mainpage
-\htmlinclude manifest.html
 
-\b agvc_coordinator 
+The \b agvc_coordinator package allows the UWA team competing in AGVC2013 to easily control the robot system <br /> <br />
+\author Enda McCauley
+\date November 21st 2013
 
-<!-- 
-Provide an overview of your package.
--->
+\section dependencies Dependencies
+- \c <a href="http://wiki.ros.org/roscpp"> roscpp </a>
+- \c <a href="http://wiki.ros.org/std_msgs"> std_msgs </a>
+- \c <a href="http://wiki.ros.org/sensor_msgs"> sensor_msgs </a>
+- \c <a href="http://wiki.ros.org/joy"> joy </a>
+- \c <a href="http://wiki.ros.org/p2os_driver?distro=groovy"> p2os_driver </a>
+- \c <a href="http://wiki.ros.org/sound_play"> sound_play </a>
 
--->
+\section tops Topics
+- \c /joy (<a href="http://docs.ros.org/api/sensor_msgs/html/msg/Joy.html"> sensor_msgs::Joy </a>): Use to receive commands from the logitech controller
+- \c /cmd_motor_state (<a href="http://docs.ros.org/diamondback/api/p2os_driver/html/msg/MotorState.html"> p2os_driver::MotorState </a>): Publishes on this topic to enable/disable the motors of the robot
 
+\section param Parameters
+- \c joystick: Whether or not the logitech controller is being used
+- \c path: The full file path to the directory containing agvc_coordinator
+- \c arduino_config_string: The string used to configure the USB port the arduino is attached to
+- \c arduino_path: The name of the USB port the arduino is attached to. If either of this or the above is empty the arduino is not used
 
+\section launch Launch files
+- \c agvc_coordinator: The absolute minimum needed for the system. This includes agvc_coordinator and joy. This launch file is started on system startup. Two other nodes, namely xsens_driver and soundplay are started by running the relevant launch files from within agvc_coordinator after a 10 second delay. These two nodes cannot be included in the main launch file and run on startup because the USB/speaker drivers have not loaded
+- \c AGVCFull: Contains all the nodes required to enable autonomous mode
+- \c AGVCPartial: Contains all the nodes required to enable manual control. The only difference between this and the previous launch file is that this file does not run move_base or goal_provider
+
+\section script Startup script installation
+- Place the AGVCStarter.sh script somewhere on the host system
+- Then (Ubuntu) open a terminal and type gnome-session-properties. Click add and fill in the prompt
+- Make sure that AGVCStarter.sh is set as executable by running sudo chmod +x AGVCStarter.sh
+
+\section functionality Functionality
+\subsection ineraction User Interaction
+Joystick/keyboard commands to control the AGVC system
+Use help to view the keyboard commands. The buttons are
+- \c 1 for autonomous mode
+- \c 2 to disable whichever mode is active
+- \c 3 for manual mode. In this mode the D pad and/or axial joystick can be used to drive the robot
+- \c 4 to enable/disable the motors
+- \c 9 to start/stop a bag file. This file is placed in ~/.ros
+- \c 10 to restart the robot
+
+\subsection audio Audio feedback
+Depending on which button is pressed the robot will give audio feedback. This is done through the ROS sound_play package. 
+
+\subsection arduino Arduino
+AGVC Coordinator can also output to an Arduino. In particular it sends a 1 apon autonomous mode startup and a 0 when autonomous mode is disabled. The use of an arduino is disabled by default but if the arduino_config_string and arduino_path parameters are present it will be used
+
+\subsection disable Disabling modes
+The two modes are disabled by killing all but the essential ROS nodes. This is done by using the two /config/*NodesToKeep files where * corresponds to either Autonomous or Manual. Every node which is not in the relevant file is killed
 */

@@ -1,0 +1,117 @@
+{\bfseries goal\-\_\-provider} allows a robot to travel to all \-G\-P\-S points contained in a text file \par
+ \par
+ \begin{DoxyAuthor}{\-Author}
+\-Enda \-Mc\-Cauley 
+\end{DoxyAuthor}
+\begin{DoxyDate}{\-Date}
+\-November 21st 2013
+\end{DoxyDate}
+\hypertarget{index_dependencies}{}\section{\-Dependencies}\label{index_dependencies}
+
+\begin{DoxyItemize}
+\item {\ttfamily } \href{http://wiki.ros.org/roscpp}{\tt roscpp }
+\item {\ttfamily } \href{http://wiki.ros.org/actionlib_msgs}{\tt actionlib\-\_\-msgs }
+\item {\ttfamily } \href{http://wiki.ros.org/geometry_msgs}{\tt geometry\-\_\-msgs }
+\item {\ttfamily } \href{http://wiki.ros.org/nav_msgs}{\tt nav\-\_\-msgs }
+\item {\ttfamily } \href{http://wiki.ros.org/sensor_msgs}{\tt sensor\-\_\-msgs }
+\item {\ttfamily } \href{http://wiki.ros.org/std_msgs}{\tt std\-\_\-msgs }
+\item {\ttfamily } \href{http://http://wiki.ros.org/navigation?distro=hydro}{\tt navigation }
+\item {\ttfamily } \href{http://wiki.ros.org/hector_localization}{\tt hector\-\_\-localization }
+\item {\ttfamily } \href{http://wiki.ros.org/gps_common}{\tt gps\-\_\-common }
+\end{DoxyItemize}\hypertarget{index_topics}{}\section{\-Topics}\label{index_topics}
+
+\begin{DoxyItemize}
+\item {\ttfamily /gps\-\_\-fix} (\href{http://ros.org/doc/api/sensor_msgs/html/msg/NavSatFix.html}{\tt sensor\-\_\-msgs\-::\-Nav\-Sat\-Fix }) \-Used to set the \-G\-P\-S origin of the robot
+\item {\ttfamily /localization\-\_\-pose} (\href{http://ros.org/doc/api/geometry_msgs/html/msg/PoseStamped.html}{\tt geometry\-\_\-msgs\-::\-Pose\-Stamped})\-Hector \-Localisation\-: \-Used to keep track of where the robot is and to update the distance from where we are to the goal locations
+\item {\ttfamily /move\-\_\-base/status} (\href{http://docs.ros.org/api/actionlib_msgs/html/msg/GoalStatusArray.html}{\tt actionlib\-\_\-msgs\-::\-Goal\-Status\-Array }) \-Movebase status\-: \-Keep track of the goal status. \-Options of interest are \-P\-E\-N\-D\-I\-N\-G, \-P\-R\-E\-E\-M\-P\-T\-E\-D, \-A\-C\-T\-I\-V\-E, \-S\-U\-C\-C\-E\-E\-D\-E\-D, \-R\-E\-J\-E\-C\-T\-E\-D and \-A\-B\-O\-R\-T\-E\-D
+\item {\ttfamily /raw\-\_\-imu} (\href{http://ros.org/doc/api/sensor_msgs/html/msg/Imu.html}{\tt sensor\-\_\-msgs\-::\-Imu }) \-A magnetometer equiped \-I\-M\-U to find the angle the robot is facing with respect to geometric \-North
+\item {\ttfamily /odom} (\href{http://ros.org/doc/api/nav_msgs/html/msg/Odometry.html}{\tt nav\-\_\-msgs\-::\-Odometry }) \-The /localization\-\_\-pose topic republished as an \-Odometry message
+\item {\ttfamily /status} (\-Autonomous\-Status)\-: \-The status of the robot.
+\end{DoxyItemize}\hypertarget{index_autostatus}{}\section{\-Autonomous\-Status}\label{index_autostatus}
+\-Header header
+
+geometry\-\_\-msgs\-::\-Point goal\-: \-The goal we are heading to
+
+uint8 status \-Any value from the following enumeration
+
+
+\begin{DoxyItemize}
+\item uint8 \-A\-C\-T\-I\-V\-E\-: \-We are actively heading to a goal
+\end{DoxyItemize}
+
+
+\begin{DoxyItemize}
+\item uint8 \-W\-A\-I\-T\-I\-N\-G\-: \-We are waiting for a goal to be accepted by move\-\_\-base
+\end{DoxyItemize}
+
+
+\begin{DoxyItemize}
+\item uint8 \-R\-E\-J\-E\-C\-T\-E\-D\-: \-Movebase rejected our goal
+\end{DoxyItemize}
+
+
+\begin{DoxyItemize}
+\item uint8 \-A\-B\-O\-R\-T\-E\-D\-: \-Movebase aborted our goal
+\end{DoxyItemize}
+
+
+\begin{DoxyItemize}
+\item uint8 \-R\-E\-A\-C\-H\-E\-D\-: \-We have reached the goal and can start planning for the next one
+\end{DoxyItemize}
+
+
+\begin{DoxyItemize}
+\item uint8 \-L\-O\-S\-T\-: \-We are lost and don't know what is happening anymore. \-This is terminal
+\end{DoxyItemize}
+
+
+\begin{DoxyItemize}
+\item uint8 \-P\-R\-E\-E\-M\-P\-T\-E\-D\-: \-Another goal took priority over this one
+\end{DoxyItemize}
+
+
+\begin{DoxyItemize}
+\item uint8 \-U\-P\-D\-A\-T\-I\-N\-G\-: \-Updating the goal or not
+\end{DoxyItemize}
+
+
+\begin{DoxyItemize}
+\item uint8 \-E\-R\-R\-O\-R\-: \hyperlink{classGoal}{\-Goal} provider has gone gammy
+\end{DoxyItemize}
+
+
+\begin{DoxyItemize}
+\item uint8 \-I\-N\-F\-O\-: \-This message is simply to provide some information
+\end{DoxyItemize}
+
+std\-\_\-msgs\-::\-String text\-: \-Accompanying text. \-Usually used for the \-Info message \hypertarget{index_parameters}{}\section{\-Parameters}\label{index_parameters}
+
+\begin{DoxyItemize}
+\item {\ttfamily callbacks\-\_\-till\-\_\-goal\-\_\-update\-:} \-Number of \-Hector \-Localisation callbacks to be made before we revaluate our target goal (default\-: 1000)
+\item {\ttfamily goal\-\_\-attempt\-\_\-limit\-:} \-The number of times to attempt a goal (default\-: 10)
+\item {\ttfamily testing\-:} \-Whether or not we are testing indoors. \-This simply replaces the \-G\-P\-S origin with the \-Hector \-Localisation derived origin (default\-: false)
+\item {\ttfamily using\-\_\-imu\-:} \-Whether or not the \-I\-M\-U is to be used to find the angle the robot is off from north. \-If set to false the robot is assumed to be facing north (default\-: true)
+\item {\ttfamily path\-:} \-The full file path to the directory containing goal\-\_\-provider
+\item {\ttfamily subgoal\-\_\-distance\-:} \-How far away a goal needs to be before a subgoal is used. \-Set to -\/1 to disable subgoals (default\-: -\/1)
+\end{DoxyItemize}\hypertarget{index_functionality}{}\section{\-Functionality}\label{index_functionality}
+\hypertarget{index_mainAlogrithm}{}\subsection{\-Main process}\label{index_mainAlogrithm}
+\-The process starts by getting the starting point of the robot from the \-G\-P\-S (or in testing mode from \-Hector \-Localisation). \-This point is converted into \-U\-T\-M coordinates (unless if testing) by using code in the gps\-\_\-common package. \-If this step is not accomplished nothing else will happen. \-At the same time the \-I\-M\-U is used to get the angle the robot is facing with respect to geometric north. \-The difference between magnetic and actual north is taken into account for this step \par
+ \par
+ \-The config file contained in the config/ folder is then opened and read. \-For each pair of latitude and longitude -\/\-Convert the pair into \-U\-T\-M -\/\-Put the \-U\-T\-M (x, y) into a \hyperlink{classGoal}{\-Goal} object. \-This involves converting the \-U\-T\-M coordinates to the local robot coordinates. \-This is why the starting position and orientation are needed. \-Each \hyperlink{classGoal}{\-Goal} object also stores the distance between the \-U\-T\-M (x, y) and the starting point \-U\-T\-M (x, y) \-Once all the goals are loaded a new goal is sent to move\-\_\-base by
+\begin{DoxyItemize}
+\item \-Sorting the list of \hyperlink{classGoal}{\-Goal} objects
+\item \-Taking the first object off of the list
+\item \-If the goal is further away then the subgoal distance then create and use a subgoal
+\item \-If this is the same goal as before \-B\-U\-T we have exceeded our retry limit then remove it from the list and take the next goal. \-The retry counter is increased if the goal is \-A\-B\-O\-R\-T\-E\-D or \-R\-E\-J\-E\-C\-T\-E\-D and when we first add it
+\item \-If this is a different goal than what we had before the update the current goal, reset the retry counter and send the goal \-Each \hyperlink{classGoal}{\-Goal} is monitored through move\-\_\-base/status. \par
+
+\end{DoxyItemize}
+
+\-The distance to each goal is also continously updated through \-Hector \-Localisation. \-Every 1000 (changeable by the parameter server) \-Hector \-Localisation callbacks we will update the goal. \-This may result in changing from one goal to another. \-Finally once all goals have been reached the robot returns home. \-For the competition this will need to be changed such that it moves to the end\hypertarget{index_subgoal}{}\subsection{\-Subgoals}\label{index_subgoal}
+
+\begin{DoxyItemize}
+\item \-Create triangle between the current and goal points
+\item \-Find the angle of the hypotenuse makes with the horizontal
+\item \-Use that angle and the predefined maximum goal distance to find the subgoal x and y values \-Note that this process is linear. \-The subgoals may be in a building or similar. \-The idea is that as the robot tries to drive around the building the subgoal will be continuously updating and will continue to pull the robot to the final goal \-Subgoals also can time out and if this happens then the overall goal is aborted as well
+\end{DoxyItemize}\hypertarget{index_logging}{}\subsection{\-Logging}\label{index_logging}
+\-Logging writes various pieces of information to a log file contained in the /log folder. \-The name of the log file is the date and time when goal provider was run and is unique 

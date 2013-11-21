@@ -14,6 +14,7 @@
 #include <sensor_msgs/NavSatFix.h>
 #include <sensor_msgs/Imu.h>
 #include <geometry_msgs/Point.h>
+#include <geometry_msgs/Pose.h>
 #include <geometry_msgs/PoseStamped.h>
 
 #include <actionlib/client/simple_action_client.h>
@@ -48,11 +49,14 @@ typedef actionlib::SimpleActionClient<move_base_msgs::MoveBaseAction> MoveBaseCl
     This class provides goal data to the move_base navigation stack. A typical goal is simply a GPS position
 
     @author Enda McCauley
-    @date October 23rd 2013
+    @date November 21st 2013
 */
 class GoalProvider
 {
 public:
+    /**
+      Constructs a new GoalProvider object
+    */
     GoalProvider() : mb("move_base", true)
     {
         NodeHandle node;
@@ -75,7 +79,7 @@ public:
         ROS_INFO("\033[2;32mGoalProvider: Initialized at time: %s\033[0m\n", startTime.c_str());
 
         privateNode.param("callbacks_till_goal_update", callbacksUntilGoalUpdate, 1000);
-        privateNode.param("goal_attempt_limit", goalAttemptLimit, 5);
+        privateNode.param("goal_attempt_limit", goalAttemptLimit, 10);
         privateNode.param("testing", testing, false);
         privateNode.param("using_imu", usingImu, true);
         privateNode.param("path", path, std::string("/home/enda/fuerte_workspace/sandbox/"));
@@ -133,7 +137,7 @@ public:
         hlPoseSubscriber = node.subscribe("/localization_pose", 1000, &GoalProvider::hlPoseCallback, this);
         movebaseStatusSubscriber = node.subscribe("move_base/status", 1000, &GoalProvider::movebaseStatusCallback, this);
 
-        hlOdomPublisher = privateNode.advertise<nav_msgs::Odometry>("odom", 1000);
+        hlOdomPublisher = privateNode.advertise<nav_msgs::Odometry>("/odom", 1000);
     }
 
     ~GoalProvider()
@@ -167,6 +171,11 @@ private:
       Field to store the hector_localization/localization_pose subscriber
     */
     Subscriber hlPoseSubscriber;
+
+    /**
+      Field to store the p2os odometry subscriber
+    */
+    Subscriber p2osOdomSubscriber;
 
     /**
       Field to store the IMU subscriber
@@ -206,7 +215,7 @@ private:
     /**
       Field to store the current location of the robot
     */
-    Goal currentLocation;
+    geometry_msgs::Pose currentLocation;
 
     /**
       Field to store whether or not we have set our starting absolute position
@@ -271,7 +280,6 @@ private:
     /**
       Field to store the number of times we have set our position
     */
-
     int positionCounter;
 
     /**
@@ -286,7 +294,7 @@ private:
 
     /**
       Callback for the GPS
-      @param odom The odometry data
+      @param fix The GPS data
     */
     void gpsCallback(const sensor_msgs::NavSatFix fix)
     {
@@ -341,19 +349,21 @@ private:
     {
         if (!setStartingOrientation && !testing)
         {
-            //Set the angle
-            double angle = quatToEuler(imu); //Minus 1.617 because magnetic and true north are not the same. This will need changing for the competition
+            double bank, attitude, heading = 0;
 
-            if (angle >= 0)
+            //Set the angle
+            quatToEuler(imu.orientation.x, imu.orientation.y, imu.orientation.z, imu.orientation.w, &attitude, &bank, &heading); //Minus 1.617 because magnetic and true north are not the same. This will need changing for the competition
+
+            if (attitude >= 0)
             {
-                angle -= 1.617;
+                attitude -= 1.617;
             }
             else
             {
-                angle += 1.617;
+                attitude += 1.617;
             }
 
-            angleOffNorth += angle;
+            angleOffNorth += attitude;
             imuCounter++;
 
             //Only if we have set our orientation 10 times
@@ -385,24 +395,39 @@ private:
 
     /**
       Converts the quaternion orientation measurements from the IMU into euler measurements
-      @param imuData The IMU measurement
-      @return The rotation of the IMU around the z axis
+      @param x The x component of the quaternion
+      @param y The y component of the quaternion
+      @param z The z component of the quaternion
+      @param w The w component of the quaternion
+      @param attitude A pointer to store the attitude (z) orientation
+      @param bank A pointer to store the bank (x) orientation
+      @param heading A pointer to store the heading (y) orientation
     */
-    double quatToEuler(const sensor_msgs::Imu imuData)
+    void quatToEuler(double x, double y, double z, double w, double* attitude, double* bank, double* heading)
     {
-        double test = imuData.orientation.x*imuData.orientation.y + imuData.orientation.z*imuData.orientation.w;
+        double test = x*y + z*w;
 
         if (test > 0.499)
         { // singularity at north pole
-             return ((PI/2) * r2d);
+            (*heading) = 2 * atan2(x,w);
+            (*attitude) = PI/2;
+            (*bank) = 0;
         }
         else if (test < -0.499)
         {
-            return ((-PI/2) * r2d);
+            (*heading) = -2 * atan2(x,w);
+            (*attitude) = -PI/2;
+            (*bank) = 0;
         }
         else
         {
-            return (asin(2*test) * r2d);
+            double sqx = x * x;
+            double sqy = y * y;
+            double sqz = z * z;
+
+            (*heading) = atan2(2*y*w-2*x*z , 1 - 2*sqy - 2*sqz);
+            (*attitude) = asin(2*test);
+            (*bank) = atan2(2*x*w-2*y*z , 1 - 2*sqx - 2*sqz);
         }
     }
 
@@ -412,17 +437,27 @@ private:
     */
     void hlPoseCallback(const geometry_msgs::PoseStamped pose)
     {
-        //First convert the PoseStamped into Odometry and publish for use by Movebase
+        //First convert the PoseStamped into Odometry and publish for use by Movebase/costmap_2d
         nav_msgs::Odometry toPublish;
 
         toPublish.child_frame_id = "base_link";
         toPublish.header = pose.header;
         toPublish.pose.pose = pose.pose;
 
+        toPublish.twist.twist.linear.x = (pose.pose.position.x - currentLocation.position.x) / 0.01; //Cheap hack to get velocity (100Hz)
+        toPublish.twist.twist.linear.y = (pose.pose.position.y - currentLocation.position.y) / 0.01;
+
+        double px, py, pz, currx, curry, currz = 0;
+        quatToEuler(pose.pose.orientation.x, pose.pose.orientation.y, pose.pose.orientation.z, pose.pose.orientation.w, &px, &py, &pz);
+        quatToEuler(currentLocation.orientation.x, currentLocation.orientation.y, currentLocation.orientation.z, currentLocation.orientation.w, &currx, &curry, &currz);
+
+        toPublish.twist.twist.angular.x = (px - currx) / 0.01; //Cheap hack to get angular velocity
+        toPublish.twist.twist.angular.y = (py - curry) / 0.01;
+        toPublish.twist.twist.angular.z = (pz - currz) / 0.01;
         hlOdomPublisher.publish(toPublish);
 
-        currentLocation.x = pose.pose.position.x;
-        currentLocation.y = pose.pose.position.y;
+        currentLocation.orientation = pose.pose.orientation;
+        currentLocation.position = pose.pose.position;
 
         if (setStartingPosition && (setStartingOrientation || testing))
         {
@@ -688,7 +723,7 @@ private:
                 }
                 else if (temp == goal && goalAttemptCounter >= goalAttemptLimit)
                 {
-                    sprintf(buffer, "Goal (%f, %f) failed too many times", (goal.x, goal.y));
+                    sprintf(buffer, "Goal (%f, %f) failed too many times", goal.x, goal.y);
                     publishStatus(AutonomousStatus::INFO, buffer);
 
                     removeCurrentGoal();
@@ -712,7 +747,7 @@ private:
                         publishStatus(AutonomousStatus::INFO, "Going home...");
                         goal.x = 0;
                         goal.y = 0;
-                        goal.distanceFromRobot = sqrt(pow(currentLocation.x, 2) + pow(currentLocation.y, 2));
+                        goal.distanceFromRobot = sqrt(pow(currentLocation.position.x, 2) + pow(currentLocation.position.y, 2));
                     }
 
                     sprintf(buffer, "Replacement goal chosen as (%f, %f)", goal.x, goal.y);
@@ -813,8 +848,8 @@ private:
     {
         char buffer[200];
 
-        ROS_INFO("\033[2;32mGoalProvider: Current location (%f, %f)\033[0m\n", currentLocation.x, currentLocation.y);
-        sprintf(buffer, "Current location (%f, %f)", currentLocation.x, currentLocation.y);
+        ROS_INFO("\033[2;32mGoalProvider: Current location (%f, %f)\033[0m\n", currentLocation.position.x, currentLocation.position.y);
+        sprintf(buffer, "Current location (%f, %f)", currentLocation.position.x, currentLocation.position.y);
         publishStatus(AutonomousStatus::INFO, buffer);
 
         Goal difference = overallGoal - currentLocation;
@@ -828,8 +863,8 @@ private:
         double deltaX = subgoalDistance * sin(angleOfLinearPath);
         double deltaY = -subgoalDistance * cos(angleOfLinearPath);
 
-        subgoal.x = currentLocation.x + deltaX;
-        subgoal.y = currentLocation.y + deltaY;
+        subgoal.x = currentLocation.position.x + deltaX;
+        subgoal.y = currentLocation.position.y + deltaY;
         subgoal.distanceFromRobot = sqrt(pow(subgoal.x, 2) + pow(subgoal.y, 2));
 
         ROS_INFO("\033[2;32mGoalProvider: Goal is %fm which is beyond %dm. Use subgoal (%f, %f) instead\033[0m\n", overallGoal.distanceFromRobot, subgoalDistance, subgoal.x, subgoal.y);

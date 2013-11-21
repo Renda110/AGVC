@@ -1,0 +1,3 @@
+PROJECT_NAME=AGVC" "Coordinator
+INPUT=src/agvc_coordinator_node.cpp mainpage.dox
+EXTRACT_PRIVATE=YES

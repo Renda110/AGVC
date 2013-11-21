@@ -1,0 +1,47 @@
+\-The {\bfseries agvc\-\_\-coordinator} package allows the \-U\-W\-A team competing in \-A\-G\-V\-C2013 to easily control the robot system\hypertarget{index_dependencies}{}\section{\-Dependencies}\label{index_dependencies}
+
+\begin{DoxyItemize}
+\item {\ttfamily } \href{http://wiki.ros.org/roscpp}{\tt roscpp }
+\item {\ttfamily } \href{http://wiki.ros.org/std_msgs}{\tt std\-\_\-msgs }
+\item {\ttfamily } \href{http://wiki.ros.org/sensor_msgs}{\tt sensor\-\_\-msgs }
+\item {\ttfamily } \href{http://wiki.ros.org/joy}{\tt joy }
+\item {\ttfamily } \href{http://wiki.ros.org/p2os_driver?distro=groovy}{\tt p2os\-\_\-driver }
+\item {\ttfamily } \href{http://wiki.ros.org/sound_play}{\tt sound\-\_\-play }
+\end{DoxyItemize}\hypertarget{index_tops}{}\section{\-Topics}\label{index_tops}
+
+\begin{DoxyItemize}
+\item {\ttfamily /joy} (\href{http://docs.ros.org/api/sensor_msgs/html/msg/Joy.html}{\tt sensor\-\_\-msgs\-::\-Joy })\-: \-Use to receive commands from the logitech controller
+\item {\ttfamily /cmd\-\_\-motor\-\_\-state} (\href{http://docs.ros.org/diamondback/api/p2os_driver/html/msg/MotorState.html}{\tt p2os\-\_\-driver\-::\-Motor\-State })\-: \-Uses this to enable/disable the motors of the robot
+\end{DoxyItemize}\hypertarget{index_param}{}\section{\-Parameters}\label{index_param}
+
+\begin{DoxyItemize}
+\item {\ttfamily joystick\-:} \-Whether or not the logitech controller is being used
+\item {\ttfamily path\-:} \-The full file path to the directory containing agvc\-\_\-coordinator
+\item {\ttfamily arduino\-\_\-config\-\_\-string\-:} \-The string used to configure the \-U\-S\-B port the arduino is attached to
+\item {\ttfamily arduino\-\_\-path\-:} \-The name of the \-U\-S\-B port the arduino is attached to. \-If either of this or the above is empty the arduino is not used
+\end{DoxyItemize}\hypertarget{index_launch}{}\section{\-Launch files}\label{index_launch}
+
+\begin{DoxyItemize}
+\item {\ttfamily agvc\-\_\-coordinator\-:} \-The absolute minimum needed for the system. \-This includes agvc\-\_\-coordinator and joy. \-This launch file is started on system startup. \-Two other nodes, namely xsens\-\_\-driver and soundplay are started by running the relevant launch files from within agvc\-\_\-coordinator after a 10 second delay. \-These two nodes cannot be included in the main launch file and run on startup because the \-U\-S\-B/speaker drivers have not loaded
+\item {\ttfamily \-A\-G\-V\-C\-Full\-:} \-Contains all the nodes required to enable autonomous mode
+\item {\ttfamily \-A\-G\-V\-C\-Partial\-:} \-Contains all the nodes required to enable manual control. \-The only difference between this and the previous launch file is that this file does not run move\-\_\-base or goal\-\_\-provider
+\end{DoxyItemize}\hypertarget{index_script}{}\section{\-Startup script installation}\label{index_script}
+
+\begin{DoxyItemize}
+\item \-Place the \-A\-G\-V\-C\-Starter.\-sh script somewhere on the host system
+\item \-Then (\-Ubuntu) open a terminal and type gnome-\/session-\/properties. \-Click add and fill in the prompt
+\item \-Make sure that \-A\-G\-V\-C\-Starter.\-sh is set as executable by running sudo chmod +x \-A\-G\-V\-C\-Starter.\-sh
+\end{DoxyItemize}\hypertarget{index_functionality}{}\section{\-Functionality}\label{index_functionality}
+\hypertarget{index_ineraction}{}\subsection{\-User Interaction}\label{index_ineraction}
+\-Joystick/keyboard commands to control the \-A\-G\-V\-C system \-Use help to view the keyboard commands. \-The buttons are
+\begin{DoxyItemize}
+\item {\ttfamily 1} for autonomous mode
+\item {\ttfamily 2} to disable whichever mode is active
+\item {\ttfamily 3} for manual mode. \-In this mode the \-D pad and/or axial joystick can be used to drive the robot
+\item {\ttfamily 4} to enable/disable the motors
+\item {\ttfamily 9} to start/stop a bag file. \-This file is placed in $\sim$/.ros
+\item {\ttfamily 10} to restart the robot
+\end{DoxyItemize}\hypertarget{index_audio}{}\subsection{\-Audio feedback}\label{index_audio}
+\-Depending on which button is pressed the robot will give audio feedback. \-This is done through the \-R\-O\-S sound\-\_\-play package.\hypertarget{index_arduino}{}\subsection{\-Arduino}\label{index_arduino}
+\-A\-G\-V\-C \-Coordinator can also output to an \-Arduino. \-In particular it sends a 1 apon autonomous mode startup and a 0 when autonomous mode is disabled. \-The use of an arduino is disabled by default but if the arduino\-\_\-config\-\_\-string and arduino\-\_\-path parameters are present it will be used\hypertarget{index_disable}{}\subsection{\-Disabling modes}\label{index_disable}
+\-The two modes are disabled by killing all but the essential \-R\-O\-S nodes. \-This is done by using the two /config/$\ast$\-Nodes\-To\-Keep files where $\ast$ corresponds to either \-Autonomous or \-Manual. \-Every node which is not in the relevant file is killed 

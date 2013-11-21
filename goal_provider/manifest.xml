@@ -17,6 +17,7 @@
   <depend package="nav_msgs"/>
   <depend package="gps_common"/>
   <depend package="move_base"/>
+  <depend package="hector_localization"/>
 
 </package>
 

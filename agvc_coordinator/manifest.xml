@@ -14,7 +14,4 @@
   <depend package="joy"/>
   <depend package="p2os_driver"/>
   <depend package="sound_play" />
-
 </package>
-
-

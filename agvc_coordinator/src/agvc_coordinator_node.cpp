@@ -17,6 +17,7 @@ using namespace std;
 /**
   Class to handle initialisation of the software necessary for the AGVC competition
   @author Enda McCauley
+  @date November 21st 2013
 */
 class AGVC_Coordinator
 {
@@ -30,10 +31,14 @@ public:
         NodeHandle privateNode("~");
 
         privateNode.param("joystick", usingJoystick, false);
-        privateNode.param("path", path, std::string("home/wambot/fuerte_workspace/"));
+        privateNode.param("path", path, string("home/wambot/fuerte_workspace/"));
+        privateNode.param("arduino_config_string", arduinoConfigString, string(""));
+        privateNode.param("arduino_port", arduinoPort, string(""));
 
         ROS_INFO("\033[2;32mAGVC Coordinator: Using Joystick set to: %d\033[0m\n", (usingJoystick) ? 1 : 0);
         ROS_INFO("\033[2;32mAGVC Coordinator: Base path set to: %s\033[0m\n", path.c_str());
+        ROS_INFO("\033[2;32mAGVC Coordinator: Arduino port set to %s\033[0m\n", arduinoPort.c_str());
+        ROS_INFO("\033[2;32mAGVC Coordinator: Arduino configuration string set to %s\033[0m\n", arduinoConfigString.c_str());
 
         motorPublisher = node.advertise<p2os_driver::MotorState>("cmd_motor_state", 1000);
 
@@ -45,8 +50,23 @@ public:
         setStartTime();
 
         sleep(10); //wait some time for the IMU and sound driver to become available. No other easy way to do this
-        system ("roslaunch xsens_driver xsens_driver.launch &");
-        system("roslaunch sound_play soundplay_node.launch &");
+        system ("roslaunch xsens_driver xsens_driver.launch &"); //Start IMU driver
+        system ("roslaunch sound_play soundplay_node.launch &"); //Start Sound play node
+
+        if (!arduinoConfigString.empty() && !arduinoPort.empty())
+        {
+            string cmd = "stty -F " + arduinoPort + " " + arduinoConfigString + " &";
+
+            system (cmd.c_str());
+
+            ROS_INFO("\033[2;32mAGVC Coordinator: Using an arduino\033[0m\n");
+            writeToLog("Using arduino");
+        }
+        else
+        {
+            ROS_INFO("\033[2;32mAGVC Coordinator: Not using an arduino\033[0m\n");
+            writeToLog("Not using arduino");
+        }
 
         if (!usingJoystick)
         {
@@ -88,6 +108,16 @@ private:
       Field to store the base path to this node
     */
     string path;
+
+    /**
+      Field to store the string used to configure the arduino
+    */
+    string arduinoConfigString;
+
+    /**
+      Field to store the name of the port being used by the arduino
+    */
+    string arduinoPort;
 
     /**
       Field to store whether or not the full system is active (full autonomous operation)
@@ -378,6 +408,7 @@ private:
     {
         if (!fullActive && !partialActive)
         {
+            writeToSerial(1);
             //system ("roslaunch agvc_coordinator xsens_driver.launch &" ); //Ideally this will be one launch file
             system ("roslaunch agvc_coordinator AGVCFull.launch &");
 
@@ -402,6 +433,7 @@ private:
     */
     void stopFull()
     {
+        writeToSerial(0);
         speak("Disabling autonomous mode");
 
         cout << "\033[2;32mAGVC_Coordinator: Stopping full mode\033[0m" << endl;
@@ -424,6 +456,8 @@ private:
     {
         if (!partialActive && !fullActive)
         {
+            writeToSerial(1);
+
             system ("roslaunch agvc_coordinator AGVCPartial.launch &");
             //system ("roslaunch hector_pose_estimation hector_pose_estimation.launch &");
 
@@ -536,7 +570,7 @@ private:
     void totalShutdown()
     {
         speak("Restarting");
-        sleep(2);
+        sleep(5);
 
         system("echo Magic2010 | sudo -S reboot");
     }
@@ -660,7 +694,7 @@ private:
     {
         char buffer[200];
 
-        sprintf(buffer, "rosrun sound_play say.py \"%s\"", sound.c_str());
+        sprintf(buffer, "rosrun sound_play say.py \"%s\" &", sound.c_str());
 
         system(buffer);
     }
@@ -676,39 +710,28 @@ private:
     }
 
     /**
-      Function to write to serial for communication with an Arduino (hard method)
-      @param value The value to send
-    */
-    void writeToSerial(int value)
-    {
-        FILE *file;
-        file = fopen("/dev/ttyUSB0","w");  //Opening device file
-
-        file << value;
-
-        fclose(file);
-    }
-
-    /**
       Function to write to Arduino using serial port
       @param value The value to write
     */
     void writeToSerial(int value)
     {
-        fstream serial;
-
-        serial.open("/dev/ttyS0");
-
-        if (serial.is_open())
+        if (!arduinoConfigString.empty() && !arduinoPort.empty())
         {
-            serial << value << endl;
-        }
-        else
-        {
-            ROS_ERROR("Could not open serial port");
-        }
+            FILE *arduino = fopen(arduinoPort.c_str(), "w");
 
-        serial.close();
+            if (arduino != NULL)
+            {
+                fprintf(arduino,"%d",value);
+
+                char buffer[100];
+                sprintf(buffer, "Wrote %d to Arduino", value);
+                writeToLog(buffer);
+            }
+            else
+            {
+                writeToLog("Unable to open arduino for writing");
+            }
+        }
     }
 };
 

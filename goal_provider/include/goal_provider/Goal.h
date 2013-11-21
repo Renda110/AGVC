@@ -1,10 +1,13 @@
 #include <stdlib.h>
 #include <math.h>
 
+#include <geometry_msgs/Pose.h>
+
 /**
-  A class to represent a Goal.
+  A class to represent a Goal
 
   @author Enda McCauley
+  @date November 21st 2013
 */
 class Goal
 {
@@ -25,31 +28,62 @@ class Goal
     */
     double distanceFromRobot;
 
+    /**
+      Constructs a new empty Goal object
+    */
     Goal();
+
+    /**
+      Constructs a new Goal object
+      @param x The x location of this Goal
+      @param y The y location of this Goal
+      @param distanceFromRobot The distance of this Goal from the robot
+    */
     Goal(double, double, double);
 
     friend Goal operator-(const Goal& g1, const Goal& g2);
+    friend Goal operator-(const Goal& g, const geometry_msgs::Pose& p);
 
+    /**
+      Override the > operator based on the distance between this and the other goal
+      @param g The other goal
+    */
     bool operator> (Goal& g)
     {
         return distanceFromRobot > g.distanceFromRobot;
     }
 
+    /**
+      Override the >= operator based on the distance between this and the other goal
+      @param g The other goal
+    */
     bool operator>= (Goal& g)
     {
         return distanceFromRobot > g.distanceFromRobot;
     }
 
+    /**
+      Override the < operator based on the distance between this and the other goal
+      @param g The other goal
+    */
     bool operator< (Goal& g)
     {
         return distanceFromRobot < g.distanceFromRobot;
     }
 
+    /**
+      Override the <= operator based on the distance between this and the other goal
+      @param g The other goal
+    */
     bool operator<= (Goal& g)
     {
         return distanceFromRobot <= g.distanceFromRobot;
     }
 
+    /**
+      Override the != operator based on the distance between this and the other goal
+      @param g The other goal
+    */
     bool operator== (Goal& g)
     {
         double deltaX = 0.0;
@@ -84,6 +118,10 @@ class Goal
         return (deltaX < 0.5 && deltaX > -0.5) && (deltaY < 0.5 && deltaY > -0.5);
     }
 
+    /**
+      Override the != operator based on the distance between this and the other goal
+      @param g The other goal
+    */
     bool operator!= (Goal& g)
     {
         double deltaX = 0.0;

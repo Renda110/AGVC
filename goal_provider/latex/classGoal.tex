@@ -1,0 +1,213 @@
+\hypertarget{classGoal}{\section{\-Goal \-Class \-Reference}
+\label{classGoal}\index{\-Goal@{\-Goal}}
+}
+
+
+{\ttfamily \#include $<$\-Goal.\-h$>$}
+
+\subsection*{\-Public \-Member \-Functions}
+\begin{DoxyCompactItemize}
+\item 
+\hyperlink{classGoal_aef5013c9bf548e51178f58da869d508a}{\-Goal} ()
+\item 
+\hyperlink{classGoal_a190d96445b05712e4f7449fb7621a4cf}{\-Goal} (double, double, double)
+\item 
+bool \hyperlink{classGoal_a5379ce3cef229c206bda73319a524b6d}{operator$>$} (\hyperlink{classGoal}{\-Goal} \&g)
+\item 
+bool \hyperlink{classGoal_abdfff0d10f040e8b913c3ccc0e243d30}{operator$>$=} (\hyperlink{classGoal}{\-Goal} \&g)
+\item 
+bool \hyperlink{classGoal_a7b24e6fb2bc63837c7b9d06bacc12c92}{operator$<$} (\hyperlink{classGoal}{\-Goal} \&g)
+\item 
+bool \hyperlink{classGoal_a560a053fd4c5ba5a736bc2c6d6b90851}{operator$<$=} (\hyperlink{classGoal}{\-Goal} \&g)
+\item 
+bool \hyperlink{classGoal_ada8043a85c61dd68833acdddb4b3cce8}{operator==} (\hyperlink{classGoal}{\-Goal} \&g)
+\item 
+bool \hyperlink{classGoal_a6e759f1dd1654bbdb779427b63b0a8ac}{operator!=} (\hyperlink{classGoal}{\-Goal} \&g)
+\end{DoxyCompactItemize}
+\subsection*{\-Public \-Attributes}
+\begin{DoxyCompactItemize}
+\item 
+double \hyperlink{classGoal_af6cd641b328568cc900da4bcc25a9a7a}{x}
+\item 
+double \hyperlink{classGoal_a12a0a145556d1f773e12a91a4c8ca36d}{y}
+\item 
+double \hyperlink{classGoal_a5b81dbab33309729a8f8ebc60deb9a15}{distance\-From\-Robot}
+\end{DoxyCompactItemize}
+\subsection*{\-Friends}
+\begin{DoxyCompactItemize}
+\item 
+\hyperlink{classGoal}{\-Goal} \hyperlink{classGoal_ac37c7e2fe74a4e8107fac986e06b8ec3}{operator-\/} (const \hyperlink{classGoal}{\-Goal} \&g1, const \hyperlink{classGoal}{\-Goal} \&g2)
+\item 
+\hyperlink{classGoal}{\-Goal} \hyperlink{classGoal_a5f7f5b02c5873dd740dd99d9fde0233f}{operator-\/} (const \hyperlink{classGoal}{\-Goal} \&g, const geometry\-\_\-msgs\-::\-Pose \&p)
+\end{DoxyCompactItemize}
+
+
+\subsection{\-Detailed \-Description}
+\-A class to represent a \hyperlink{classGoal}{\-Goal}
+
+\begin{DoxyAuthor}{\-Author}
+\-Enda \-Mc\-Cauley 
+\end{DoxyAuthor}
+\begin{DoxyDate}{\-Date}
+\-November 21st 2013 
+\end{DoxyDate}
+
+
+\subsection{\-Constructor \& \-Destructor \-Documentation}
+\hypertarget{classGoal_aef5013c9bf548e51178f58da869d508a}{\index{\-Goal@{\-Goal}!\-Goal@{\-Goal}}
+\index{\-Goal@{\-Goal}!Goal@{\-Goal}}
+\subsubsection[{\-Goal}]{\setlength{\rightskip}{0pt plus 5cm}{\bf \-Goal\-::\-Goal} (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)}}\label{classGoal_aef5013c9bf548e51178f58da869d508a}
+\-Constructs a new empty \hyperlink{classGoal}{\-Goal} object \hypertarget{classGoal_a190d96445b05712e4f7449fb7621a4cf}{\index{\-Goal@{\-Goal}!\-Goal@{\-Goal}}
+\index{\-Goal@{\-Goal}!Goal@{\-Goal}}
+\subsubsection[{\-Goal}]{\setlength{\rightskip}{0pt plus 5cm}{\bf \-Goal\-::\-Goal} (
+\begin{DoxyParamCaption}
+\item[{double}]{x, }
+\item[{double}]{y, }
+\item[{double}]{distance\-From\-Robot}
+\end{DoxyParamCaption}
+)}}\label{classGoal_a190d96445b05712e4f7449fb7621a4cf}
+\-Constructs a new \hyperlink{classGoal}{\-Goal} object 
+\begin{DoxyParams}{\-Parameters}
+{\em x} & \-The x location of this \hyperlink{classGoal}{\-Goal} \\
+\hline
+{\em y} & \-The y location of this \hyperlink{classGoal}{\-Goal} \\
+\hline
+{\em distance\-From\-Robot} & \-The distance of this \hyperlink{classGoal}{\-Goal} from the robot \\
+\hline
+\end{DoxyParams}
+
+
+\subsection{\-Member \-Function \-Documentation}
+\hypertarget{classGoal_a6e759f1dd1654bbdb779427b63b0a8ac}{\index{\-Goal@{\-Goal}!operator!=@{operator!=}}
+\index{operator!=@{operator!=}!Goal@{\-Goal}}
+\subsubsection[{operator!=}]{\setlength{\rightskip}{0pt plus 5cm}bool \-Goal\-::operator!= (
+\begin{DoxyParamCaption}
+\item[{{\bf \-Goal} \&}]{g}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily  \mbox{[}inline\mbox{]}}}}\label{classGoal_a6e759f1dd1654bbdb779427b63b0a8ac}
+\-Override the != operator based on the distance between this and the other goal 
+\begin{DoxyParams}{\-Parameters}
+{\em g} & \-The other goal \\
+\hline
+\end{DoxyParams}
+\hypertarget{classGoal_a7b24e6fb2bc63837c7b9d06bacc12c92}{\index{\-Goal@{\-Goal}!operator$<$@{operator$<$}}
+\index{operator$<$@{operator$<$}!Goal@{\-Goal}}
+\subsubsection[{operator$<$}]{\setlength{\rightskip}{0pt plus 5cm}bool \-Goal\-::operator$<$ (
+\begin{DoxyParamCaption}
+\item[{{\bf \-Goal} \&}]{g}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily  \mbox{[}inline\mbox{]}}}}\label{classGoal_a7b24e6fb2bc63837c7b9d06bacc12c92}
+\-Override the $<$ operator based on the distance between this and the other goal 
+\begin{DoxyParams}{\-Parameters}
+{\em g} & \-The other goal \\
+\hline
+\end{DoxyParams}
+\hypertarget{classGoal_a560a053fd4c5ba5a736bc2c6d6b90851}{\index{\-Goal@{\-Goal}!operator$<$=@{operator$<$=}}
+\index{operator$<$=@{operator$<$=}!Goal@{\-Goal}}
+\subsubsection[{operator$<$=}]{\setlength{\rightskip}{0pt plus 5cm}bool \-Goal\-::operator$<$= (
+\begin{DoxyParamCaption}
+\item[{{\bf \-Goal} \&}]{g}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily  \mbox{[}inline\mbox{]}}}}\label{classGoal_a560a053fd4c5ba5a736bc2c6d6b90851}
+\-Override the $<$= operator based on the distance between this and the other goal 
+\begin{DoxyParams}{\-Parameters}
+{\em g} & \-The other goal \\
+\hline
+\end{DoxyParams}
+\hypertarget{classGoal_ada8043a85c61dd68833acdddb4b3cce8}{\index{\-Goal@{\-Goal}!operator==@{operator==}}
+\index{operator==@{operator==}!Goal@{\-Goal}}
+\subsubsection[{operator==}]{\setlength{\rightskip}{0pt plus 5cm}bool \-Goal\-::operator== (
+\begin{DoxyParamCaption}
+\item[{{\bf \-Goal} \&}]{g}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily  \mbox{[}inline\mbox{]}}}}\label{classGoal_ada8043a85c61dd68833acdddb4b3cce8}
+\-Override the != operator based on the distance between this and the other goal 
+\begin{DoxyParams}{\-Parameters}
+{\em g} & \-The other goal \\
+\hline
+\end{DoxyParams}
+\hypertarget{classGoal_a5379ce3cef229c206bda73319a524b6d}{\index{\-Goal@{\-Goal}!operator$>$@{operator$>$}}
+\index{operator$>$@{operator$>$}!Goal@{\-Goal}}
+\subsubsection[{operator$>$}]{\setlength{\rightskip}{0pt plus 5cm}bool \-Goal\-::operator$>$ (
+\begin{DoxyParamCaption}
+\item[{{\bf \-Goal} \&}]{g}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily  \mbox{[}inline\mbox{]}}}}\label{classGoal_a5379ce3cef229c206bda73319a524b6d}
+\-Override the $>$ operator based on the distance between this and the other goal 
+\begin{DoxyParams}{\-Parameters}
+{\em g} & \-The other goal \\
+\hline
+\end{DoxyParams}
+\hypertarget{classGoal_abdfff0d10f040e8b913c3ccc0e243d30}{\index{\-Goal@{\-Goal}!operator$>$=@{operator$>$=}}
+\index{operator$>$=@{operator$>$=}!Goal@{\-Goal}}
+\subsubsection[{operator$>$=}]{\setlength{\rightskip}{0pt plus 5cm}bool \-Goal\-::operator$>$= (
+\begin{DoxyParamCaption}
+\item[{{\bf \-Goal} \&}]{g}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily  \mbox{[}inline\mbox{]}}}}\label{classGoal_abdfff0d10f040e8b913c3ccc0e243d30}
+\-Override the $>$= operator based on the distance between this and the other goal 
+\begin{DoxyParams}{\-Parameters}
+{\em g} & \-The other goal \\
+\hline
+\end{DoxyParams}
+
+
+\subsection{\-Friends \-And \-Related \-Function \-Documentation}
+\hypertarget{classGoal_ac37c7e2fe74a4e8107fac986e06b8ec3}{\index{\-Goal@{\-Goal}!operator-\/@{operator-\/}}
+\index{operator-\/@{operator-\/}!Goal@{\-Goal}}
+\subsubsection[{operator-\/}]{\setlength{\rightskip}{0pt plus 5cm}{\bf \-Goal} operator-\/ (
+\begin{DoxyParamCaption}
+\item[{const {\bf \-Goal} \&}]{g1, }
+\item[{const {\bf \-Goal} \&}]{g2}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily  \mbox{[}friend\mbox{]}}}}\label{classGoal_ac37c7e2fe74a4e8107fac986e06b8ec3}
+\-Override the -\/ operator to allow subtracting one \hyperlink{classGoal}{\-Goal} from another 
+\begin{DoxyParams}{\-Parameters}
+{\em g1} & \hyperlink{classGoal}{\-Goal} 1 \\
+\hline
+{\em g2} & \-The \hyperlink{classGoal}{\-Goal} to subtract from goal 1 \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{\-Returns}
+\-A new \hyperlink{classGoal}{\-Goal} holding the result of the subtraction 
+\end{DoxyReturn}
+\hypertarget{classGoal_a5f7f5b02c5873dd740dd99d9fde0233f}{\index{\-Goal@{\-Goal}!operator-\/@{operator-\/}}
+\index{operator-\/@{operator-\/}!Goal@{\-Goal}}
+\subsubsection[{operator-\/}]{\setlength{\rightskip}{0pt plus 5cm}{\bf \-Goal} operator-\/ (
+\begin{DoxyParamCaption}
+\item[{const {\bf \-Goal} \&}]{g, }
+\item[{const geometry\-\_\-msgs\-::\-Pose \&}]{p}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily  \mbox{[}friend\mbox{]}}}}\label{classGoal_a5f7f5b02c5873dd740dd99d9fde0233f}
+\-Override the -\/ operator to allow subtracting a \-Pose from a \hyperlink{classGoal}{\-Goal} 
+\begin{DoxyParams}{\-Parameters}
+{\em g} & \hyperlink{classGoal}{\-Goal} 1 \\
+\hline
+{\em p} & \-The \-Pose to subtract from goal 1 \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{\-Returns}
+\-A new \hyperlink{classGoal}{\-Goal} holding the result of the subtraction 
+\end{DoxyReturn}
+
+
+\subsection{\-Member \-Data \-Documentation}
+\hypertarget{classGoal_a5b81dbab33309729a8f8ebc60deb9a15}{\index{\-Goal@{\-Goal}!distance\-From\-Robot@{distance\-From\-Robot}}
+\index{distance\-From\-Robot@{distance\-From\-Robot}!Goal@{\-Goal}}
+\subsubsection[{distance\-From\-Robot}]{\setlength{\rightskip}{0pt plus 5cm}double {\bf \-Goal\-::distance\-From\-Robot}}}\label{classGoal_a5b81dbab33309729a8f8ebc60deb9a15}
+\-Field to store the distance of this goal from the robot \hypertarget{classGoal_af6cd641b328568cc900da4bcc25a9a7a}{\index{\-Goal@{\-Goal}!x@{x}}
+\index{x@{x}!Goal@{\-Goal}}
+\subsubsection[{x}]{\setlength{\rightskip}{0pt plus 5cm}double {\bf \-Goal\-::x}}}\label{classGoal_af6cd641b328568cc900da4bcc25a9a7a}
+\-Field to store the x location of this \hyperlink{classGoal}{\-Goal} \hypertarget{classGoal_a12a0a145556d1f773e12a91a4c8ca36d}{\index{\-Goal@{\-Goal}!y@{y}}
+\index{y@{y}!Goal@{\-Goal}}
+\subsubsection[{y}]{\setlength{\rightskip}{0pt plus 5cm}double {\bf \-Goal\-::y}}}\label{classGoal_a12a0a145556d1f773e12a91a4c8ca36d}
+\-Field to store the y location of this \hyperlink{classGoal}{\-Goal} 
+
+\-The documentation for this class was generated from the following files\-:\begin{DoxyCompactItemize}
+\item 
+include/goal\-\_\-provider/\-Goal.\-h\item 
+src/\-Goal.\-cpp\end{DoxyCompactItemize}

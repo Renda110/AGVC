@@ -1,14 +1,91 @@
 /**
 \mainpage
-\htmlinclude manifest.html
 
-\b goal_provider 
+\b goal_provider allows a robot to travel to all GPS points contained in a text file <br /> <br />
+\author Enda McCauley
+\date November 21st 2013
 
-<!-- 
-Provide an overview of your package.
--->
+\section dependencies Dependencies
+- \c <a href="http://wiki.ros.org/roscpp"> roscpp </a>
+- \c <a href="http://wiki.ros.org/actionlib_msgs"> actionlib_msgs </a>
+- \c <a href="http://wiki.ros.org/geometry_msgs"> geometry_msgs </a>
+- \c <a href="http://wiki.ros.org/nav_msgs"> nav_msgs </a>
+- \c <a href="http://wiki.ros.org/sensor_msgs"> sensor_msgs </a>
+- \c <a href="http://wiki.ros.org/std_msgs"> std_msgs </a>
+- \c <a href="http://http://wiki.ros.org/navigation?distro=hydro"> navigation </a>
+- \c <a href="http://wiki.ros.org/hector_localization"> hector_localization </a>
+- \c <a href="http://wiki.ros.org/gps_common"> gps_common </a>
 
--->
+\section topics Topics
+- \c /gps_fix (<a href="http://ros.org/doc/api/sensor_msgs/html/msg/NavSatFix.html"> sensor_msgs::NavSatFix </a>) Used to set the GPS origin of the robot
+- \c /localization_pose (<a href="http://ros.org/doc/api/geometry_msgs/html/msg/PoseStamped.html"> geometry_msgs::PoseStamped</a>)Hector Localisation: Used to keep track of where the robot is and to update the distance from where we are to the goal locations
+- \c /move_base/status (<a href="http://docs.ros.org/api/actionlib_msgs/html/msg/GoalStatusArray.html"> actionlib_msgs::GoalStatusArray </a>) Movebase status: Keep track of the goal status. Options of interest are PENDING, PREEMPTED, ACTIVE, SUCCEEDED, REJECTED and ABORTED
+- \c /raw_imu (<a href="http://ros.org/doc/api/sensor_msgs/html/msg/Imu.html"> sensor_msgs::Imu </a>) A magnetometer equiped IMU to find the angle the robot is facing with respect to geometric North
+- \c /odom (<a href="http://ros.org/doc/api/nav_msgs/html/msg/Odometry.html"> nav_msgs::Odometry </a>) The /localization_pose topic republished as an Odometry message
+- \c /status (AutonomousStatus): The status of the robot. 
 
+\section autostatus AutonomousStatus
+<p>
+Header header
 
+geometry_msgs::Point goal:            The goal we are heading to
+
+uint8 status            Any value from the following enumeration
+
+-  uint8 ACTIVE:         We are actively heading to a goal
+
+-  uint8 WAITING:        We are waiting for a goal to be accepted by move_base
+
+-  uint8 REJECTED:       Movebase rejected our goal
+
+-  uint8 ABORTED:       Movebase aborted our goal
+
+-  uint8 REACHED:        We have reached the goal and can start planning for the next one
+
+-  uint8 LOST:           We are lost and don't know what is happening anymore. This is terminal
+
+-  uint8 PREEMPTED:      Another goal took priority over this one
+
+-  uint8 UPDATING:       Updating the goal or not
+
+-  uint8 ERROR:          Goal provider has gone gammy
+
+-  uint8 INFO:           This message is simply to provide some information
+
+std_msgs::String text:    Accompanying text. Usually used for the Info message
+</p>                   
+
+\section parameters Parameters
+- \c callbacks_till_goal_update: Number of Hector Localisation callbacks to be made before we revaluate our target goal (default: 1000)
+- \c goal_attempt_limit: The number of times to attempt a goal (default: 10)
+- \c testing: Whether or not we are testing indoors. This simply replaces the GPS origin with the Hector Localisation derived origin (default: false)
+- \c using_imu: Whether or not the IMU is to be used to find the angle the robot is off from north. If set to false the robot is assumed to be facing north (default: true)
+- \c path: The full file path to the directory containing goal_provider
+- \c subgoal_distance: How far away a goal needs to be before a subgoal is used. Set to -1 to disable subgoals (default: -1)
+
+\section functionality Functionality
+\subsection mainAlogrithm Main process
+The process starts by getting the starting point of the robot from the GPS (or in testing mode from Hector Localisation). This point is converted into UTM coordinates (unless if testing) by using code in the gps_common package. If this step is not accomplished nothing else will happen. At the same time the IMU is used to get the angle the robot is facing with respect to geometric north. The difference between magnetic and actual north is taken into account for this step <br /> <br />
+The config file contained in the config/ folder is then opened and read. For each pair of latitude and longitude
+-Convert the pair into UTM
+-Put the UTM (x, y) into a Goal object. This involves converting the UTM coordinates to the local robot coordinates. This is why the starting position and orientation are needed. Each Goal object also stores the distance between the UTM (x, y) and the starting point UTM (x, y)
+Once all the goals are loaded a new goal is sent to move_base by
+- Sorting the list of Goal objects
+- Taking the first object off of the list
+- If the goal is further away then the subgoal distance then create and use a subgoal
+- If this is the same goal as before BUT we have exceeded our retry limit then remove it from the list and take the next goal. The retry counter is increased if the goal is ABORTED or REJECTED and when we first add it
+- If this is a different goal than what we had before the update the current goal, reset the retry counter and send the goal
+Each Goal is monitored through move_base/status. <br />
+
+The distance to each goal is also continously updated through Hector Localisation. Every 1000 (changeable by the parameter server) Hector Localisation callbacks we will update the goal. This may result in changing from one goal to another. Finally once all goals have been reached the robot returns home. For the competition this will need to be changed such that it moves to the end
+
+\subsection subgoal Subgoals
+- Create triangle between the current and goal points
+- Find the angle of the hypotenuse makes with the horizontal
+- Use that angle and the predefined maximum goal distance to find the subgoal x and y values
+Note that this process is linear. The subgoals may be in a building or similar. The idea is that as the robot tries to drive around the building the subgoal will be continuously updating and will continue to pull the robot to the final goal
+Subgoals also can time out and if this happens then the overall goal is aborted as well
+
+\subsection logging Logging
+Logging writes various pieces of information to a log file contained in the /log folder. The name of the log file is the date and time when goal provider was run and is unique
 */
