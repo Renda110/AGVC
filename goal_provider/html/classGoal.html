@@ -85,6 +85,9 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 </div><!--header-->
 <div class="contents">
 <!-- doxytag: class="Goal" -->
+<p>This class encapuslates the (x, y) coordinates of a goal and distance from the robot of the goal.  
+ <a href="classGoal.html#details">More...</a></p>
+
 <p><code>#include &lt;<a class="el" href="Goal_8h_source.html">Goal.h</a>&gt;</code></p>
 
 <p><a href="classGoal-members.html">List of all members.</a></p>
@@ -110,7 +113,8 @@ Friends</h2></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top"><a class="el" href="classGoal.html">Goal</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classGoal.html#a5f7f5b02c5873dd740dd99d9fde0233f">operator-</a> (const <a class="el" href="classGoal.html">Goal</a> &amp;g, const geometry_msgs::Pose &amp;p)</td></tr>
 </table>
 <hr/><a name="details" id="details"></a><h2>Detailed Description</h2>
-<div class="textblock"><p>A class to represent a <a class="el" href="classGoal.html">Goal</a></p>
+<div class="textblock"><p>This class encapuslates the (x, y) coordinates of a goal and distance from the robot of the goal. </p>
+<p>All of the boolean operators have been overload to allow easy comparation of <a class="el" href="classGoal.html" title="This class encapuslates the (x, y) coordinates of a goal and distance from the robot of the goal...">Goal</a> objects based on their distance from the robot. The subtraction operation has also been modified to allow subtracting of a Pose from a <a class="el" href="classGoal.html" title="This class encapuslates the (x, y) coordinates of a goal and distance from the robot of the goal...">Goal</a> and one <a class="el" href="classGoal.html" title="This class encapuslates the (x, y) coordinates of a goal and distance from the robot of the goal...">Goal</a> from another.</p>
 <dl class="author"><dt><b>Author:</b></dt><dd>Enda McCauley </dd></dl>
 <dl class="date"><dt><b>Date:</b></dt><dd>November 21st 2013 </dd></dl>
 </div><hr/><h2>Constructor &amp; Destructor Documentation</h2>
@@ -127,7 +131,7 @@ Friends</h2></td></tr>
       </table>
 </div>
 <div class="memdoc">
-<p>Constructs a new empty <a class="el" href="classGoal.html">Goal</a> object </p>
+<p>Constructs a new empty <a class="el" href="classGoal.html" title="This class encapuslates the (x, y) coordinates of a goal and distance from the robot of the goal...">Goal</a> object </p>
 
 </div>
 </div>
@@ -161,12 +165,12 @@ Friends</h2></td></tr>
       </table>
 </div>
 <div class="memdoc">
-<p>Constructs a new <a class="el" href="classGoal.html">Goal</a> object </p>
+<p>Constructs a new <a class="el" href="classGoal.html" title="This class encapuslates the (x, y) coordinates of a goal and distance from the robot of the goal...">Goal</a> object </p>
 <dl class="params"><dt><b>Parameters:</b></dt><dd>
   <table class="params">
-    <tr><td class="paramname">x</td><td>The x location of this <a class="el" href="classGoal.html">Goal</a> </td></tr>
-    <tr><td class="paramname">y</td><td>The y location of this <a class="el" href="classGoal.html">Goal</a> </td></tr>
-    <tr><td class="paramname">distanceFromRobot</td><td>The distance of this <a class="el" href="classGoal.html">Goal</a> from the robot </td></tr>
+    <tr><td class="paramname">x</td><td>The x location of this <a class="el" href="classGoal.html" title="This class encapuslates the (x, y) coordinates of a goal and distance from the robot of the goal...">Goal</a> </td></tr>
+    <tr><td class="paramname">y</td><td>The y location of this <a class="el" href="classGoal.html" title="This class encapuslates the (x, y) coordinates of a goal and distance from the robot of the goal...">Goal</a> </td></tr>
+    <tr><td class="paramname">distanceFromRobot</td><td>The distance of this <a class="el" href="classGoal.html" title="This class encapuslates the (x, y) coordinates of a goal and distance from the robot of the goal...">Goal</a> from the robot </td></tr>
   </table>
   </dd>
 </dl>
@@ -343,15 +347,15 @@ Friends</h2></td></tr>
       </table>
 </div>
 <div class="memdoc">
-<p>Override the - operator to allow subtracting one <a class="el" href="classGoal.html">Goal</a> from another </p>
+<p>Override the - operator to allow subtracting one <a class="el" href="classGoal.html" title="This class encapuslates the (x, y) coordinates of a goal and distance from the robot of the goal...">Goal</a> from another </p>
 <dl class="params"><dt><b>Parameters:</b></dt><dd>
   <table class="params">
-    <tr><td class="paramname">g1</td><td><a class="el" href="classGoal.html">Goal</a> 1 </td></tr>
-    <tr><td class="paramname">g2</td><td>The <a class="el" href="classGoal.html">Goal</a> to subtract from goal 1 </td></tr>
+    <tr><td class="paramname">g1</td><td><a class="el" href="classGoal.html" title="This class encapuslates the (x, y) coordinates of a goal and distance from the robot of the goal...">Goal</a> 1 </td></tr>
+    <tr><td class="paramname">g2</td><td>The <a class="el" href="classGoal.html" title="This class encapuslates the (x, y) coordinates of a goal and distance from the robot of the goal...">Goal</a> to subtract from goal 1 </td></tr>
   </table>
   </dd>
 </dl>
-<dl class="return"><dt><b>Returns:</b></dt><dd>A new <a class="el" href="classGoal.html">Goal</a> holding the result of the subtraction </dd></dl>
+<dl class="return"><dt><b>Returns:</b></dt><dd>A new <a class="el" href="classGoal.html" title="This class encapuslates the (x, y) coordinates of a goal and distance from the robot of the goal...">Goal</a> holding the result of the subtraction </dd></dl>
 
 </div>
 </div>
@@ -379,15 +383,15 @@ Friends</h2></td></tr>
       </table>
 </div>
 <div class="memdoc">
-<p>Override the - operator to allow subtracting a Pose from a <a class="el" href="classGoal.html">Goal</a> </p>
+<p>Override the - operator to allow subtracting a Pose from a <a class="el" href="classGoal.html" title="This class encapuslates the (x, y) coordinates of a goal and distance from the robot of the goal...">Goal</a> </p>
 <dl class="params"><dt><b>Parameters:</b></dt><dd>
   <table class="params">
-    <tr><td class="paramname">g</td><td><a class="el" href="classGoal.html">Goal</a> 1 </td></tr>
+    <tr><td class="paramname">g</td><td><a class="el" href="classGoal.html" title="This class encapuslates the (x, y) coordinates of a goal and distance from the robot of the goal...">Goal</a> 1 </td></tr>
     <tr><td class="paramname">p</td><td>The Pose to subtract from goal 1 </td></tr>
   </table>
   </dd>
 </dl>
-<dl class="return"><dt><b>Returns:</b></dt><dd>A new <a class="el" href="classGoal.html">Goal</a> holding the result of the subtraction </dd></dl>
+<dl class="return"><dt><b>Returns:</b></dt><dd>A new <a class="el" href="classGoal.html" title="This class encapuslates the (x, y) coordinates of a goal and distance from the robot of the goal...">Goal</a> holding the result of the subtraction </dd></dl>
 
 </div>
 </div>
@@ -416,7 +420,7 @@ Friends</h2></td></tr>
       </table>
 </div>
 <div class="memdoc">
-<p>Field to store the x location of this <a class="el" href="classGoal.html">Goal</a> </p>
+<p>Field to store the x location of this <a class="el" href="classGoal.html" title="This class encapuslates the (x, y) coordinates of a goal and distance from the robot of the goal...">Goal</a> </p>
 
 </div>
 </div>
@@ -430,7 +434,7 @@ Friends</h2></td></tr>
       </table>
 </div>
 <div class="memdoc">
-<p>Field to store the y location of this <a class="el" href="classGoal.html">Goal</a> </p>
+<p>Field to store the y location of this <a class="el" href="classGoal.html" title="This class encapuslates the (x, y) coordinates of a goal and distance from the robot of the goal...">Goal</a> </p>
 
 </div>
 </div>
@@ -456,7 +460,7 @@ Friends</h2></td></tr>
 
 
 <hr class="footer"/><address class="footer"><small>
-Generated on Thu Nov 21 2013 16:04:20 for Goal  Provider by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Fri Nov 22 2013 10:19:08 for Goal  Provider by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.7.6.1
 </small></address>

@@ -1,6 +1,11 @@
 \hypertarget{classGoalProvider}{\section{\-Goal\-Provider \-Class \-Reference}
 \label{classGoalProvider}\index{\-Goal\-Provider@{\-Goal\-Provider}}
 }
+
+
+\-This class sends a number of goals to the move\-\_\-base navigation stack with the closest goal executed first.  
+
+
 \subsection*{\-Public \-Member \-Functions}
 \begin{DoxyCompactItemize}
 \item 
@@ -14,6 +19,8 @@ void \hyperlink{classGoalProvider_aa68c410fb110c40cc31dc99320f20a60}{gps\-Callba
 void \hyperlink{classGoalProvider_a9aa7639c95eff543d55fef82ba005088}{imu\-Callback} (const sensor\-\_\-msgs\-::\-Imu imu)
 \item 
 void \hyperlink{classGoalProvider_a5448a289886afe3e96a900bd0b8557d4}{quat\-To\-Euler} (double x, double y, double z, double w, double $\ast$attitude, double $\ast$bank, double $\ast$heading)
+\item 
+void \hyperlink{classGoalProvider_a743391f99e7cfa26845014c06332ede7}{odom\-Callback} (const nav\-\_\-msgs\-::\-Odometry odom)
 \item 
 void \hyperlink{classGoalProvider_a6e91d11b611820597420497fd82613d1}{hl\-Pose\-Callback} (const geometry\-\_\-msgs\-::\-Pose\-Stamped pose)
 \item 
@@ -66,6 +73,8 @@ list$<$ \hyperlink{classGoal}{\-Goal} $>$ \hyperlink{classGoalProvider_a81829c05
 \item 
 geometry\-\_\-msgs\-::\-Pose \hyperlink{classGoalProvider_a043ea6fbbd89e54ea39501ae30da8774}{current\-Location}
 \item 
+nav\-\_\-msgs\-::\-Odometry \hyperlink{classGoalProvider_a35676425f3d7bfcaa409554879d7b3b8}{last\-Odom}
+\item 
 bool \hyperlink{classGoalProvider_aae2c69715ab4565f5d0e96cd16411444}{set\-Starting\-Position}
 \item 
 bool \hyperlink{classGoalProvider_a94c6c903648ec2ff61396d04686bc466}{set\-Starting\-Orientation}
@@ -99,15 +108,17 @@ string \hyperlink{classGoalProvider_a82146db14a5565a12fe979c68156d45c}{path}
 
 
 \subsection{\-Detailed \-Description}
-\-The \hyperlink{classGoalProvider}{\-Goal\-Provider} class.
+\-This class sends a number of goals to the move\-\_\-base navigation stack with the closest goal executed first. 
 
-\-This class provides goal data to the move\-\_\-base navigation stack. \-A typical goal is simply a \-G\-P\-S position
+\-A typical goal is simply a \-G\-P\-S position and must be specified in the /config/\-G\-P\-S\-Coords file. \-Each \-G\-P\-S coordinate is converted into the robot coordinate frame with the closest goal being sent to move\-\_\-base first. \-As the robot drives to each goal is another goal becomes closer it is used instead. \-Goals can timeout if not reachable and the number of attempts before this happens can be configured in the goal\-\_\-provider launch file.
+
+\-A \hyperlink{classGoal}{\-Goal} can also be split into subgoals if it is a certain distance away. \-The new subgoal is found based off of linear interpolation between the robot position and the goal location. \-The distance before subgoals are used can be changed in the goal\-\_\-provider launch file with a value of -\/1 meaning subgoals are not used
 
 \begin{DoxyAuthor}{\-Author}
 \-Enda \-Mc\-Cauley 
 \end{DoxyAuthor}
 \begin{DoxyDate}{\-Date}
-\-November 21st 2013 
+\-November 22nd 2013 
 \end{DoxyDate}
 
 
@@ -158,7 +169,7 @@ string \hyperlink{classGoalProvider_a82146db14a5565a12fe979c68156d45c}{path}
 )\hspace{0.3cm}{\ttfamily  \mbox{[}inline, private\mbox{]}}}}\label{classGoalProvider_a6e91d11b611820597420497fd82613d1}
 \-Callback for the hector\-\_\-pose\-\_\-estimation position estimation 
 \begin{DoxyParams}{\-Parameters}
-{\em pose} & \-The actual pose data \\
+{\em pose} & \-The position data \\
 \hline
 \end{DoxyParams}
 \hypertarget{classGoalProvider_a9aa7639c95eff543d55fef82ba005088}{\index{\-Goal\-Provider@{\-Goal\-Provider}!imu\-Callback@{imu\-Callback}}
@@ -190,6 +201,18 @@ string \hyperlink{classGoalProvider_a82146db14a5565a12fe979c68156d45c}{path}
 \-Callback for the move\-\_\-base status 
 \begin{DoxyParams}{\-Parameters}
 {\em movebase\-\_\-status} & \-The actual status data \\
+\hline
+\end{DoxyParams}
+\hypertarget{classGoalProvider_a743391f99e7cfa26845014c06332ede7}{\index{\-Goal\-Provider@{\-Goal\-Provider}!odom\-Callback@{odom\-Callback}}
+\index{odom\-Callback@{odom\-Callback}!GoalProvider@{\-Goal\-Provider}}
+\subsubsection[{odom\-Callback}]{\setlength{\rightskip}{0pt plus 5cm}void {\bf \-Goal\-Provider\-::odom\-Callback} (
+\begin{DoxyParamCaption}
+\item[{const nav\-\_\-msgs\-::\-Odometry}]{odom}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily  \mbox{[}inline, private\mbox{]}}}}\label{classGoalProvider_a743391f99e7cfa26845014c06332ede7}
+\-Callback for the p2os position estimation 
+\begin{DoxyParams}{\-Parameters}
+{\em odom} & \-The position data \\
 \hline
 \end{DoxyParams}
 \hypertarget{classGoalProvider_a3ce49c1e51eae73ba9820b89f03b8e5a}{\index{\-Goal\-Provider@{\-Goal\-Provider}!publish\-Status@{publish\-Status}}
@@ -246,7 +269,7 @@ string \hyperlink{classGoalProvider_a82146db14a5565a12fe979c68156d45c}{path}
 {}
 \end{DoxyParamCaption}
 )\hspace{0.3cm}{\ttfamily  \mbox{[}inline, private\mbox{]}}}}\label{classGoalProvider_a58ec86314e501683db946eba1141d464}
-\-Read in the \-G\-P\-S\-Config file to get the list of \-U\-T\-M based \-Points we need to go to \hypertarget{classGoalProvider_a8089b33dddf424c923e74d771574edb7}{\index{\-Goal\-Provider@{\-Goal\-Provider}!remove\-Current\-Goal@{remove\-Current\-Goal}}
+\-Read in the \-G\-P\-S\-Coords file to get the list of \-U\-T\-M based \-Points we need to go to \hypertarget{classGoalProvider_a8089b33dddf424c923e74d771574edb7}{\index{\-Goal\-Provider@{\-Goal\-Provider}!remove\-Current\-Goal@{remove\-Current\-Goal}}
 \index{remove\-Current\-Goal@{remove\-Current\-Goal}!GoalProvider@{\-Goal\-Provider}}
 \subsubsection[{remove\-Current\-Goal}]{\setlength{\rightskip}{0pt plus 5cm}void {\bf \-Goal\-Provider\-::remove\-Current\-Goal} (
 \begin{DoxyParamCaption}
@@ -330,7 +353,10 @@ string \hyperlink{classGoalProvider_a82146db14a5565a12fe979c68156d45c}{path}
 \-Field to store the number of times we have set our orientation \hypertarget{classGoalProvider_a86cffa9e45e8fdb0813964ca79e4a327}{\index{\-Goal\-Provider@{\-Goal\-Provider}!imu\-Subscriber@{imu\-Subscriber}}
 \index{imu\-Subscriber@{imu\-Subscriber}!GoalProvider@{\-Goal\-Provider}}
 \subsubsection[{imu\-Subscriber}]{\setlength{\rightskip}{0pt plus 5cm}\-Subscriber {\bf \-Goal\-Provider\-::imu\-Subscriber}\hspace{0.3cm}{\ttfamily  \mbox{[}private\mbox{]}}}}\label{classGoalProvider_a86cffa9e45e8fdb0813964ca79e4a327}
-\-Field to store the \-I\-M\-U subscriber \hypertarget{classGoalProvider_a903cb379ce27ab3072fc273f8d344b0b}{\index{\-Goal\-Provider@{\-Goal\-Provider}!mb@{mb}}
+\-Field to store the \-I\-M\-U subscriber \hypertarget{classGoalProvider_a35676425f3d7bfcaa409554879d7b3b8}{\index{\-Goal\-Provider@{\-Goal\-Provider}!last\-Odom@{last\-Odom}}
+\index{last\-Odom@{last\-Odom}!GoalProvider@{\-Goal\-Provider}}
+\subsubsection[{last\-Odom}]{\setlength{\rightskip}{0pt plus 5cm}nav\-\_\-msgs\-::\-Odometry {\bf \-Goal\-Provider\-::last\-Odom}\hspace{0.3cm}{\ttfamily  \mbox{[}private\mbox{]}}}}\label{classGoalProvider_a35676425f3d7bfcaa409554879d7b3b8}
+\-Field to store the last message published on the slow, slow p2os /pose topic \hypertarget{classGoalProvider_a903cb379ce27ab3072fc273f8d344b0b}{\index{\-Goal\-Provider@{\-Goal\-Provider}!mb@{mb}}
 \index{mb@{mb}!GoalProvider@{\-Goal\-Provider}}
 \subsubsection[{mb}]{\setlength{\rightskip}{0pt plus 5cm}\-Move\-Base\-Client {\bf \-Goal\-Provider\-::mb}\hspace{0.3cm}{\ttfamily  \mbox{[}private\mbox{]}}}}\label{classGoalProvider_a903cb379ce27ab3072fc273f8d344b0b}
 \-Field to store an \-Actionlib object. \-It allows us to send goals to move\-\_\-base and monitor them all in one system \hypertarget{classGoalProvider_a16a3122fd49b058c08a56e8eac93c08b}{\index{\-Goal\-Provider@{\-Goal\-Provider}!movebase\-Status\-Subscriber@{movebase\-Status\-Subscriber}}

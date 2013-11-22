@@ -83,111 +83,111 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <a name="l00003"></a>00003 
 <a name="l00004"></a>00004 <span class="preprocessor">#include &lt;geometry_msgs/Pose.h&gt;</span>
 <a name="l00005"></a>00005 
-<a name="l00012"></a><a class="code" href="classGoal.html">00012</a> <span class="keyword">class </span><a class="code" href="classGoal.html">Goal</a>
-<a name="l00013"></a>00013 {
-<a name="l00014"></a>00014   <span class="keyword">public</span>:
-<a name="l00015"></a>00015 
-<a name="l00019"></a><a class="code" href="classGoal.html#af6cd641b328568cc900da4bcc25a9a7a">00019</a>     <span class="keywordtype">double</span> <a class="code" href="classGoal.html#af6cd641b328568cc900da4bcc25a9a7a">x</a>;
-<a name="l00020"></a>00020 
-<a name="l00024"></a><a class="code" href="classGoal.html#a12a0a145556d1f773e12a91a4c8ca36d">00024</a>     <span class="keywordtype">double</span> <a class="code" href="classGoal.html#a12a0a145556d1f773e12a91a4c8ca36d">y</a>;
-<a name="l00025"></a>00025 
-<a name="l00029"></a><a class="code" href="classGoal.html#a5b81dbab33309729a8f8ebc60deb9a15">00029</a>     <span class="keywordtype">double</span> <a class="code" href="classGoal.html#a5b81dbab33309729a8f8ebc60deb9a15">distanceFromRobot</a>;
-<a name="l00030"></a>00030 
-<a name="l00034"></a>00034     <a class="code" href="classGoal.html#aef5013c9bf548e51178f58da869d508a">Goal</a>();
-<a name="l00035"></a>00035 
-<a name="l00042"></a>00042     <a class="code" href="classGoal.html#aef5013c9bf548e51178f58da869d508a">Goal</a>(<span class="keywordtype">double</span>, <span class="keywordtype">double</span>, <span class="keywordtype">double</span>);
-<a name="l00043"></a>00043 
-<a name="l00044"></a>00044     <span class="keyword">friend</span> <a class="code" href="classGoal.html">Goal</a> <a class="code" href="classGoal.html#ac37c7e2fe74a4e8107fac986e06b8ec3">operator-</a>(<span class="keyword">const</span> <a class="code" href="classGoal.html">Goal</a>&amp; g1, <span class="keyword">const</span> <a class="code" href="classGoal.html">Goal</a>&amp; g2);
-<a name="l00045"></a>00045     <span class="keyword">friend</span> <a class="code" href="classGoal.html">Goal</a> <a class="code" href="classGoal.html#ac37c7e2fe74a4e8107fac986e06b8ec3">operator-</a>(<span class="keyword">const</span> <a class="code" href="classGoal.html">Goal</a>&amp; g, <span class="keyword">const</span> geometry_msgs::Pose&amp; p);
+<a name="l00015"></a><a class="code" href="classGoal.html">00015</a> <span class="keyword">class </span><a class="code" href="classGoal.html" title="This class encapuslates the (x, y) coordinates of a goal and distance from the robot of the goal...">Goal</a>
+<a name="l00016"></a>00016 {
+<a name="l00017"></a>00017   <span class="keyword">public</span>:
+<a name="l00018"></a>00018 
+<a name="l00022"></a><a class="code" href="classGoal.html#af6cd641b328568cc900da4bcc25a9a7a">00022</a>     <span class="keywordtype">double</span> <a class="code" href="classGoal.html#af6cd641b328568cc900da4bcc25a9a7a">x</a>;
+<a name="l00023"></a>00023 
+<a name="l00027"></a><a class="code" href="classGoal.html#a12a0a145556d1f773e12a91a4c8ca36d">00027</a>     <span class="keywordtype">double</span> <a class="code" href="classGoal.html#a12a0a145556d1f773e12a91a4c8ca36d">y</a>;
+<a name="l00028"></a>00028 
+<a name="l00032"></a><a class="code" href="classGoal.html#a5b81dbab33309729a8f8ebc60deb9a15">00032</a>     <span class="keywordtype">double</span> <a class="code" href="classGoal.html#a5b81dbab33309729a8f8ebc60deb9a15">distanceFromRobot</a>;
+<a name="l00033"></a>00033 
+<a name="l00037"></a>00037     <a class="code" href="classGoal.html#aef5013c9bf548e51178f58da869d508a">Goal</a>();
+<a name="l00038"></a>00038 
+<a name="l00045"></a>00045     <a class="code" href="classGoal.html#aef5013c9bf548e51178f58da869d508a">Goal</a>(<span class="keywordtype">double</span>, <span class="keywordtype">double</span>, <span class="keywordtype">double</span>);
 <a name="l00046"></a>00046 
-<a name="l00051"></a><a class="code" href="classGoal.html#a5379ce3cef229c206bda73319a524b6d">00051</a>     <span class="keywordtype">bool</span> <a class="code" href="classGoal.html#a5379ce3cef229c206bda73319a524b6d">operator&gt; </a>(<a class="code" href="classGoal.html">Goal</a>&amp; g)
-<a name="l00052"></a>00052     {
-<a name="l00053"></a>00053         <span class="keywordflow">return</span> <a class="code" href="classGoal.html#a5b81dbab33309729a8f8ebc60deb9a15">distanceFromRobot</a> &gt; g.<a class="code" href="classGoal.html#a5b81dbab33309729a8f8ebc60deb9a15">distanceFromRobot</a>;
-<a name="l00054"></a>00054     }
-<a name="l00055"></a>00055 
-<a name="l00060"></a><a class="code" href="classGoal.html#abdfff0d10f040e8b913c3ccc0e243d30">00060</a>     <span class="keywordtype">bool</span> <a class="code" href="classGoal.html#abdfff0d10f040e8b913c3ccc0e243d30">operator&gt;= </a>(<a class="code" href="classGoal.html">Goal</a>&amp; g)
-<a name="l00061"></a>00061     {
-<a name="l00062"></a>00062         <span class="keywordflow">return</span> <a class="code" href="classGoal.html#a5b81dbab33309729a8f8ebc60deb9a15">distanceFromRobot</a> &gt; g.<a class="code" href="classGoal.html#a5b81dbab33309729a8f8ebc60deb9a15">distanceFromRobot</a>;
-<a name="l00063"></a>00063     }
-<a name="l00064"></a>00064 
-<a name="l00069"></a><a class="code" href="classGoal.html#a7b24e6fb2bc63837c7b9d06bacc12c92">00069</a>     <span class="keywordtype">bool</span> <a class="code" href="classGoal.html#a7b24e6fb2bc63837c7b9d06bacc12c92">operator&lt; </a>(<a class="code" href="classGoal.html">Goal</a>&amp; g)
-<a name="l00070"></a>00070     {
-<a name="l00071"></a>00071         <span class="keywordflow">return</span> <a class="code" href="classGoal.html#a5b81dbab33309729a8f8ebc60deb9a15">distanceFromRobot</a> &lt; g.<a class="code" href="classGoal.html#a5b81dbab33309729a8f8ebc60deb9a15">distanceFromRobot</a>;
-<a name="l00072"></a>00072     }
-<a name="l00073"></a>00073 
-<a name="l00078"></a><a class="code" href="classGoal.html#a560a053fd4c5ba5a736bc2c6d6b90851">00078</a>     <span class="keywordtype">bool</span> <a class="code" href="classGoal.html#a560a053fd4c5ba5a736bc2c6d6b90851">operator&lt;= </a>(<a class="code" href="classGoal.html">Goal</a>&amp; g)
-<a name="l00079"></a>00079     {
-<a name="l00080"></a>00080         <span class="keywordflow">return</span> <a class="code" href="classGoal.html#a5b81dbab33309729a8f8ebc60deb9a15">distanceFromRobot</a> &lt;= g.<a class="code" href="classGoal.html#a5b81dbab33309729a8f8ebc60deb9a15">distanceFromRobot</a>;
-<a name="l00081"></a>00081     }
-<a name="l00082"></a>00082 
-<a name="l00087"></a><a class="code" href="classGoal.html#ada8043a85c61dd68833acdddb4b3cce8">00087</a>     <span class="keywordtype">bool</span> <a class="code" href="classGoal.html#ada8043a85c61dd68833acdddb4b3cce8">operator== </a>(<a class="code" href="classGoal.html">Goal</a>&amp; g)
-<a name="l00088"></a>00088     {
-<a name="l00089"></a>00089         <span class="keywordtype">double</span> deltaX = 0.0;
-<a name="l00090"></a>00090         <span class="keywordtype">double</span> deltaY = 0.0;
-<a name="l00091"></a>00091 
-<a name="l00092"></a>00092         <span class="keywordflow">if</span> (<a class="code" href="classGoal.html#af6cd641b328568cc900da4bcc25a9a7a">x</a> &gt;= 0 &amp;&amp; g.<a class="code" href="classGoal.html#af6cd641b328568cc900da4bcc25a9a7a">x</a> &gt;= 0)
-<a name="l00093"></a>00093         {
-<a name="l00094"></a>00094             deltaX = <a class="code" href="classGoal.html#af6cd641b328568cc900da4bcc25a9a7a">x</a> - g.<a class="code" href="classGoal.html#af6cd641b328568cc900da4bcc25a9a7a">x</a>;
-<a name="l00095"></a>00095         }
-<a name="l00096"></a>00096         <span class="keywordflow">else</span> <span class="keywordflow">if</span> (<a class="code" href="classGoal.html#af6cd641b328568cc900da4bcc25a9a7a">x</a> &lt; 0 &amp;&amp; g.<a class="code" href="classGoal.html#af6cd641b328568cc900da4bcc25a9a7a">x</a> &lt; 0)
-<a name="l00097"></a>00097         {
-<a name="l00098"></a>00098             deltaX = abs(<a class="code" href="classGoal.html#af6cd641b328568cc900da4bcc25a9a7a">x</a>) - abs(g.<a class="code" href="classGoal.html#af6cd641b328568cc900da4bcc25a9a7a">x</a>);
-<a name="l00099"></a>00099         }
-<a name="l00100"></a>00100         <span class="keywordflow">else</span>
-<a name="l00101"></a>00101         {
-<a name="l00102"></a>00102             <span class="keywordflow">return</span> <span class="keyword">false</span>;
-<a name="l00103"></a>00103         }
-<a name="l00104"></a>00104 
-<a name="l00105"></a>00105         <span class="keywordflow">if</span> (<a class="code" href="classGoal.html#a12a0a145556d1f773e12a91a4c8ca36d">y</a> &gt;= 0 &amp;&amp; g.<a class="code" href="classGoal.html#a12a0a145556d1f773e12a91a4c8ca36d">y</a> &gt;= 0)
-<a name="l00106"></a>00106         {
-<a name="l00107"></a>00107             deltaY = <a class="code" href="classGoal.html#a12a0a145556d1f773e12a91a4c8ca36d">y</a> - g.<a class="code" href="classGoal.html#a12a0a145556d1f773e12a91a4c8ca36d">y</a>;
-<a name="l00108"></a>00108         }
-<a name="l00109"></a>00109         <span class="keywordflow">else</span> <span class="keywordflow">if</span> (<a class="code" href="classGoal.html#a12a0a145556d1f773e12a91a4c8ca36d">y</a> &lt; 0 &amp;&amp; g.<a class="code" href="classGoal.html#a12a0a145556d1f773e12a91a4c8ca36d">y</a> &lt; 0)
-<a name="l00110"></a>00110         {
-<a name="l00111"></a>00111             deltaY = abs(<a class="code" href="classGoal.html#a12a0a145556d1f773e12a91a4c8ca36d">y</a>) - abs(g.<a class="code" href="classGoal.html#a12a0a145556d1f773e12a91a4c8ca36d">y</a>);
-<a name="l00112"></a>00112         }
-<a name="l00113"></a>00113         <span class="keywordflow">else</span>
-<a name="l00114"></a>00114         {
-<a name="l00115"></a>00115             <span class="keywordflow">return</span> <span class="keyword">false</span>;
-<a name="l00116"></a>00116         }
-<a name="l00117"></a>00117 
-<a name="l00118"></a>00118         <span class="keywordflow">return</span> (deltaX &lt; 0.5 &amp;&amp; deltaX &gt; -0.5) &amp;&amp; (deltaY &lt; 0.5 &amp;&amp; deltaY &gt; -0.5);
-<a name="l00119"></a>00119     }
+<a name="l00047"></a>00047     <span class="keyword">friend</span> <a class="code" href="classGoal.html" title="This class encapuslates the (x, y) coordinates of a goal and distance from the robot of the goal...">Goal</a> <a class="code" href="classGoal.html#ac37c7e2fe74a4e8107fac986e06b8ec3">operator-</a>(<span class="keyword">const</span> <a class="code" href="classGoal.html" title="This class encapuslates the (x, y) coordinates of a goal and distance from the robot of the goal...">Goal</a>&amp; g1, <span class="keyword">const</span> <a class="code" href="classGoal.html" title="This class encapuslates the (x, y) coordinates of a goal and distance from the robot of the goal...">Goal</a>&amp; g2);
+<a name="l00048"></a>00048     <span class="keyword">friend</span> <a class="code" href="classGoal.html" title="This class encapuslates the (x, y) coordinates of a goal and distance from the robot of the goal...">Goal</a> <a class="code" href="classGoal.html#ac37c7e2fe74a4e8107fac986e06b8ec3">operator-</a>(<span class="keyword">const</span> <a class="code" href="classGoal.html" title="This class encapuslates the (x, y) coordinates of a goal and distance from the robot of the goal...">Goal</a>&amp; g, <span class="keyword">const</span> geometry_msgs::Pose&amp; p);
+<a name="l00049"></a>00049 
+<a name="l00054"></a><a class="code" href="classGoal.html#a5379ce3cef229c206bda73319a524b6d">00054</a>     <span class="keywordtype">bool</span> <a class="code" href="classGoal.html#a5379ce3cef229c206bda73319a524b6d">operator&gt; </a>(<a class="code" href="classGoal.html" title="This class encapuslates the (x, y) coordinates of a goal and distance from the robot of the goal...">Goal</a>&amp; g)
+<a name="l00055"></a>00055     {
+<a name="l00056"></a>00056         <span class="keywordflow">return</span> <a class="code" href="classGoal.html#a5b81dbab33309729a8f8ebc60deb9a15">distanceFromRobot</a> &gt; g.<a class="code" href="classGoal.html#a5b81dbab33309729a8f8ebc60deb9a15">distanceFromRobot</a>;
+<a name="l00057"></a>00057     }
+<a name="l00058"></a>00058 
+<a name="l00063"></a><a class="code" href="classGoal.html#abdfff0d10f040e8b913c3ccc0e243d30">00063</a>     <span class="keywordtype">bool</span> <a class="code" href="classGoal.html#abdfff0d10f040e8b913c3ccc0e243d30">operator&gt;= </a>(<a class="code" href="classGoal.html" title="This class encapuslates the (x, y) coordinates of a goal and distance from the robot of the goal...">Goal</a>&amp; g)
+<a name="l00064"></a>00064     {
+<a name="l00065"></a>00065         <span class="keywordflow">return</span> <a class="code" href="classGoal.html#a5b81dbab33309729a8f8ebc60deb9a15">distanceFromRobot</a> &gt; g.<a class="code" href="classGoal.html#a5b81dbab33309729a8f8ebc60deb9a15">distanceFromRobot</a>;
+<a name="l00066"></a>00066     }
+<a name="l00067"></a>00067 
+<a name="l00072"></a><a class="code" href="classGoal.html#a7b24e6fb2bc63837c7b9d06bacc12c92">00072</a>     <span class="keywordtype">bool</span> <a class="code" href="classGoal.html#a7b24e6fb2bc63837c7b9d06bacc12c92">operator&lt; </a>(<a class="code" href="classGoal.html" title="This class encapuslates the (x, y) coordinates of a goal and distance from the robot of the goal...">Goal</a>&amp; g)
+<a name="l00073"></a>00073     {
+<a name="l00074"></a>00074         <span class="keywordflow">return</span> <a class="code" href="classGoal.html#a5b81dbab33309729a8f8ebc60deb9a15">distanceFromRobot</a> &lt; g.<a class="code" href="classGoal.html#a5b81dbab33309729a8f8ebc60deb9a15">distanceFromRobot</a>;
+<a name="l00075"></a>00075     }
+<a name="l00076"></a>00076 
+<a name="l00081"></a><a class="code" href="classGoal.html#a560a053fd4c5ba5a736bc2c6d6b90851">00081</a>     <span class="keywordtype">bool</span> <a class="code" href="classGoal.html#a560a053fd4c5ba5a736bc2c6d6b90851">operator&lt;= </a>(<a class="code" href="classGoal.html" title="This class encapuslates the (x, y) coordinates of a goal and distance from the robot of the goal...">Goal</a>&amp; g)
+<a name="l00082"></a>00082     {
+<a name="l00083"></a>00083         <span class="keywordflow">return</span> <a class="code" href="classGoal.html#a5b81dbab33309729a8f8ebc60deb9a15">distanceFromRobot</a> &lt;= g.<a class="code" href="classGoal.html#a5b81dbab33309729a8f8ebc60deb9a15">distanceFromRobot</a>;
+<a name="l00084"></a>00084     }
+<a name="l00085"></a>00085 
+<a name="l00090"></a><a class="code" href="classGoal.html#ada8043a85c61dd68833acdddb4b3cce8">00090</a>     <span class="keywordtype">bool</span> <a class="code" href="classGoal.html#ada8043a85c61dd68833acdddb4b3cce8">operator== </a>(<a class="code" href="classGoal.html" title="This class encapuslates the (x, y) coordinates of a goal and distance from the robot of the goal...">Goal</a>&amp; g)
+<a name="l00091"></a>00091     {
+<a name="l00092"></a>00092         <span class="keywordtype">double</span> deltaX = 0.0;
+<a name="l00093"></a>00093         <span class="keywordtype">double</span> deltaY = 0.0;
+<a name="l00094"></a>00094 
+<a name="l00095"></a>00095         <span class="keywordflow">if</span> (<a class="code" href="classGoal.html#af6cd641b328568cc900da4bcc25a9a7a">x</a> &gt;= 0 &amp;&amp; g.<a class="code" href="classGoal.html#af6cd641b328568cc900da4bcc25a9a7a">x</a> &gt;= 0)
+<a name="l00096"></a>00096         {
+<a name="l00097"></a>00097             deltaX = <a class="code" href="classGoal.html#af6cd641b328568cc900da4bcc25a9a7a">x</a> - g.<a class="code" href="classGoal.html#af6cd641b328568cc900da4bcc25a9a7a">x</a>;
+<a name="l00098"></a>00098         }
+<a name="l00099"></a>00099         <span class="keywordflow">else</span> <span class="keywordflow">if</span> (<a class="code" href="classGoal.html#af6cd641b328568cc900da4bcc25a9a7a">x</a> &lt; 0 &amp;&amp; g.<a class="code" href="classGoal.html#af6cd641b328568cc900da4bcc25a9a7a">x</a> &lt; 0)
+<a name="l00100"></a>00100         {
+<a name="l00101"></a>00101             deltaX = abs(<a class="code" href="classGoal.html#af6cd641b328568cc900da4bcc25a9a7a">x</a>) - abs(g.<a class="code" href="classGoal.html#af6cd641b328568cc900da4bcc25a9a7a">x</a>);
+<a name="l00102"></a>00102         }
+<a name="l00103"></a>00103         <span class="keywordflow">else</span>
+<a name="l00104"></a>00104         {
+<a name="l00105"></a>00105             <span class="keywordflow">return</span> <span class="keyword">false</span>;
+<a name="l00106"></a>00106         }
+<a name="l00107"></a>00107 
+<a name="l00108"></a>00108         <span class="keywordflow">if</span> (<a class="code" href="classGoal.html#a12a0a145556d1f773e12a91a4c8ca36d">y</a> &gt;= 0 &amp;&amp; g.<a class="code" href="classGoal.html#a12a0a145556d1f773e12a91a4c8ca36d">y</a> &gt;= 0)
+<a name="l00109"></a>00109         {
+<a name="l00110"></a>00110             deltaY = <a class="code" href="classGoal.html#a12a0a145556d1f773e12a91a4c8ca36d">y</a> - g.<a class="code" href="classGoal.html#a12a0a145556d1f773e12a91a4c8ca36d">y</a>;
+<a name="l00111"></a>00111         }
+<a name="l00112"></a>00112         <span class="keywordflow">else</span> <span class="keywordflow">if</span> (<a class="code" href="classGoal.html#a12a0a145556d1f773e12a91a4c8ca36d">y</a> &lt; 0 &amp;&amp; g.<a class="code" href="classGoal.html#a12a0a145556d1f773e12a91a4c8ca36d">y</a> &lt; 0)
+<a name="l00113"></a>00113         {
+<a name="l00114"></a>00114             deltaY = abs(<a class="code" href="classGoal.html#a12a0a145556d1f773e12a91a4c8ca36d">y</a>) - abs(g.<a class="code" href="classGoal.html#a12a0a145556d1f773e12a91a4c8ca36d">y</a>);
+<a name="l00115"></a>00115         }
+<a name="l00116"></a>00116         <span class="keywordflow">else</span>
+<a name="l00117"></a>00117         {
+<a name="l00118"></a>00118             <span class="keywordflow">return</span> <span class="keyword">false</span>;
+<a name="l00119"></a>00119         }
 <a name="l00120"></a>00120 
-<a name="l00125"></a><a class="code" href="classGoal.html#a6e759f1dd1654bbdb779427b63b0a8ac">00125</a>     <span class="keywordtype">bool</span> <a class="code" href="classGoal.html#a6e759f1dd1654bbdb779427b63b0a8ac">operator!= </a>(<a class="code" href="classGoal.html">Goal</a>&amp; g)
-<a name="l00126"></a>00126     {
-<a name="l00127"></a>00127         <span class="keywordtype">double</span> deltaX = 0.0;
-<a name="l00128"></a>00128         <span class="keywordtype">double</span> deltaY = 0.0;
-<a name="l00129"></a>00129 
-<a name="l00130"></a>00130         <span class="keywordflow">if</span> (<a class="code" href="classGoal.html#af6cd641b328568cc900da4bcc25a9a7a">x</a> &gt;= 0 &amp;&amp; g.<a class="code" href="classGoal.html#af6cd641b328568cc900da4bcc25a9a7a">x</a> &gt;= 0)
-<a name="l00131"></a>00131         {
-<a name="l00132"></a>00132             deltaX = <a class="code" href="classGoal.html#af6cd641b328568cc900da4bcc25a9a7a">x</a> - g.<a class="code" href="classGoal.html#af6cd641b328568cc900da4bcc25a9a7a">x</a>;
-<a name="l00133"></a>00133         }
-<a name="l00134"></a>00134         <span class="keywordflow">else</span> <span class="keywordflow">if</span> (<a class="code" href="classGoal.html#af6cd641b328568cc900da4bcc25a9a7a">x</a> &lt; 0 &amp;&amp; g.<a class="code" href="classGoal.html#af6cd641b328568cc900da4bcc25a9a7a">x</a> &lt; 0)
-<a name="l00135"></a>00135         {
-<a name="l00136"></a>00136             deltaX = abs(<a class="code" href="classGoal.html#af6cd641b328568cc900da4bcc25a9a7a">x</a>) - abs(g.<a class="code" href="classGoal.html#af6cd641b328568cc900da4bcc25a9a7a">x</a>);
-<a name="l00137"></a>00137         }
-<a name="l00138"></a>00138         <span class="keywordflow">else</span>
-<a name="l00139"></a>00139         {
-<a name="l00140"></a>00140             <span class="keywordflow">return</span> <span class="keyword">true</span>;
-<a name="l00141"></a>00141         }
-<a name="l00142"></a>00142 
-<a name="l00143"></a>00143         <span class="keywordflow">if</span> (<a class="code" href="classGoal.html#a12a0a145556d1f773e12a91a4c8ca36d">y</a> &gt;= 0 &amp;&amp; g.<a class="code" href="classGoal.html#a12a0a145556d1f773e12a91a4c8ca36d">y</a> &gt;= 0)
-<a name="l00144"></a>00144         {
-<a name="l00145"></a>00145             deltaY = <a class="code" href="classGoal.html#a12a0a145556d1f773e12a91a4c8ca36d">y</a> - g.<a class="code" href="classGoal.html#a12a0a145556d1f773e12a91a4c8ca36d">y</a>;
-<a name="l00146"></a>00146         }
-<a name="l00147"></a>00147         <span class="keywordflow">else</span> <span class="keywordflow">if</span> (<a class="code" href="classGoal.html#a12a0a145556d1f773e12a91a4c8ca36d">y</a> &lt; 0 &amp;&amp; g.<a class="code" href="classGoal.html#a12a0a145556d1f773e12a91a4c8ca36d">y</a> &lt; 0)
-<a name="l00148"></a>00148         {
-<a name="l00149"></a>00149             deltaY = abs(<a class="code" href="classGoal.html#a12a0a145556d1f773e12a91a4c8ca36d">y</a>) - abs(g.<a class="code" href="classGoal.html#a12a0a145556d1f773e12a91a4c8ca36d">y</a>);
-<a name="l00150"></a>00150         }
-<a name="l00151"></a>00151         <span class="keywordflow">else</span>
-<a name="l00152"></a>00152         {
-<a name="l00153"></a>00153             <span class="keywordflow">return</span> <span class="keyword">true</span>;
-<a name="l00154"></a>00154         }
-<a name="l00155"></a>00155 
-<a name="l00156"></a>00156         <span class="keywordflow">return</span> (deltaX &gt; 0.001 &amp;&amp; deltaX &lt; -0.001) &amp;&amp; (deltaY &gt; 0.001 &amp;&amp; deltaY &lt; -0.001);
-<a name="l00157"></a>00157     }
-<a name="l00158"></a>00158 };
+<a name="l00121"></a>00121         <span class="keywordflow">return</span> (deltaX &lt; 0.5 &amp;&amp; deltaX &gt; -0.5) &amp;&amp; (deltaY &lt; 0.5 &amp;&amp; deltaY &gt; -0.5);
+<a name="l00122"></a>00122     }
+<a name="l00123"></a>00123 
+<a name="l00128"></a><a class="code" href="classGoal.html#a6e759f1dd1654bbdb779427b63b0a8ac">00128</a>     <span class="keywordtype">bool</span> <a class="code" href="classGoal.html#a6e759f1dd1654bbdb779427b63b0a8ac">operator!= </a>(<a class="code" href="classGoal.html" title="This class encapuslates the (x, y) coordinates of a goal and distance from the robot of the goal...">Goal</a>&amp; g)
+<a name="l00129"></a>00129     {
+<a name="l00130"></a>00130         <span class="keywordtype">double</span> deltaX = 0.0;
+<a name="l00131"></a>00131         <span class="keywordtype">double</span> deltaY = 0.0;
+<a name="l00132"></a>00132 
+<a name="l00133"></a>00133         <span class="keywordflow">if</span> (<a class="code" href="classGoal.html#af6cd641b328568cc900da4bcc25a9a7a">x</a> &gt;= 0 &amp;&amp; g.<a class="code" href="classGoal.html#af6cd641b328568cc900da4bcc25a9a7a">x</a> &gt;= 0)
+<a name="l00134"></a>00134         {
+<a name="l00135"></a>00135             deltaX = <a class="code" href="classGoal.html#af6cd641b328568cc900da4bcc25a9a7a">x</a> - g.<a class="code" href="classGoal.html#af6cd641b328568cc900da4bcc25a9a7a">x</a>;
+<a name="l00136"></a>00136         }
+<a name="l00137"></a>00137         <span class="keywordflow">else</span> <span class="keywordflow">if</span> (<a class="code" href="classGoal.html#af6cd641b328568cc900da4bcc25a9a7a">x</a> &lt; 0 &amp;&amp; g.<a class="code" href="classGoal.html#af6cd641b328568cc900da4bcc25a9a7a">x</a> &lt; 0)
+<a name="l00138"></a>00138         {
+<a name="l00139"></a>00139             deltaX = abs(<a class="code" href="classGoal.html#af6cd641b328568cc900da4bcc25a9a7a">x</a>) - abs(g.<a class="code" href="classGoal.html#af6cd641b328568cc900da4bcc25a9a7a">x</a>);
+<a name="l00140"></a>00140         }
+<a name="l00141"></a>00141         <span class="keywordflow">else</span>
+<a name="l00142"></a>00142         {
+<a name="l00143"></a>00143             <span class="keywordflow">return</span> <span class="keyword">true</span>;
+<a name="l00144"></a>00144         }
+<a name="l00145"></a>00145 
+<a name="l00146"></a>00146         <span class="keywordflow">if</span> (<a class="code" href="classGoal.html#a12a0a145556d1f773e12a91a4c8ca36d">y</a> &gt;= 0 &amp;&amp; g.<a class="code" href="classGoal.html#a12a0a145556d1f773e12a91a4c8ca36d">y</a> &gt;= 0)
+<a name="l00147"></a>00147         {
+<a name="l00148"></a>00148             deltaY = <a class="code" href="classGoal.html#a12a0a145556d1f773e12a91a4c8ca36d">y</a> - g.<a class="code" href="classGoal.html#a12a0a145556d1f773e12a91a4c8ca36d">y</a>;
+<a name="l00149"></a>00149         }
+<a name="l00150"></a>00150         <span class="keywordflow">else</span> <span class="keywordflow">if</span> (<a class="code" href="classGoal.html#a12a0a145556d1f773e12a91a4c8ca36d">y</a> &lt; 0 &amp;&amp; g.<a class="code" href="classGoal.html#a12a0a145556d1f773e12a91a4c8ca36d">y</a> &lt; 0)
+<a name="l00151"></a>00151         {
+<a name="l00152"></a>00152             deltaY = abs(<a class="code" href="classGoal.html#a12a0a145556d1f773e12a91a4c8ca36d">y</a>) - abs(g.<a class="code" href="classGoal.html#a12a0a145556d1f773e12a91a4c8ca36d">y</a>);
+<a name="l00153"></a>00153         }
+<a name="l00154"></a>00154         <span class="keywordflow">else</span>
+<a name="l00155"></a>00155         {
+<a name="l00156"></a>00156             <span class="keywordflow">return</span> <span class="keyword">true</span>;
+<a name="l00157"></a>00157         }
+<a name="l00158"></a>00158 
+<a name="l00159"></a>00159         <span class="keywordflow">return</span> (deltaX &gt; 0.001 &amp;&amp; deltaX &lt; -0.001) &amp;&amp; (deltaY &gt; 0.001 &amp;&amp; deltaY &lt; -0.001);
+<a name="l00160"></a>00160     }
+<a name="l00161"></a>00161 };
 </pre></div></div><!-- contents -->
 <!-- window showing the filter options -->
 <div id="MSearchSelectWindow"
@@ -206,7 +206,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 
 
 <hr class="footer"/><address class="footer"><small>
-Generated on Thu Nov 21 2013 16:04:20 for Goal  Provider by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Fri Nov 22 2013 10:19:08 for Goal  Provider by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.7.6.1
 </small></address>

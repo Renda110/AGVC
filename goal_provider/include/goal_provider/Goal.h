@@ -4,7 +4,10 @@
 #include <geometry_msgs/Pose.h>
 
 /**
-  A class to represent a Goal
+  \brief This class encapuslates the (x, y) coordinates of a goal and distance from the robot of the goal
+
+  All of the boolean operators have been overload to allow easy comparation of Goal objects based on their distance from the
+  robot. The subtraction operation has also been modified to allow subtracting of a Pose from a Goal and one Goal from another.
 
   @author Enda McCauley
   @date November 21st 2013

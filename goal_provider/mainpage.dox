@@ -3,7 +3,7 @@
 
 \b goal_provider allows a robot to travel to all GPS points contained in a text file <br /> <br />
 \author Enda McCauley
-\date November 21st 2013
+\date November 22nd 2013
 
 \section dependencies Dependencies
 - \c <a href="http://wiki.ros.org/roscpp"> roscpp </a>
@@ -15,14 +15,16 @@
 - \c <a href="http://http://wiki.ros.org/navigation?distro=hydro"> navigation </a>
 - \c <a href="http://wiki.ros.org/hector_localization"> hector_localization </a>
 - \c <a href="http://wiki.ros.org/gps_common"> gps_common </a>
+- \c <a href="http://http://wiki.ros.org/p2os"> p2os </a>
 
 \section topics Topics
-- \c /gps_fix (<a href="http://ros.org/doc/api/sensor_msgs/html/msg/NavSatFix.html"> sensor_msgs::NavSatFix </a>) Used to set the GPS origin of the robot
-- \c /localization_pose (<a href="http://ros.org/doc/api/geometry_msgs/html/msg/PoseStamped.html"> geometry_msgs::PoseStamped</a>)Hector Localisation: Used to keep track of where the robot is and to update the distance from where we are to the goal locations
-- \c /move_base/status (<a href="http://docs.ros.org/api/actionlib_msgs/html/msg/GoalStatusArray.html"> actionlib_msgs::GoalStatusArray </a>) Movebase status: Keep track of the goal status. Options of interest are PENDING, PREEMPTED, ACTIVE, SUCCEEDED, REJECTED and ABORTED
-- \c /raw_imu (<a href="http://ros.org/doc/api/sensor_msgs/html/msg/Imu.html"> sensor_msgs::Imu </a>) A magnetometer equiped IMU to find the angle the robot is facing with respect to geometric North
-- \c /odom (<a href="http://ros.org/doc/api/nav_msgs/html/msg/Odometry.html"> nav_msgs::Odometry </a>) The /localization_pose topic republished as an Odometry message
-- \c /status (AutonomousStatus): The status of the robot. 
+- \c /gps_fix (<a href="http://ros.org/doc/api/sensor_msgs/html/msg/NavSatFix.html"> sensor_msgs::NavSatFix </a>): Used to set the GPS origin of the robot
+- \c /localization_pose (<a href="http://ros.org/doc/api/geometry_msgs/html/msg/PoseStamped.html"> geometry_msgs::PoseStamped</a>): Used to keep track of where the robot is and to update the distance from where we are to the goal locations
+- \c /move_base/status (<a href="http://docs.ros.org/api/actionlib_msgs/html/msg/GoalStatusArray.html"> actionlib_msgs::GoalStatusArray </a>): Movebase status: Keep track of the goal status. Options of interest are PENDING, PREEMPTED, ACTIVE, SUCCEEDED, REJECTED and ABORTED
+- \c /raw_imu (<a href="http://ros.org/doc/api/sensor_msgs/html/msg/Imu.html"> sensor_msgs::Imu </a>): A magnetometer equiped IMU to find the angle the robot is facing with respect to geometric North
+- \c /pose (<a href="http://ros.org/doc/api/nav_msgs/html/msg/Odometry.html"> nav_msgs::Odometry </a>): The Odometry message published by the p2os_driver
+- \c /goal_provider_node/odom (<a href="http://ros.org/doc/api/nav_msgs/html/msg/Odometry.html"> nav_msgs::Odometry </a>): The /localization_pose topic republished as an Odometry message
+- \c /status (AutonomousStatus): The status of the robot
 
 \section autostatus AutonomousStatus
 <p>
@@ -75,15 +77,22 @@ Once all the goals are loaded a new goal is sent to move_base by
 - If the goal is further away then the subgoal distance then create and use a subgoal
 - If this is the same goal as before BUT we have exceeded our retry limit then remove it from the list and take the next goal. The retry counter is increased if the goal is ABORTED or REJECTED and when we first add it
 - If this is a different goal than what we had before the update the current goal, reset the retry counter and send the goal
-Each Goal is monitored through move_base/status. <br />
 
-The distance to each goal is also continously updated through Hector Localisation. Every 1000 (changeable by the parameter server) Hector Localisation callbacks we will update the goal. This may result in changing from one goal to another. Finally once all goals have been reached the robot returns home. For the competition this will need to be changed such that it moves to the end
+The progress of each Goal is monitored through move_base/status. The distance to each goal is also continously updated through Hector Localisation. Every 1000 (changeable by the parameter server) Hector Localisation callbacks we will update the goal. This may result in changing from one goal to another. Finally once all goals have been reached the robot returns home. For the competition this will need to be changed such that it moves to the end
+
+\subsection conversion PoseStamped to Odometry
+Movebase expects an Odometry message on the /odom topic to keep track of the robot position. This would come from the p2os driver but is slow at only 10Hz and is not very accurate. Instead the Hector Localization PoseStamped message is converted to an Odometry message and published on the /goal_provider_node/odom topic. Hector Localization produces a much more accurate estimation of position and publishes at 100Hz but does not give Velocity. This neccesitates the hack of
+- Keeping track of the last Odometry message published by the p2os_driver
+- Whenever a new message is published on /goal_provider_node/odom this last published Odometry message is used to provide velocity
+
+Due to the differences in publish speed this causes the Velocity on the much faster /goal_provider_node/odom to be the same for a maximum of 10  (100Hz/10Hz) messages
 
 \subsection subgoal Subgoals
-- Create triangle between the current and goal points
+- Create a triangle between the current and goal points
 - Find the angle of the hypotenuse makes with the horizontal
 - Use that angle and the predefined maximum goal distance to find the subgoal x and y values
 Note that this process is linear. The subgoals may be in a building or similar. The idea is that as the robot tries to drive around the building the subgoal will be continuously updating and will continue to pull the robot to the final goal
+
 Subgoals also can time out and if this happens then the overall goal is aborted as well
 
 \subsection logging Logging

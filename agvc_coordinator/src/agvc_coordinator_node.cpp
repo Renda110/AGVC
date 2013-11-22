@@ -15,7 +15,11 @@ using namespace ros;
 using namespace std;
 
 /**
-  Class to handle initialisation of the software necessary for the AGVC competition
+  \brief Class to handle initialisation of the software necessary for the AGVC competition
+
+  Both joystick and keyboard commands are supported to control the robot. Sound and visual prompts are used to inform the user
+  what the robot is doing.
+
   @author Enda McCauley
   @date November 21st 2013
 */
@@ -42,10 +46,11 @@ public:
 
         motorPublisher = node.advertise<p2os_driver::MotorState>("cmd_motor_state", 1000);
 
-        fullActive = false;
-        partialActive = false;
-        motorsActive = false;
+        arduinoActive = false;
         bagFileActive = false;
+        fullActive = false;
+        motorsActive = false;
+        partialActive = false;
 
         setStartTime();
 
@@ -120,6 +125,11 @@ private:
     string arduinoPort;
 
     /**
+      Field to store whether or not the arduino is powering the lights on/off.
+    */
+    int arduinoActive;
+
+    /**
       Field to store whether or not the full system is active (full autonomous operation)
     */
     bool fullActive;
@@ -150,6 +160,8 @@ private:
         // buttons[1] = 1 -> 2
         // buttons[2] = 1 -> 3
         // buttons[3] = 1 -> 4
+        // buttons[7] = 1 -> 8
+        // buttons[8] = 1 -> 9
         // buttons[9] = 1 -> 10
 
         if (joy.buttons[0] == 1) //Button 1: Start full mode
@@ -182,9 +194,16 @@ private:
             toggleMotorState(false);
 
         }
-        else if (joy.buttons[7] == 1) //Shut the robot up
+        else if (joy.buttons[7] == 1) //Stop/start the arduino flashing
         {
-            shutup();
+            if (arduinoActive)
+            {
+                writeToArduino(0);
+            }
+            else
+            {
+                writeToArduino(1);
+            }
         }
         else if (joy.buttons[8] == 1) //Button 9: Toggle a bag file on or off
         {
@@ -339,6 +358,8 @@ private:
         cout << "\033[2;32m\t\t Stops all rosnodes except for this one\033[0m" << endl;
         cout << "\033[2;32m\t 4\033[0m" << endl;
         cout << "\033[2;32m\t\t Turns the motors on or off\033[0m" << endl;
+        cout << "\033[2;32m\t 8 \033[0m" << endl;
+        cout << "\033[2;32m\t\t Enables/disables the LED lights\033[0m" << endl;
         cout << "\033[2;32m\t 9 \033[0m" << endl;
         cout << "\033[2;32m\t\t Press this to stop/start a bag file\033[0m" << endl;
         cout << "\033[2;32m\t 10 \033[0m" << endl;
@@ -408,8 +429,9 @@ private:
     {
         if (!fullActive && !partialActive)
         {
-            writeToSerial(1);
-            //system ("roslaunch agvc_coordinator xsens_driver.launch &" ); //Ideally this will be one launch file
+            writeToArduino(1);
+            arduinoActive = !arduinoActive;
+
             system ("roslaunch agvc_coordinator AGVCFull.launch &");
 
             fullActive = true;
@@ -433,7 +455,9 @@ private:
     */
     void stopFull()
     {
-        writeToSerial(0);
+        writeToArduino(0);
+        arduinoActive = !arduinoActive;
+
         speak("Disabling autonomous mode");
 
         cout << "\033[2;32mAGVC_Coordinator: Stopping full mode\033[0m" << endl;
@@ -456,7 +480,8 @@ private:
     {
         if (!partialActive && !fullActive)
         {
-            writeToSerial(1);
+            writeToArduino(1);
+            arduinoActive = !arduinoActive;
 
             system ("roslaunch agvc_coordinator AGVCPartial.launch &");
             //system ("roslaunch hector_pose_estimation hector_pose_estimation.launch &");
@@ -482,6 +507,9 @@ private:
     */
     void stopPartial()
     {
+        writeToArduino(0);
+        arduinoActive = !arduinoActive;
+
         speak("Disabling manual control");
         cout << "\033[2;32mAGVC_Coordinator: Stopping partial mode\033[0m" << endl;
         writeToLog("Stopping partial mode");
@@ -713,7 +741,7 @@ private:
       Function to write to Arduino using serial port
       @param value The value to write
     */
-    void writeToSerial(int value)
+    void writeToArduino(int value)
     {
         if (!arduinoConfigString.empty() && !arduinoPort.empty())
         {
@@ -726,6 +754,8 @@ private:
                 char buffer[100];
                 sprintf(buffer, "Wrote %d to Arduino", value);
                 writeToLog(buffer);
+
+                fclose(arduino);
             }
             else
             {

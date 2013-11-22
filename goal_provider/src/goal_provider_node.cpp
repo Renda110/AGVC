@@ -44,12 +44,18 @@ typedef actionlib::SimpleActionClient<move_base_msgs::MoveBaseAction> MoveBaseCl
 #define r2d 180/PI
 
 /**
-    The GoalProvider class.
+    \brief This class sends a number of goals to the move_base navigation stack with the closest goal executed first
 
-    This class provides goal data to the move_base navigation stack. A typical goal is simply a GPS position
+    A typical goal is simply a GPS position and must be specified in the /config/GPSCoords file. Each GPS coordinate is converted into the robot coordinate frame with the closest goal being sent
+    to move_base first. As the robot drives to each goal is another goal becomes closer it is used instead. Goals can timeout if
+    not reachable and the number of attempts before this happens can be configured in the goal_provider launch file.
+
+    A Goal can also be split into subgoals if it is a certain distance away. The new subgoal is found based off of linear interpolation
+    between the robot position and the goal location. The distance before subgoals are used can be changed in the goal_provider launch
+    file with a value of -1 meaning subgoals are not used
 
     @author Enda McCauley
-    @date November 21st 2013
+    @date November 22nd 2013
 */
 class GoalProvider
 {
@@ -135,6 +141,7 @@ public:
         gpsSubscriber = node.subscribe("/gps_fix", 1000, &GoalProvider::gpsCallback, this);
         imuSubscriber = node.subscribe("/raw_imu", 1000, &GoalProvider::imuCallback, this);
         hlPoseSubscriber = node.subscribe("/localization_pose", 1000, &GoalProvider::hlPoseCallback, this);
+        p2osOdomSubscriber = node.subscribe("/pose", 1000, &GoalProvider::odomCallback, this);
         movebaseStatusSubscriber = node.subscribe("move_base/status", 1000, &GoalProvider::movebaseStatusCallback, this);
 
         hlOdomPublisher = privateNode.advertise<nav_msgs::Odometry>("/odom", 1000);
@@ -216,6 +223,11 @@ private:
       Field to store the current location of the robot
     */
     geometry_msgs::Pose currentLocation;
+
+    /**
+      Field to store the last message published on the slow, slow p2os /pose topic
+    */
+    nav_msgs::Odometry lastOdom;
 
     /**
       Field to store whether or not we have set our starting absolute position
@@ -432,8 +444,17 @@ private:
     }
 
     /**
+      Callback for the p2os position estimation
+      @param odom The position data
+    */
+    void odomCallback(const nav_msgs::Odometry odom)
+    {
+        lastOdom = odom;
+    }
+
+    /**
       Callback for the hector_pose_estimation position estimation
-      @param pose The actual pose data
+      @param pose The position data
     */
     void hlPoseCallback(const geometry_msgs::PoseStamped pose)
     {
@@ -444,16 +465,8 @@ private:
         toPublish.header = pose.header;
         toPublish.pose.pose = pose.pose;
 
-        toPublish.twist.twist.linear.x = (pose.pose.position.x - currentLocation.position.x) / 0.01; //Cheap hack to get velocity (100Hz)
-        toPublish.twist.twist.linear.y = (pose.pose.position.y - currentLocation.position.y) / 0.01;
+        toPublish.twist = lastOdom.; //Dirty hack to get velocity
 
-        double px, py, pz, currx, curry, currz = 0;
-        quatToEuler(pose.pose.orientation.x, pose.pose.orientation.y, pose.pose.orientation.z, pose.pose.orientation.w, &px, &py, &pz);
-        quatToEuler(currentLocation.orientation.x, currentLocation.orientation.y, currentLocation.orientation.z, currentLocation.orientation.w, &currx, &curry, &currz);
-
-        toPublish.twist.twist.angular.x = (px - currx) / 0.01; //Cheap hack to get angular velocity
-        toPublish.twist.twist.angular.y = (py - curry) / 0.01;
-        toPublish.twist.twist.angular.z = (pz - currz) / 0.01;
         hlOdomPublisher.publish(toPublish);
 
         currentLocation.orientation = pose.pose.orientation;
@@ -537,7 +550,7 @@ private:
                         break;
 
                     case actionlib_msgs::GoalStatus::SUCCEEDED:
-                        if (goalAcceptanceCounter > 2)
+                        if (goalAcceptanceCounter > 2) //Need this to prevent a new goal immediately succeeding
                         {
                             goalAcceptanceCounter = 0;
                             currentCallbackCount = 0;
@@ -581,7 +594,7 @@ private:
     }
 
     /**
-      Read in the GPSConfig file to get the list of UTM based Points we need to go to
+      Read in the GPSCoords file to get the list of UTM based Points we need to go to
     */
     void readConfigFile()
     {
@@ -599,7 +612,7 @@ private:
             string line;
             int lineNumber = 1;
 
-            while(getline(configFile, line))
+            while(getline(configFile, line)) //Get the next line
             {
                 Goal p;
 
@@ -622,7 +635,7 @@ private:
                 if (!testing)
                 {
                     char buffer[200];
-                    gps_common::LLtoUTM(latitude, longitude, p.y, p.x, utmZone);
+                    gps_common::LLtoUTM(latitude, longitude, p.y, p.x, utmZone); //northing, easting => y, x
 
                     ROS_INFO("\033[2;32mGoalProvider: Converted GPS (%f, %f) into UTM (%f, %f)\033[0m\n", latitude, longitude, p.x, p.y);
                     sprintf(buffer, "Converted GPS (%f, %f) into UTM (%f, %f)", latitude, longitude, p.x, p.y);
@@ -717,22 +730,22 @@ private:
                 Goal temp;
                 generateSubgoal(temp, newGoal);
 
-                if (temp == goal && goalAttemptCounter < goalAttemptLimit)
+                if (temp == goal && goalAttemptCounter < goalAttemptLimit) //If the new subgoal is the same as the old one but the goal limit has not been reached
                 {
                     sendGoal();
                 }
-                else if (temp == goal && goalAttemptCounter >= goalAttemptLimit)
+                else if (temp == goal && goalAttemptCounter >= goalAttemptLimit) //If the new subgoal is the same as the old one and the goal limit has been reached
                 {
                     sprintf(buffer, "Goal (%f, %f) failed too many times", goal.x, goal.y);
                     publishStatus(AutonomousStatus::INFO, buffer);
 
                     removeCurrentGoal();
 
-                    if(coordsList.size() > 0)
+                    if(coordsList.size() > 0) //If other goals are still available
                     {
-                        newGoal = coordsList.front();
+                        newGoal = coordsList.front(); //Get the next one
 
-                        if (newGoal.distanceFromRobot > subgoalDistance)
+                        if (newGoal.distanceFromRobot > subgoalDistance) //Subgoal if necessary
                         {
                             generateSubgoal(temp, newGoal);
                             goal = temp;
@@ -749,6 +762,7 @@ private:
                         goal.y = 0;
                         goal.distanceFromRobot = sqrt(pow(currentLocation.position.x, 2) + pow(currentLocation.position.y, 2));
                     }
+                    //We are guaranteed to have a new goal
 
                     sprintf(buffer, "Replacement goal chosen as (%f, %f)", goal.x, goal.y);
                     publishStatus(AutonomousStatus::INFO, buffer);
@@ -756,7 +770,7 @@ private:
                     goalAttemptCounter = 1;
                     sendGoal();
                 }
-                else
+                else //The subgoal is different
                 {
                     goal = temp;
                     goalAttemptCounter = 1;
@@ -858,7 +872,7 @@ private:
         sprintf(buffer, "Offset from goal (%f, %f)", difference.x, difference.y);
         publishStatus(AutonomousStatus::INFO, buffer);
 
-        double angleOfLinearPath = atan2(difference.x, -difference.y);
+        double angleOfLinearPath = atan2(difference.x, -difference.y); //Remember that cartesian (x, y) corresponds to robot (y, -x)
 
         double deltaX = subgoalDistance * sin(angleOfLinearPath);
         double deltaY = -subgoalDistance * cos(angleOfLinearPath);
@@ -892,7 +906,7 @@ private:
         sprintf(buffer, "Attempting to send goal (%f, %f). Distance %f m", goal.x, goal.y, goal.distanceFromRobot);
         publishStatus(AutonomousStatus::WAITING, buffer);
 
-        mb.sendGoal(target_goal);
+        mb.sendGoal(target_goal);        
     }
 
     /**

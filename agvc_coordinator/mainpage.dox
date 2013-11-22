@@ -41,6 +41,7 @@ Use help to view the keyboard commands. The buttons are
 - \c 2 to disable whichever mode is active
 - \c 3 for manual mode. In this mode the D pad and/or axial joystick can be used to drive the robot
 - \c 4 to enable/disable the motors
+- \c 8 to start/stop the LED lights
 - \c 9 to start/stop a bag file. This file is placed in ~/.ros
 - \c 10 to restart the robot
 

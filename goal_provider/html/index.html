@@ -77,7 +77,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
  <br/>
  </p>
 <dl class="author"><dt><b>Author:</b></dt><dd>Enda McCauley </dd></dl>
-<dl class="date"><dt><b>Date:</b></dt><dd>November 21st 2013</dd></dl>
+<dl class="date"><dt><b>Date:</b></dt><dd>November 22nd 2013</dd></dl>
 <h2><a class="anchor" id="dependencies"></a>
 Dependencies</h2>
 <ul>
@@ -90,16 +90,18 @@ Dependencies</h2>
 <li><code></code> <a href="http://http://wiki.ros.org/navigation?distro=hydro">navigation </a></li>
 <li><code></code> <a href="http://wiki.ros.org/hector_localization">hector_localization </a></li>
 <li><code></code> <a href="http://wiki.ros.org/gps_common">gps_common </a></li>
+<li><code></code> <a href="http://http://wiki.ros.org/p2os">p2os </a></li>
 </ul>
 <h2><a class="anchor" id="topics"></a>
 Topics</h2>
 <ul>
-<li><code>/gps_fix</code> (<a href="http://ros.org/doc/api/sensor_msgs/html/msg/NavSatFix.html">sensor_msgs::NavSatFix </a>) Used to set the GPS origin of the robot</li>
-<li><code>/localization_pose</code> (<a href="http://ros.org/doc/api/geometry_msgs/html/msg/PoseStamped.html">geometry_msgs::PoseStamped</a>)Hector Localisation: Used to keep track of where the robot is and to update the distance from where we are to the goal locations</li>
-<li><code>/move_base/status</code> (<a href="http://docs.ros.org/api/actionlib_msgs/html/msg/GoalStatusArray.html">actionlib_msgs::GoalStatusArray </a>) Movebase status: Keep track of the goal status. Options of interest are PENDING, PREEMPTED, ACTIVE, SUCCEEDED, REJECTED and ABORTED</li>
-<li><code>/raw_imu</code> (<a href="http://ros.org/doc/api/sensor_msgs/html/msg/Imu.html">sensor_msgs::Imu </a>) A magnetometer equiped IMU to find the angle the robot is facing with respect to geometric North</li>
-<li><code>/odom</code> (<a href="http://ros.org/doc/api/nav_msgs/html/msg/Odometry.html">nav_msgs::Odometry </a>) The /localization_pose topic republished as an Odometry message</li>
-<li><code>/status</code> (AutonomousStatus): The status of the robot.</li>
+<li><code>/gps_fix</code> (<a href="http://ros.org/doc/api/sensor_msgs/html/msg/NavSatFix.html">sensor_msgs::NavSatFix </a>): Used to set the GPS origin of the robot</li>
+<li><code>/localization_pose</code> (<a href="http://ros.org/doc/api/geometry_msgs/html/msg/PoseStamped.html">geometry_msgs::PoseStamped</a>): Used to keep track of where the robot is and to update the distance from where we are to the goal locations</li>
+<li><code>/move_base/status</code> (<a href="http://docs.ros.org/api/actionlib_msgs/html/msg/GoalStatusArray.html">actionlib_msgs::GoalStatusArray </a>): Movebase status: Keep track of the goal status. Options of interest are PENDING, PREEMPTED, ACTIVE, SUCCEEDED, REJECTED and ABORTED</li>
+<li><code>/raw_imu</code> (<a href="http://ros.org/doc/api/sensor_msgs/html/msg/Imu.html">sensor_msgs::Imu </a>): A magnetometer equiped IMU to find the angle the robot is facing with respect to geometric North</li>
+<li><code>/pose</code> (<a href="http://ros.org/doc/api/nav_msgs/html/msg/Odometry.html">nav_msgs::Odometry </a>): The Odometry message published by the p2os_driver</li>
+<li><code>/goal_provider_node/odom</code> (<a href="http://ros.org/doc/api/nav_msgs/html/msg/Odometry.html">nav_msgs::Odometry </a>): The /localization_pose topic republished as an Odometry message</li>
+<li><code>/status</code> (AutonomousStatus): The status of the robot</li>
 </ul>
 <h2><a class="anchor" id="autostatus"></a>
 AutonomousStatus</h2>
@@ -131,7 +133,7 @@ AutonomousStatus</h2>
 <li>uint8 UPDATING: Updating the goal or not</li>
 </ul>
 <ul>
-<li>uint8 ERROR: <a class="el" href="classGoal.html">Goal</a> provider has gone gammy</li>
+<li>uint8 ERROR: <a class="el" href="classGoal.html" title="This class encapuslates the (x, y) coordinates of a goal and distance from the robot of the goal...">Goal</a> provider has gone gammy</li>
 </ul>
 <ul>
 <li>uint8 INFO: This message is simply to provide some information</li>
@@ -153,23 +155,31 @@ Functionality</h2>
 Main process</h3>
 <p>The process starts by getting the starting point of the robot from the GPS (or in testing mode from Hector Localisation). This point is converted into UTM coordinates (unless if testing) by using code in the gps_common package. If this step is not accomplished nothing else will happen. At the same time the IMU is used to get the angle the robot is facing with respect to geometric north. The difference between magnetic and actual north is taken into account for this step <br/>
  <br/>
- The config file contained in the config/ folder is then opened and read. For each pair of latitude and longitude -Convert the pair into UTM -Put the UTM (x, y) into a <a class="el" href="classGoal.html">Goal</a> object. This involves converting the UTM coordinates to the local robot coordinates. This is why the starting position and orientation are needed. Each <a class="el" href="classGoal.html">Goal</a> object also stores the distance between the UTM (x, y) and the starting point UTM (x, y) Once all the goals are loaded a new goal is sent to move_base by</p>
+ The config file contained in the config/ folder is then opened and read. For each pair of latitude and longitude -Convert the pair into UTM -Put the UTM (x, y) into a <a class="el" href="classGoal.html" title="This class encapuslates the (x, y) coordinates of a goal and distance from the robot of the goal...">Goal</a> object. This involves converting the UTM coordinates to the local robot coordinates. This is why the starting position and orientation are needed. Each <a class="el" href="classGoal.html" title="This class encapuslates the (x, y) coordinates of a goal and distance from the robot of the goal...">Goal</a> object also stores the distance between the UTM (x, y) and the starting point UTM (x, y) Once all the goals are loaded a new goal is sent to move_base by</p>
 <ul>
-<li>Sorting the list of <a class="el" href="classGoal.html">Goal</a> objects</li>
+<li>Sorting the list of <a class="el" href="classGoal.html" title="This class encapuslates the (x, y) coordinates of a goal and distance from the robot of the goal...">Goal</a> objects</li>
 <li>Taking the first object off of the list</li>
 <li>If the goal is further away then the subgoal distance then create and use a subgoal</li>
 <li>If this is the same goal as before BUT we have exceeded our retry limit then remove it from the list and take the next goal. The retry counter is increased if the goal is ABORTED or REJECTED and when we first add it</li>
-<li>If this is a different goal than what we had before the update the current goal, reset the retry counter and send the goal Each <a class="el" href="classGoal.html">Goal</a> is monitored through move_base/status. <br/>
-</li>
+<li>If this is a different goal than what we had before the update the current goal, reset the retry counter and send the goal</li>
 </ul>
-<p>The distance to each goal is also continously updated through Hector Localisation. Every 1000 (changeable by the parameter server) Hector Localisation callbacks we will update the goal. This may result in changing from one goal to another. Finally once all goals have been reached the robot returns home. For the competition this will need to be changed such that it moves to the end</p>
+<p>The progress of each <a class="el" href="classGoal.html" title="This class encapuslates the (x, y) coordinates of a goal and distance from the robot of the goal...">Goal</a> is monitored through move_base/status. The distance to each goal is also continously updated through Hector Localisation. Every 1000 (changeable by the parameter server) Hector Localisation callbacks we will update the goal. This may result in changing from one goal to another. Finally once all goals have been reached the robot returns home. For the competition this will need to be changed such that it moves to the end</p>
+<h3><a class="anchor" id="conversion"></a>
+PoseStamped to Odometry</h3>
+<p>Movebase expects an Odometry message on the /odom topic to keep track of the robot position. This would come from the p2os driver but is slow at only 10Hz and is not very accurate. Instead the Hector Localization PoseStamped message is converted to an Odometry message and published on the /goal_provider_node/odom topic. Hector Localization produces a much more accurate estimation of position and publishes at 100Hz but does not give Velocity. This neccesitates the hack of</p>
+<ul>
+<li>Keeping track of the last Odometry message published by the p2os_driver</li>
+<li>Whenever a new message is published on /goal_provider_node/odom this last published Odometry message is used to provide velocity</li>
+</ul>
+<p>Due to the differences in publish speed this causes the Velocity on the much faster /goal_provider_node/odom to be the same for a maximum of 10 (100Hz/10Hz) messages</p>
 <h3><a class="anchor" id="subgoal"></a>
 Subgoals</h3>
 <ul>
-<li>Create triangle between the current and goal points</li>
+<li>Create a triangle between the current and goal points</li>
 <li>Find the angle of the hypotenuse makes with the horizontal</li>
-<li>Use that angle and the predefined maximum goal distance to find the subgoal x and y values Note that this process is linear. The subgoals may be in a building or similar. The idea is that as the robot tries to drive around the building the subgoal will be continuously updating and will continue to pull the robot to the final goal Subgoals also can time out and if this happens then the overall goal is aborted as well</li>
+<li>Use that angle and the predefined maximum goal distance to find the subgoal x and y values Note that this process is linear. The subgoals may be in a building or similar. The idea is that as the robot tries to drive around the building the subgoal will be continuously updating and will continue to pull the robot to the final goal</li>
 </ul>
+<p>Subgoals also can time out and if this happens then the overall goal is aborted as well</p>
 <h3><a class="anchor" id="logging"></a>
 Logging</h3>
 <p>Logging writes various pieces of information to a log file contained in the /log folder. The name of the log file is the date and time when goal provider was run and is unique </p>
@@ -191,7 +201,7 @@ Logging</h3>
 
 
 <hr class="footer"/><address class="footer"><small>
-Generated on Thu Nov 21 2013 16:04:20 for Goal  Provider by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Fri Nov 22 2013 10:19:08 for Goal  Provider by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.7.6.1
 </small></address>

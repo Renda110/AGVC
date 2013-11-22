@@ -85,6 +85,9 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 </div><!--header-->
 <div class="contents">
 <!-- doxytag: class="GoalProvider" -->
+<p>This class sends a number of goals to the move_base navigation stack with the closest goal executed first.  
+ <a href="classGoalProvider.html#details">More...</a></p>
+
 <p><a href="classGoalProvider-members.html">List of all members.</a></p>
 <table class="memberdecls">
 <tr><td colspan="2"><h2><a name="pub-methods"></a>
@@ -95,6 +98,7 @@ Private Member Functions</h2></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classGoalProvider.html#aa68c410fb110c40cc31dc99320f20a60">gpsCallback</a> (const sensor_msgs::NavSatFix fix)</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classGoalProvider.html#a9aa7639c95eff543d55fef82ba005088">imuCallback</a> (const sensor_msgs::Imu imu)</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classGoalProvider.html#a5448a289886afe3e96a900bd0b8557d4">quatToEuler</a> (double x, double y, double z, double w, double *attitude, double *bank, double *heading)</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classGoalProvider.html#a743391f99e7cfa26845014c06332ede7">odomCallback</a> (const nav_msgs::Odometry odom)</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classGoalProvider.html#a6e91d11b611820597420497fd82613d1">hlPoseCallback</a> (const geometry_msgs::PoseStamped pose)</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classGoalProvider.html#a13d66dd274899d8012a021ef2cbeab7e">movebaseStatusCallback</a> (const actionlib_msgs::GoalStatusArray movebase_status)</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classGoalProvider.html#a58ec86314e501683db946eba1141d464">readConfigFile</a> ()</td></tr>
@@ -121,6 +125,7 @@ Private Attributes</h2></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top"><a class="el" href="classGoal.html">Goal</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classGoalProvider.html#a274c71aaace4fb19551ecfd58356744a">gpsUTMOrigin</a></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top"><a class="el" href="classGoal.html">Goal</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classGoalProvider.html#a7c8eb368dbd85c32f1000fead79190dc">goal</a></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">geometry_msgs::Pose&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classGoalProvider.html#a043ea6fbbd89e54ea39501ae30da8774">currentLocation</a></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">nav_msgs::Odometry&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classGoalProvider.html#a35676425f3d7bfcaa409554879d7b3b8">lastOdom</a></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classGoalProvider.html#aae2c69715ab4565f5d0e96cd16411444">setStartingPosition</a></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classGoalProvider.html#a94c6c903648ec2ff61396d04686bc466">setStartingOrientation</a></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classGoalProvider.html#aefb932adf68011afd36e0796a001c147">testing</a></td></tr>
@@ -138,10 +143,11 @@ Private Attributes</h2></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classGoalProvider.html#a82146db14a5565a12fe979c68156d45c">path</a></td></tr>
 </table>
 <hr/><a name="details" id="details"></a><h2>Detailed Description</h2>
-<div class="textblock"><p>The <a class="el" href="classGoalProvider.html">GoalProvider</a> class.</p>
-<p>This class provides goal data to the move_base navigation stack. A typical goal is simply a GPS position</p>
+<div class="textblock"><p>This class sends a number of goals to the move_base navigation stack with the closest goal executed first. </p>
+<p>A typical goal is simply a GPS position and must be specified in the /config/GPSCoords file. Each GPS coordinate is converted into the robot coordinate frame with the closest goal being sent to move_base first. As the robot drives to each goal is another goal becomes closer it is used instead. Goals can timeout if not reachable and the number of attempts before this happens can be configured in the goal_provider launch file.</p>
+<p>A <a class="el" href="classGoal.html" title="This class encapuslates the (x, y) coordinates of a goal and distance from the robot of the goal...">Goal</a> can also be split into subgoals if it is a certain distance away. The new subgoal is found based off of linear interpolation between the robot position and the goal location. The distance before subgoals are used can be changed in the goal_provider launch file with a value of -1 meaning subgoals are not used</p>
 <dl class="author"><dt><b>Author:</b></dt><dd>Enda McCauley </dd></dl>
-<dl class="date"><dt><b>Date:</b></dt><dd>November 21st 2013 </dd></dl>
+<dl class="date"><dt><b>Date:</b></dt><dd>November 22nd 2013 </dd></dl>
 </div><hr/><h2>Constructor &amp; Destructor Documentation</h2>
 <a class="anchor" id="a5f01df42b1cce4fd1ef3aee990ee2442"></a><!-- doxytag: member="GoalProvider::GoalProvider" ref="a5f01df42b1cce4fd1ef3aee990ee2442" args="()" -->
 <div class="memitem">
@@ -156,7 +162,7 @@ Private Attributes</h2></td></tr>
       </table>
 </div>
 <div class="memdoc">
-<p>Constructs a new <a class="el" href="classGoalProvider.html">GoalProvider</a> object </p>
+<p>Constructs a new <a class="el" href="classGoalProvider.html" title="This class sends a number of goals to the move_base navigation stack with the closest goal executed f...">GoalProvider</a> object </p>
 
 </div>
 </div>
@@ -237,7 +243,7 @@ Private Attributes</h2></td></tr>
 <p>Callback for the hector_pose_estimation position estimation </p>
 <dl class="params"><dt><b>Parameters:</b></dt><dd>
   <table class="params">
-    <tr><td class="paramname">pose</td><td>The actual pose data </td></tr>
+    <tr><td class="paramname">pose</td><td>The position data </td></tr>
   </table>
   </dd>
 </dl>
@@ -303,6 +309,30 @@ Private Attributes</h2></td></tr>
 <dl class="params"><dt><b>Parameters:</b></dt><dd>
   <table class="params">
     <tr><td class="paramname">movebase_status</td><td>The actual status data </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a class="anchor" id="a743391f99e7cfa26845014c06332ede7"></a><!-- doxytag: member="GoalProvider::odomCallback" ref="a743391f99e7cfa26845014c06332ede7" args="(const nav_msgs::Odometry odom)" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void <a class="el" href="classGoalProvider.html#a743391f99e7cfa26845014c06332ede7">GoalProvider::odomCallback</a> </td>
+          <td>(</td>
+          <td class="paramtype">const nav_msgs::Odometry&#160;</td>
+          <td class="paramname"><em>odom</em></td><td>)</td>
+          <td><code> [inline, private]</code></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Callback for the p2os position estimation </p>
+<dl class="params"><dt><b>Parameters:</b></dt><dd>
+  <table class="params">
+    <tr><td class="paramname">odom</td><td>The position data </td></tr>
   </table>
   </dd>
 </dl>
@@ -427,7 +457,7 @@ Private Attributes</h2></td></tr>
       </table>
 </div>
 <div class="memdoc">
-<p>Read in the GPSConfig file to get the list of UTM based Points we need to go to </p>
+<p>Read in the GPSCoords file to get the list of UTM based Points we need to go to </p>
 
 </div>
 </div>
@@ -731,6 +761,20 @@ Private Attributes</h2></td></tr>
 
 </div>
 </div>
+<a class="anchor" id="a35676425f3d7bfcaa409554879d7b3b8"></a><!-- doxytag: member="GoalProvider::lastOdom" ref="a35676425f3d7bfcaa409554879d7b3b8" args="" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">nav_msgs::Odometry <a class="el" href="classGoalProvider.html#a35676425f3d7bfcaa409554879d7b3b8">GoalProvider::lastOdom</a><code> [private]</code></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Field to store the last message published on the slow, slow p2os /pose topic </p>
+
+</div>
+</div>
 <a class="anchor" id="a903cb379ce27ab3072fc273f8d344b0b"></a><!-- doxytag: member="GoalProvider::mb" ref="a903cb379ce27ab3072fc273f8d344b0b" args="" -->
 <div class="memitem">
 <div class="memproto">
@@ -934,7 +978,7 @@ Private Attributes</h2></td></tr>
 
 
 <hr class="footer"/><address class="footer"><small>
-Generated on Thu Nov 21 2013 16:04:20 for Goal  Provider by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Fri Nov 22 2013 10:19:08 for Goal  Provider by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.7.6.1
 </small></address>
